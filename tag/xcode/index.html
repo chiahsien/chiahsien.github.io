@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>Nelson/Xcode</title>
+<meta name="description" content="沒有廢話的心得與筆記">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="Nelson/Xcode - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      沒有廢話的心得與筆記
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <h1 class="current-tag">標籤: Xcode</h1>
+          
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/uiscrollview-and-autolayout/">
+            <h1 class="post-title">UIScrollView and AutoLayout</h1>
+        </a>
+        <div class="post-date">
+            2023-01-08
+        </div>
+        <div class="post-abstract">
+            
+            <h3 id="以前的作法">以前的作法</h3>
+<p>在以前要用 <code>Auto Layout</code> 來設置 <code>UIScrollView</code> 的 sub views 並不是一件讓人愉快的事情，雖然不複雜，但步驟就是有點麻煩。因為 scroll view 自身的特性，所以必須設定它本身的位置與尺寸，然後設定 sub views 的位置與尺寸，最後算出 <code>contentSize</code> 的尺寸。總結來說大概分成以下幾步：</p>
+<ol>
+<li>設定 <code>UIScrollView</code> 本身的位置與尺寸</li>
+<li>建立一個 <code>contentView</code> 並加到 <code>UIScrollView</code> 的 sub view</li>
+<li>設定 <code>contentView</code> 的位置，通常是四邊都貼齊 <code>UIScrollView</code></li>
+<li>可以滾動的 sub views 都加到 <code>contentView</code>，然後用 auto layout 設定這些 sub views 的位置與尺寸</li>
+<li>如果設定無誤的話，<code>contentView</code> 就可算出正確的尺寸，這就是 <code>UIScrollView</code> 的 <code>contentSize</code></li>
+</ol>
+<p>最讓人困惑且忽略的就是第三點，因為它很不自然，但在 <code>UIScrollView</code> 卻又是必須的。另外就是第四點，一定要有明確的位置跟尺寸，這樣才有辦法算出 <code>contentSize</code> 給 <code>UIScrollView</code> 使用。</p>
+<h3 id="現在的作法">現在的作法</h3>
+<p>從 iOS 11 開始，<code>UIScrollView</code> 多了 <code>frameLayoutGuide</code> 跟 <code>contentLayoutGuide</code> 這兩個方便的屬性，讓我們不必再用不自然的方式去設定 content 的 auto layout。</p>
+<ol>
+<li>可以使用舊有的方式或是使用 <code>frameLayoutGuide</code> 設定 <code>UIScrollView</code> 本身的位置與尺寸</li>
+<li>不需要額外的 <code>contentView</code> 了，直接把內容加到 sub view</li>
+<li>這些 sub views 與 <code>contentLayoutGuide</code> 建立 auto layout constraints</li>
+</ol>
+<p>整個設定流程變得自然許多，也更不容易出錯。現在我們只要確定 sub views 有設好明確的位置與尺寸，讓系統能夠算出 <code>contentSize</code> 即可。</p>
+
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/xcode-support-github-private-repo/">
+            <h1 class="post-title">如何讓 Xcode 支援 GitHub Private Repo</h1>
+        </a>
+        <div class="post-date">
+            2022-04-29
+        </div>
+        <div class="post-abstract">
+            
+            <p>我們的 codebase 有用到放在 GitHub private repo 的 Swift package，為了讓 Xcode 能夠存取 private repo，必須讓 Xcode 認得 SSH key 才行。</p>
+<p>因為 Xcode 只支援 RSA / DSA / ECDSA 這三種演算法的 SSH key，但 <a href="https://github.blog/2021-09-01-improving-git-protocol-security-github/">GitHub 不支援 RSA 跟 DSA</a> 了，所以我們只剩下 <strong>ECDSA</strong> 可以用。</p>
+<p><em>如果當時按照 GitHub 的文件建立 SSH key，它很有可能是 ED25519，這個演算法 Xcode 認不得，所以我們要新增一個新的 SSH key。</em></p>
+
+            <a href="https://chiahsien.github.io/post/xcode-support-github-private-repo/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/unity-to-swiftui-app-integration/">
+            <h1 class="post-title">整合 Unity 到 SwiftUI App</h1>
+        </a>
+        <div class="post-date">
+            2021-08-03
+        </div>
+        <div class="post-abstract">
+            
+            <p>最近剛好有機會要整合 Unity 到 SwiftUI 開發的 app 裡頭，整個過程不算難，但是蠻繁瑣的。網路上的資料絕大部分都是跟 Objective-C / UIKit 的整合，比較少 Swift / SwiftUi 相關資料，所以趁著記憶猶新的時候把它記錄下來，希望可以幫助到其他人以及未來的自己。</p>
+<p>從 Unity 2019.4 的版本開始，它提供了 UaaL (Unity as a Library) 功能，可以把 Unity 專案匯出成 framework 讓其他程式使用，開啟了原生平台與 Unity 互動的更多可能性。你可以只用 Unity 開發遊戲或其他精美畫面的部分，剩下的則是使用原生平台（例如 iOS 或 Android）開發。</p>
+<p>我使用的開發環境是 <code>Xcode 12.5</code> + <code>Unity 2020.3.15f2 LTS</code>，預期達成以下目標：</p>
+<ol>
+<li>在 SwiftUI 顯示 Unity 的畫面</li>
+<li>iOS 跟 Unity 可以雙向傳遞訊息</li>
+</ol>
+<p>先附上 <a href="https://github.com/chiahsien/UnityInSwiftUI">sample code</a>。這篇文章會有大量程式碼，也會假設你對 Xcode 跟 Unity 的操作有基本的認知，廢話不多說，讓我們開始吧！</p>
+
+            <a href="https://chiahsien.github.io/post/unity-to-swiftui-app-integration/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/xcode-project-version-control-git-pre-commit-hook/">
+            <h1 class="post-title">讓 Xcode 專案易於版本控制的方法 - 使用 git pre-commit hook</h1>
+        </a>
+        <div class="post-date">
+            2021-06-22
+        </div>
+        <div class="post-abstract">
+            
+            <p>好幾年前我曾經寫過一篇<a href="../../post/let-xcode-project-easy-to-do-version-control/">讓 Xcode 專案易於版本控制的方法</a>，它非常的好用，我也在多個專案裡頭使用這樣的配置用了好多年，都沒有出過什麼問題。</p>
+<p>直到最近遇到了 SwiftUI 的 Preview 功能。</p>
+<p>猜測可能是因為原先的設定是在 Build phase 去執行排序的 script，導致它破壞了 SwiftUI Preview 的一些機制，我想到了幾個解法，像是</p>
+<ul>
+<li>不要放在 Build phase，放到 Run phase 去執行。</li>
+<li>改用 <a href="https://github.com/yonaskolb/XcodeGen">XcodeGen</a> 之類的工具產生 project file。</li>
+<li>使用 git hook 的 pre-commit 來執行排序。</li>
+<li>不要用，等真的遇到 merge conflict 了再說 lol</li>
+</ul>
+<p>最後我選擇了 pre-commit 的做法。</p>
+
+            <a href="https://chiahsien.github.io/post/xcode-project-version-control-git-pre-commit-hook/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/xcode-the-right-way/">
+            <h1 class="post-title">如何下載、安裝、管理 Xcode</h1>
+        </a>
+        <div class="post-date">
+            2021-04-28
+        </div>
+        <div class="post-abstract">
+            
+            <h3 id="下載">下載</h3>
+<p>不要透過 AppStore，因為速度太慢太不穩定了，要去<a href="https://developer.apple.com/download/more/">官方網站</a>下載才快。但是我們還有更快的方法，可以透過下載軟體同時開啟多條連線下載，我推薦使用 <a href="https://github.com/RobotsAndPencils/XcodesApp">XcodesApp</a> 或 <a href="https://github.com/vineetchoudhary/Downloader-for-Apple-Developers">Downloader-for-Apple-Developers</a>，前者比較漂亮，後者還可以下載 WWDC 的影片。</p>
+<h3 id="安裝">安裝</h3>
+<p>不要直接解壓縮 <code>xip</code> 檔，這樣會花很長的時間。下指令去解會快很多：</p>
+<pre><code class="language-shell">xip -x Xcode.xip
+</code></pre>
+<h3 id="管理">管理</h3>
+<p>可以放多個不同版本的 Xcode 在 Applications 資料夾，只要名稱不一樣就好了，記得要下指令來指定要使用哪個版本。</p>
+<pre><code class="language-shell">sudo xcode-select -s /Applications/Xcode.app
+</code></pre>
+<p>時間久了之後，會產生很多沒再用的檔案佔用空間，我們可以使用 <a href="https://apps.apple.com/tw/app/devcleaner-for-xcode/id1388020431?mt=12">DevCleaner for Xcode</a> 或 <a href="https://github.com/waylybaye/XcodeCleaner-SwiftUI">XcodeCleaner-SwiftUI</a> 來幫忙清理，效果非常的好！</p>
+<h3 id="參考資料">參考資料</h3>
+<p><a href="https://www.notion.so/Xcode-dfbe2d934ff84b2d84e34ffceef56fe0#9a1443e99f244cc9b699a9bf890e2749">安裝 Xcode 的正確姿勢</a></p>
+
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/detect-images-by-coreml/">
+            <h1 class="post-title">利用 CoreML 來判別圖片</h1>
+        </a>
+        <div class="post-date">
+            2019-04-23
+        </div>
+        <div class="post-abstract">
+            
+            <p>在 WWDC 2018 蘋果推出了 <a href="https://developer.apple.com/documentation/createml">Create ML</a> ，讓開發者可以輕鬆的建立並訓練適合自己需求的機器學習模型，它支援圖片、自然語言、表格資料的學習。最近這幾天我就想到要訓練一個自家的模型，用來檢查使用者是否打算上傳不恰當的圖片。</p>
+
+            <a href="https://chiahsien.github.io/post/detect-images-by-coreml/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/how-to-specify-swift-version-for-each-pod-in-podfile/">
+            <h1 class="post-title">如何為各個 Pod 指定 Swift 版本</h1>
+        </a>
+        <div class="post-date">
+            2018-09-22
+        </div>
+        <div class="post-abstract">
+            
+            <p>最近升上 Swift 4.2，發現我用到的 Pods 有些還沒支援 4.2 導致編譯錯誤。解決方法也很簡單，只要指定每個 Pod target 的 <code>SWIFT_VERSION</code> 為 <code>4.0</code> 即可。</p>
+<p>但是我們不能手動在 Xcode 裡頭調整，因為 CocoaPods 會把 Pods 的 <code>SWIFT_VERSION</code> 設為跟你的 project 一樣，所以下次 <code>pod install</code> 又會被改掉。</p>
+
+            <a href="https://chiahsien.github.io/post/how-to-specify-swift-version-for-each-pod-in-podfile/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/how-to-automatically-disable-ats-in-debug-mode/">
+            <h1 class="post-title">如何在 Debug mode 自動停用 ATS</h1>
+        </a>
+        <div class="post-date">
+            2015-10-14
+        </div>
+        <div class="post-abstract">
+            
+            <p>蘋果在 WWDC 2015 上發表了 <a href="https://developer.apple.com/library/prerelease/ios/technotes/App-Transport-Security-Technote/">App Transport Security (ATS)</a>，大力推廣網路安全連線。對於這樣的發展，我個人是樂見其成的，也相信在蘋果的影響力之下，安全連線也會進一步的普及。</p>
+<p>不過對工程師來說，這代表你又要修改程式，以便符合蘋果規範了。在修改的過程中，我就遇到了一個問題：Release 版的 app 是會走安全連線的，但在 Debug 的時候它是連到本機(localhost)，這不是安全連線。該怎麼讓它在 Release / Debug 都能正常連線呢？</p>
+
+            <a href="https://chiahsien.github.io/post/how-to-automatically-disable-ats-in-debug-mode/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/automatically-resolve-xcode-project-file-merge-conflict/">
+            <h1 class="post-title">自動解決 Xcode project file 的合併衝突</h1>
+        </a>
+        <div class="post-date">
+            2015-10-07
+        </div>
+        <div class="post-abstract">
+            
+            <p>這個方法的步驟如下：</p>
+<ol>
+<li>建立一個 <code>.gitattributes</code> 檔</li>
+<li>輸入 <code>*.pbxproj merge=union</code></li>
+<li>commit 這個 <code>.gitattributes</code> 檔</li>
+</ol>
+<p>這些動作告訴 Git 「針對 .pbxproj 檔要使用 union 的 merge 策略」，翻成白話就是「要包含對方的修改跟自己的修改」。</p>
+<p>在之前的文章裡頭，我們已經將檔案照檔名排序了，所以當遇到合併衝突的時候，可以安心的包含對方的修改跟自己的修改。</p>
+<p><a href="http://roadfiresoftware.com/2015/09/automatically-resolving-git-merge-conflicts-in-xcodes-project-pbxproj/">參考來源</a></p>
+
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/let-xcode-project-easy-to-do-version-control/">
+            <h1 class="post-title">讓 Xcode 專案易於版本控制的方法</h1>
+        </a>
+        <div class="post-date">
+            2014-01-27
+        </div>
+        <div class="post-abstract">
+            
+            <p>若是你有多人協同開發 Mac/iOS 專案，並且有使用版本控制系統的話，一定會在合併 Xcode 專案檔時吃到不少苦頭，一個不小心就會誤刪某些檔案的參照，或是重複某些檔案的參照。</p>
+<p>最近發現一個好用的 script，可以用它來幫忙「根據檔名排序」專案檔裡頭的檔案。原本你的專案可能是混雜了檔案與群組資料夾，但經過這個 script 排序之後，專案會變成所有的群組資料夾排在最前面，接著才是檔案，而且群組資料夾裡頭的內容也會被排序。</p>
+<p>因為被排序過，所以在合併不同版本的時候，就可以容易看出哪些項目是新增或刪除，若是不小心重複參照了某些檔案，也比較容易找出來。</p>
+
+            <a href="https://chiahsien.github.io/post/let-xcode-project-easy-to-do-version-control/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+
+          <div class="pagination-container">
+  
+  
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>
