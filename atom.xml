@@ -1,0 +1,487 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://chiahsien.github.io</id>
+    <title>Nelson</title>
+    <updated>2025-03-28T10:48:14.111Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://chiahsien.github.io"/>
+    <link rel="self" href="https://chiahsien.github.io/atom.xml"/>
+    <subtitle>我寫故我在</subtitle>
+    <logo>https://chiahsien.github.io/images/avatar.png</logo>
+    <icon>https://chiahsien.github.io/favicon.ico</icon>
+    <rights>All rights reserved 2025, Nelson</rights>
+    <entry>
+        <title type="html"><![CDATA[FormattedListKit: Elegant List Displays Made Easy]]></title>
+        <id>https://chiahsien.github.io/post/ListFormatter-swift-package/</id>
+        <link href="https://chiahsien.github.io/post/ListFormatter-swift-package/">
+        </link>
+        <updated>2025-03-25T07:41:05.000Z</updated>
+        <summary type="html"><![CDATA[<p>When developing iOS and macOS applications, formatting lists is a common requirement. Whether it's terms and conditions, setting options, or tutorial steps, we often need to present ordered or unordered list content. However, Apple's native frameworks have relatively limited support for list formatting, which often puts developers in a dilemma: existing solutions aren't perfect, while heavier solutions seem like overkill.</p>
+<p>To solve this problem, I developed <a href="https://github.com/chiahsien/FormattedListKit">FormattedListKit</a>, a lightweight yet fully-featured Swift Package specifically designed for creating beautifully formatted ordered and unordered lists.</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>When developing iOS and macOS applications, formatting lists is a common requirement. Whether it's terms and conditions, setting options, or tutorial steps, we often need to present ordered or unordered list content. However, Apple's native frameworks have relatively limited support for list formatting, which often puts developers in a dilemma: existing solutions aren't perfect, while heavier solutions seem like overkill.</p>
+<p>To solve this problem, I developed <a href="https://github.com/chiahsien/FormattedListKit">FormattedListKit</a>, a lightweight yet fully-featured Swift Package specifically designed for creating beautifully formatted ordered and unordered lists.</p>
+<!-- more -->
+<h2 id="why-formattedlistkit">Why FormattedListKit?</h2>
+<p>I've tried several existing solutions, but wasn't fully satisfied with any of them:</p>
+<ol>
+<li>
+<p><strong>Using Markdown</strong>: iOS/macOS has limited native support for Markdown. Although <code>AttributedString</code> can process markdown syntax, it performs poorly when it comes to list formatting.</p>
+</li>
+<li>
+<p><strong>Using third-party Markdown packages</strong>: Introducing a complete Markdown parsing engine just to display lists seems bloated and over-engineered.</p>
+</li>
+<li>
+<p><strong>Using WebView to display HTML</strong>: This requires converting simple text lists to HTML first, and WebViews consume more resources.</p>
+</li>
+<li>
+<p><strong>Custom implementation (handling markers and items separately)</strong>: Highly flexible, but requires dealing with relatively complex layout logic.</p>
+</li>
+</ol>
+<p>Based on these pain points, FormattedListKit was born. It provides a simple yet powerful solution that allows developers to create beautiful lists with just a few lines of code.</p>
+<h2 id="core-features-of-formattedlistkit">Core Features of FormattedListKit</h2>
+<p>FormattedListKit's design philosophy is &quot;simple and focused&quot; - it concentrates on solving the specific problem of list formatting. Here are its main features:</p>
+<h3 id="1-support-for-multiple-list-types">1. Support for Multiple List Types</h3>
+<ul>
+<li><strong>Ordered lists</strong>: Supports integers (1. 2. 3.), Roman numerals (i. ii. iii. or I. II. III.), and letters (a. b. c. or A. B. C.)</li>
+<li><strong>Unordered lists</strong>: Supports bullets (•), hollow circles (◦), squares (▪), and custom symbols</li>
+</ul>
+<h3 id="2-flexible-formatting-options">2. Flexible Formatting Options</h3>
+<ul>
+<li><strong>Marker alignment</strong>: Supports left or right alignment of markers</li>
+<li><strong>Custom font</strong>: Allows setting font for list items</li>
+<li><strong>Proper indentation</strong>: Ensures multi-line text is correctly aligned, improving readability</li>
+</ul>
+<h3 id="3-simple-api">3. Simple API</h3>
+<p>FormattedListKit provides a simple and intuitive API through <code>NSAttributedString</code> extensions, creating complete lists with just one function call.</p>
+<pre><code class="language-swift">let items = [&quot;First item&quot;, &quot;Second very long item that needs to wrap to the next line&quot;, &quot;Third item&quot;]
+let attributedString = NSAttributedString.createList(
+    for: items,
+    type: .ordered(style: .decimal),
+    font: .systemFont(ofSize: 16),
+    markerAlignment: .right
+)
+
+// Set the formatted list to a UILabel or UITextView
+myTextView.attributedText = attributedString
+</code></pre>
+<h3 id="4-cross-platform-support">4. Cross-platform Support</h3>
+<p>FormattedListKit supports both iOS and macOS platforms, ensuring consistent list display experiences across different devices.</p>
+<h2 id="how-to-use-formattedlistkit-in-your-project">How to Use FormattedListKit in Your Project</h2>
+<p>Add FormattedListKit to your project using Swift Package Manager, then just <code>import FormattedListKit</code>:</p>
+<pre><code class="language-swift">dependencies: [
+    .package(url: &quot;https://github.com/chiahsien/FormattedListKit.git&quot;, from: &quot;1.0.0&quot;)
+]
+</code></pre>
+<h2 id="practical-use-cases">Practical Use Cases</h2>
+<p>FormattedListKit is particularly suitable for:</p>
+<ol>
+<li><strong>User agreements and terms</strong>: Clearly formatted lists of terms, improving readability</li>
+<li><strong>Tutorials and guides</strong>: Step-by-step instructions or helpful tips</li>
+<li><strong>Content display</strong>: Any place where lists need to be displayed</li>
+</ol>
+<h2 id="conclusion">Conclusion</h2>
+<p>FormattedListKit was born from practical development needs, aiming to solve a seemingly simple but actually annoying problem: how to elegantly display formatted lists. By focusing on this specific functionality, it provides a lightweight but complete solution that both avoids reinventing the wheel and doesn't require overly large dependencies.</p>
+<p>Check out <a href="https://github.com/chiahsien/FormattedListKit">FormattedListKit</a>, and please consider contributing through Issues or PRs on GitHub 😁</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[在 KOReader 使用偽直排字體]]></title>
+        <id>https://chiahsien.github.io/post/vertical-reading-in-koreader/</id>
+        <link href="https://chiahsien.github.io/post/vertical-reading-in-koreader/">
+        </link>
+        <updated>2025-03-11T02:23:47.000Z</updated>
+        <summary type="html"><![CDATA[<p>我很喜歡閱讀中文書籍，有些類型的中文書在直排版面下閱讀總是特別有韻味。然而在電子閱讀器上，要享受直排閱讀的體驗並不容易。今天要分享一個在 <a href="https://koreader.rocks/">KOReader</a> 上實現「偽直排」的方法，讓我們能在電子書閱讀器上，也能享受傳統直排的閱讀樂趣。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>我很喜歡閱讀中文書籍，有些類型的中文書在直排版面下閱讀總是特別有韻味。然而在電子閱讀器上，要享受直排閱讀的體驗並不容易。今天要分享一個在 <a href="https://koreader.rocks/">KOReader</a> 上實現「偽直排」的方法，讓我們能在電子書閱讀器上，也能享受傳統直排的閱讀樂趣。</p>
+<!-- more -->
+<h2 id="為什麼需要直排閱讀">為什麼需要直排閱讀？</h2>
+<p>傳統的中文書籍都是採用直排方式，從右至左、從上至下閱讀。這種排版方式不只是傳統，更是為了適應漢字的特性而生。即使到了現代，許多文學作品、古籍，甚至是日文書籍，仍然採用直排方式。在紙本書上，我們可以輕易找到直排版本，但在電子書的世界裡，直排版面卻成了一個難題。</p>
+<h2 id="偽直排的運作原理">偽直排的運作原理</h2>
+<p>這個解決方案的原理其實很有趣：</p>
+<ol>
+<li>首先使用特製的偽直排字體，每個字都被旋轉了 90 度</li>
+<li>接著透過 <a href="https://koreader.rocks/">KOReader</a> 的腳本功能，將內容區域旋轉 90 度</li>
+<li>這樣一來，旋轉的字體就會「站」起來，形成直排的效果</li>
+<li>最重要的是，UI 介面依然保持原本的方向，不會影響操作</li>
+</ol>
+<p>以下是一些可以用來實現偽直排效果的字體：</p>
+<ul>
+<li><a href="https://github.com/tonyhuan/GuanKiapTsingKhai">原俠正楷</a></li>
+<li><a href="https://here.vixual.net/files/fonts/rotate/">偽直排 源流明體 / 懷源黑體 / 花明蘭黑體</a></li>
+</ul>
+<p>這些字體都是經過特殊設計，能夠在旋轉後仍然保持良好的可讀性。</p>
+<h2 id="實際效果">實際效果</h2>
+<p>使用這個方法的優點是：</p>
+<ul>
+<li>不需要修改原始檔案，可以隨時切換橫排/直排模式</li>
+<li>保留了 <a href="https://koreader.rocks/">KOReader</a> 的所有功能，包括字體大小調整、版面調整等</li>
+<li>UI 介面維持原本方向，操作起來更直覺</li>
+</ul>
+<h2 id="如何安裝">如何安裝</h2>
+<p>以下是安裝步驟：</p>
+<ol>
+<li>到<a href="https://github.com/plateaukao/koreader_patch_vertical_read">這裡</a>下載腳本檔案 <code>2-cre-rotate-japanese-book.lua</code>，不要修改檔名。</li>
+<li>將檔案放到 <code>koreader/patches</code> 目錄下，如果沒有 <code>patches</code> 目錄就手動建立一個。</li>
+<li>重新啟動 KOReader。</li>
+<li>開啟一本書，在上方的書籍相關設定選單裡頭，會多出一個「Toggle vertical reading」的選單，勾選即可啟動。</li>
+<li>選擇一個偽直排字體。</li>
+</ol>
+<h2 id="使用建議">使用建議</h2>
+<p>安裝完成後，有幾個小技巧可以讓閱讀體驗更好：</p>
+<ol>
+<li>建議將邊距調整得更寬一些，讓版面更有餘裕</li>
+<li>可以嘗試不同的偽直排字體，找到最適合自己的選擇</li>
+<li>如果覺得預設的行距太擠，可以適當調整行距</li>
+</ol>
+<h2 id="結語">結語</h2>
+<p>透過這個方法，我們可以在 KOReader 上重現傳統直排的閱讀體驗。雖然是「偽」直排，但實際使用起來的效果相當不錯，特別適合閱讀古文、文學作品。如果你也喜歡直排閱讀，不妨試試這個方法，相信會讓你的閱讀體驗更加豐富。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[如何建立 iOS Share Extension]]></title>
+        <id>https://chiahsien.github.io/post/how-to-create-ios-share-extension/</id>
+        <link href="https://chiahsien.github.io/post/how-to-create-ios-share-extension/">
+        </link>
+        <updated>2024-11-03T08:49:27.000Z</updated>
+        <summary type="html"><![CDATA[<p>在網路上已經有很多關於 iOS <a href="https://developer.apple.com/library/archive/documentation/General/Conceptual/ExtensibilityPG/Share.html">Share Extension</a> 的教學，例如<a href="https://medium.com/@henribredtprivat/create-an-ios-share-extension-with-custom-ui-in-swift-and-swiftui-2023-6cf069dc1209">這裡就有一篇</a>。有需要的人可以自行在網路上搜尋，這邊就不多作著墨。我這次想要分享的主要是在開發 share extension 的過程遇到一些要注意的事項，以及踩到的一些坑。</p>
+<p>我的開發環境是 macOS Sonoma + Xcode 15，使用 Swift 開發。</p>
+<p>要建立一個 share extension 很簡單，就是在你的專案新增一個 <code>target</code> 然後選擇 <code>Share Extension</code> 即可。Xcode 會自動幫忙產生必要的檔案，以及做好基本設定。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>在網路上已經有很多關於 iOS <a href="https://developer.apple.com/library/archive/documentation/General/Conceptual/ExtensibilityPG/Share.html">Share Extension</a> 的教學，例如<a href="https://medium.com/@henribredtprivat/create-an-ios-share-extension-with-custom-ui-in-swift-and-swiftui-2023-6cf069dc1209">這裡就有一篇</a>。有需要的人可以自行在網路上搜尋，這邊就不多作著墨。我這次想要分享的主要是在開發 share extension 的過程遇到一些要注意的事項，以及踩到的一些坑。</p>
+<p>我的開發環境是 macOS Sonoma + Xcode 15，使用 Swift 開發。</p>
+<p>要建立一個 share extension 很簡單，就是在你的專案新增一個 <code>target</code> 然後選擇 <code>Share Extension</code> 即可。Xcode 會自動幫忙產生必要的檔案，以及做好基本設定。</p>
+<!-- more -->
+<h3 id="設定入口畫面">設定入口畫面</h3>
+<p>Xcode 會自動產生 <code>ShareViewController</code> 這個檔案，在蘋果的規劃裡頭，它預期大部分 Share Extension 的情境就是要把內容轉發到其他網路平台，所以這個 ShareViewController 會繼承自 <code>SLComposeServiceViewController</code> 並且也有提供發文的程式碼骨架。如果這符合你的情境，那很棒；如果不是的話，你可以手動把它改成繼承自 <code>UIViewController</code> 然後刪除那些骨架程式碼。</p>
+<p>Xcode 也會自動幫忙產生一個 <code>MainInterface.storyboard</code> 作為入口點。目前 storyboard 已經不被鼓勵使用，而且很多開發者也逐步轉向 SwiftUI 開發畫面，所以我們可以刪除這個檔案，然後在 <code>ShareViewController</code> 裡頭刻畫面。</p>
+<p>要修改畫面入口點，除了刪除 storyboard 之外，還要修改 <code>Info.plist</code> 告訴 Xcode 我們的入口點是什麼。在 Share Extension 的 <code>Info.plist</code> 裡面，找到 <code>NSExtensionMainStoryboard</code> 這組 key，把它的名稱改成 <code>NSExtensionPrincipalClass</code> 並且把對應的 value 改成 <code>$(PRODUCT_NAME).ShareViewController</code>。</p>
+<h3 id="設定要支援的分享內容格式">設定要支援的分享內容格式</h3>
+<p>使用者有可能分享多種內容格式，最常見的就是「文字」、「圖片」、「網址」這幾種，當然還有各種不同的檔案類型等等。我們需要在 <code>Info.plist</code> 裡頭設定，告訴系統我們的 share extension 支援哪些內容格式，只有當使用者分享的內容是我們支援的，系統的分享選單才會出現我們的 share extension。</p>
+<p>要支援的格式放在 <code>NSExtensionActivationRule</code> key 底下，支援的格式<a href="https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/AppExtensionKeys.html#//apple_ref/doc/uid/TP40014212-SW2">寫在這篇文件裡</a>，如果預設的支援格式不符使用要求，也可以使用更複雜也更有彈性的 <a href="https://developer.apple.com/library/archive/documentation/General/Conceptual/ExtensibilityPG/ExtensionScenarios.html#//apple_ref/doc/uid/TP40014214-CH21-SW8">Predicate</a>。</p>
+<p>舉例來說，如果要支援網址的分享，<code>Info.plist</code> 長得像這樣：</p>
+<pre><code class="language-xml">&lt;key&gt;NSExtensionAttributes&lt;/key&gt;
+&lt;dict&gt;
+    &lt;key&gt;NSExtensionActivationRule&lt;/key&gt;
+    &lt;dict&gt;
+        &lt;key&gt;NSExtensionActivationSupportsWebURLWithMaxCount&lt;/key&gt;
+        &lt;integer&gt;1&lt;/integer&gt;
+    &lt;/dict&gt;
+&lt;/dict&gt;
+</code></pre>
+<p>有些 app 的分享功能同時分享了多種內容格式，例如瀏覽器的網頁分享可能同時包含「文字（這個網頁的標題）」跟「網址（這個網頁的網址）」。通常我們會希望分享內容有我們支援的格式，系統選單就要出現我們的 share extension，但實際情況是並不是如此。</p>
+<p>以我們的例子來說，在 <code>Info.plist</code> 裡頭宣告支援網址格式，系統就會在分享內容「只有」網址格式的時候，才會出現我們的 share extension；不會在分享內容「同時有」網址跟其他格式的時候出現。</p>
+<p>這顯然不是我們要的結果，解法就是在 <code>Info.plist</code> 加入 <code>NSExtensionActivationDictionaryVersion</code> key 並將 value 設為 <code>2</code>。</p>
+<pre><code class="language-xml">&lt;key&gt;NSExtensionAttributes&lt;/key&gt;
+&lt;dict&gt;
+    &lt;key&gt;NSExtensionActivationRule&lt;/key&gt;
+    &lt;dict&gt;
+        &lt;key&gt;NSExtensionActivationDictionaryVersion&lt;/key&gt;
+        &lt;integer&gt;2&lt;/integer&gt;
+        &lt;key&gt;NSExtensionActivationSupportsWebURLWithMaxCount&lt;/key&gt;
+        &lt;integer&gt;1&lt;/integer&gt;
+    &lt;/dict&gt;
+&lt;/dict&gt;
+</code></pre>
+<h3 id="處理分享內容的時間點">處理分享內容的時間點</h3>
+<p>網路上很多教學都是在 <code>viewDidLoad</code> 處理分享內容，但我測試發現會遇到一些奇怪的 UI 問題，所以我選擇在 <code>viewDidAppear</code> 處理。</p>
+<pre><code class="language-swift">override func viewDidAppear(_ animated: Bool) {
+    super.viewDidAppear(animated)
+    // Make sure to load shared content and update UI after view did appear, otherwise UI may not work as expected.
+    loadSharedContent()
+}
+
+private func loadSharedContent() {
+    // ....
+}
+</code></pre>
+<h3 id="要在-main-thread-處理-ui">要在 Main Thread 處理 UI</h3>
+<p>這看起來很像是基本常識，但是在開發 Share Extension 的時候很容易忘記它。當你發現畫面不如預期變化的時候，很有可能就是沒有在 main thread 處理 UI 的關係。</p>
+<pre><code class="language-swift">private func loadSharedContent() {
+    guard let item = extensionContext?.inputItems.first as? NSExtensionItem,
+          let attachment = item.attachments?.first(where: { $0.hasItemConformingToTypeIdentifier(UTType.url.identifier) })
+    else {
+        finish()
+        return
+    }
+
+    attachment.loadItem(forTypeIdentifier: UTType.url.identifier, options: nil) { [weak self] data, error in
+        if let url = data as? URL {
+            self?.handleURL(url)
+        }
+    }
+}
+
+private func finish() {
+    DispatchQueue.main.async {
+        self.extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
+    }
+}
+
+private func handleURL(_ url: URL) {
+    // Make sure to run in main thread, otherwise UI may freeze.
+    DispatchQueue.main.async {
+        self.label.text = url.absoluteString
+    }
+}
+</code></pre>
+<p>以上就是本次分享的內容，希望可以幫助各位少踩一些坑。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Repository Design Pattern]]></title>
+        <id>https://chiahsien.github.io/post/repository-design-pattern/</id>
+        <link href="https://chiahsien.github.io/post/repository-design-pattern/">
+        </link>
+        <updated>2024-04-27T14:47:20.000Z</updated>
+        <summary type="html"><![CDATA[<h2 id="為何需要-repository-design-pattern">為何需要 Repository Design Pattern</h2>
+<p>在最近參與的專案當中，我們開始導入了 <a href="https://www.geeksforgeeks.org/repository-design-pattern/">Repository Design Pattern</a>，一句話總結它的用途就是「負責處理資料的新增、讀取、更新、刪除 (CRUD) 的角色」，建立這樣一個角色來負責處理資料能帶來什麼好處呢？</p>
+]]></summary>
+        <content type="html"><![CDATA[<h2 id="為何需要-repository-design-pattern">為何需要 Repository Design Pattern</h2>
+<p>在最近參與的專案當中，我們開始導入了 <a href="https://www.geeksforgeeks.org/repository-design-pattern/">Repository Design Pattern</a>，一句話總結它的用途就是「負責處理資料的新增、讀取、更新、刪除 (CRUD) 的角色」，建立這樣一個角色來負責處理資料能帶來什麼好處呢？</p>
+<!-- more -->
+<p>我認為有以下幾點：</p>
+<ul>
+<li>
+<p><strong>隱藏資料存取的細節</strong><br>
+呼叫 Repository 的使用者不需要知道底層是如何存取資料的，可能是透過網路、可能是存在資料庫或是存在檔案系統、可能有加密也可能沒有。這些細節都被 Repository 包起來，未來如果需要調整底層資料的存取方式只要動 Repository 即可，不會影響到使用者。</p>
+</li>
+<li>
+<p><strong>隱藏資料轉換的細節</strong><br>
+有的時候上層使用的資料模型跟底層存取的資料模型可能長得完全不一樣，Repository 可以隱藏這些資料轉換的業務邏輯，讓使用者專心使用資料，不需要費心去處理轉換，如果有很多地方都會用到這些資料，好處會更明顯。哪些情境會遇到資料轉換呢？舉例來說：一個新聞聚合器會有許多不同的新聞來源，它需要將不同來源的新聞轉成一致的新聞格式；做監控軟體的可能會支援多種不同廠牌的鏡頭，它需要將不同廠牌的鏡頭資料轉成一致的鏡頭格式；原始資料來源可能是很底層的硬體資料，需要轉成符合應用層使用的格式。</p>
+</li>
+<li>
+<p><strong>確保單一資料來源</strong><br>
+單一資料來源 (Single source of truth) 在軟體開發領域一再的被提醒，而 Repository 正好能夠套用這句話。套用 Repository Pattern 之後，我們就能要求所有資料存取一律都要透過 Repository，可以避免資料被不預期的修改或是使用不一致的資料。</p>
+</li>
+<li>
+<p><strong>簡化開發心智模型</strong><br>
+導入 Repository Pattern 之後，存取資料相關的程式碼一律都放在 Repository 裡頭，再也不用煩惱要放在哪裡，對開發或維護來說都是一大幫助。</p>
+</li>
+</ul>
+<h2 id="repository-實際應用場景">Repository 實際應用場景</h2>
+<p>在這裡列出幾個常見的應用場景，這些都有實際用於我參與過的專案。</p>
+<ul>
+<li>
+<p><strong>打 API</strong><br>
+Repository 用來存取資料，而資料可以來自網路，所以用來打 API 是很自然的一件事。現在 RESTful API 被很多專案採用，RESTful 的 R 就是 Resource，通常我們可以根據 Resource 建立不同的 Repository。舉例來說，如果是一款天氣預報的應用，就可以建立一個 <code>WeatherRepository</code> 負責打 API 取得天氣資訊並轉成需要的 <code>Weather</code> 資料模型，給應用層使用。</p>
+</li>
+<li>
+<p><strong>存取應用程式的各項設定</strong><br>
+開發過 app 就會知道一款 app 會有許許多多不同的設定：舉例來說，我們可能需要切換到不同的環境 (Production / Staging / Development)，不同的環境就會有不同的設定值（例如不同的網址、不同的 key 等等）。此外，使用者也會有許多的設定需要儲存，像是針對 app 的偏好設置、是否看過某些教學或對話框，如果有支援切換不同使用者，那就會更麻煩。</p>
+</li>
+<li>
+<p><strong>存取硬體相關的功能</strong><br>
+例如存取 NFC、地理位置、相機、藍芽等等硬體相關的功能，為了存取這些硬體功能，除了呼叫相關的系統 API 之外通常還需要處理權限的請求，將它包在 Repository 裡頭會讓使用更方便。</p>
+</li>
+<li>
+<p><strong>一般資料的存取</strong><br>
+如同一開始提到的，使用 Repository 隱藏資料實際的存取方式，使用者不必關心資料是存在資料庫還是存在本地檔案、是明碼還是加密。舉個常見的例子：假設有一款 iOS app 使用 <code>JWT</code> 做為 access token，所以它建立一個 <code>UserTokenRepository</code> 來存取 JWT。開發初期它將 JWT 存到 <code>UserDefaults</code>，後來它發現這樣很危險所以改成存到 <code>Keychain</code>。雖然底下存取的實作改變了，可是外部使用者的存取方式並不會受到影響。</p>
+</li>
+</ul>
+<h2 id="總結">總結</h2>
+<p>以前還沒有導入 Repository Design Pattern 的時候，這些資料存取的行為不是散落在各處導致資料不穩定或程式碼重複出現，不然就是會被歸類到 Manager / Service / Helper / Utility 這類籠統的類別底下。現在只要是跟資料存取有關的行為 (CRUD)，一律放在 Repository 類別，開發變得輕鬆多了。</p>
+<p>Repository 是個可以輕鬆導入的作法，它不會造成程式碼太大的改動，也可以分批導入，非常鼓勵大家試試看！</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[電子書閱讀器推薦字體]]></title>
+        <id>https://chiahsien.github.io/post/recommended-fonts-for-e-reader/</id>
+        <link href="https://chiahsien.github.io/post/recommended-fonts-for-e-reader/">
+        </link>
+        <updated>2024-04-13T02:33:14.000Z</updated>
+        <summary type="html"><![CDATA[<p>我是個很喜歡看電子書的人，我使用的是 <a href="../my-kobo-e-reader">Kobo 電子書閱讀器</a> 搭配 <a href="../alternative-kobo-e-reader-koreader-and-plato">KOReader</a>，電子書閱讀器提供了許多便利之處。首先，它們輕巧易攜帶，讓我可以隨身攜帶我的閱讀清單，輕鬆切換不同的書籍。我通常會交替閱讀兩三本書，這讓我的閱讀體驗更加豐富，閱讀過程也更加放鬆。此外，我也很喜歡閱讀器可以自訂文字排版的功能。</p>
+<p>對我來說，自訂文字排版是非常重要的，因為它可以大幅提升閱讀的舒適度。特別是字體的選擇，對閱讀體驗至關重要。以下是我必裝的幾款字體：</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>我是個很喜歡看電子書的人，我使用的是 <a href="../my-kobo-e-reader">Kobo 電子書閱讀器</a> 搭配 <a href="../alternative-kobo-e-reader-koreader-and-plato">KOReader</a>，電子書閱讀器提供了許多便利之處。首先，它們輕巧易攜帶，讓我可以隨身攜帶我的閱讀清單，輕鬆切換不同的書籍。我通常會交替閱讀兩三本書，這讓我的閱讀體驗更加豐富，閱讀過程也更加放鬆。此外，我也很喜歡閱讀器可以自訂文字排版的功能。</p>
+<p>對我來說，自訂文字排版是非常重要的，因為它可以大幅提升閱讀的舒適度。特別是字體的選擇，對閱讀體驗至關重要。以下是我必裝的幾款字體：</p>
+<!-- more -->
+<h4 id="ibm-plex"><a href="https://github.com/IBM/plex/">IBM Plex</a></h4>
+<ul>
+<li>我都是直接到 <a href="https://github.com/IBM/plex/releases">Release</a> 頁面下載 <strong>ibm-plex-sans-tc</strong>。</li>
+<li>它的筆畫粗細適當，標點符號置中，不缺字。是我目前最常用的字型，因為讀起來最舒服。</li>
+</ul>
+<h4 id="blix"><a href="https://github.com/cathree3/Plix">Blix</a></h4>
+<ul>
+<li>基於 IBM Plex 修改而來的字體，可以顯示簡體字與日文漢字。</li>
+</ul>
+<h4 id="原俠正楷-guankiaptsingkhai"><a href="https://github.com/tonyhuan/GuanKiapTsingKhai">原俠正楷 / GuanKiapTsingKhai</a></h4>
+<ul>
+<li>結合「<a href="https://github.com/ButTaiwan/iansui">芫荽</a>」與「<a href="https://github.com/lxgw/LxgwWenKai-Lite">霞鶩文楷輕便版</a>」的字型。</li>
+<li>支援<strong>偽直排</strong>字型。</li>
+</ul>
+<h4 id="獅尾b2加糖宋體-swei-sugar"><a href="https://github.com/max32002/swei-b2-sugar">獅尾B2加糖宋體 Swei Sugar</a></h4>
+<ul>
+<li>看起來很舒服的宋體。</li>
+<li>橫筆加粗也比較適合在閱讀器上閱讀。</li>
+</ul>
+<h4 id="京華老宋体"><a href="https://zhuanlan.zhihu.com/p/677725322">京華老宋体</a></h4>
+<ul>
+<li>古早印刷風格的宋體。</li>
+<li>拿來看古文別有一番風味。</li>
+</ul>
+<h4 id="jf-open-粉圓字型"><a href="https://justfont.com/huninn/">jf open 粉圓字型</a></h4>
+<ul>
+<li>由 justfont 設計師針對台灣日常應用加以優化的開源字型。</li>
+<li>筆畫圓潤，看起來非常舒服有趣。</li>
+</ul>
+<hr>
+<p>在閱讀世界中，選擇合適的工具和字體可以為閱讀體驗增添許多樂趣。上述精選的字體，讓閱讀不再僅僅是一種活動，更像是一場享受，推薦給同樣喜歡閱讀的你。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[如何使用 PHPickerViewController 取得 PHAsset]]></title>
+        <id>https://chiahsien.github.io/post/how-to-retrieve-phasset-from-phpickerviewcontroller/</id>
+        <link href="https://chiahsien.github.io/post/how-to-retrieve-phasset-from-phpickerviewcontroller/">
+        </link>
+        <updated>2024-03-02T07:41:51.000Z</updated>
+        <summary type="html"><![CDATA[<p><code>PHPickerViewController</code> 是系統內建的一個照片選取工具，透過 <code>PHPickerConfiguration</code> 設定它，然後從它的 delegate function <code>func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult])</code> 取得用戶選取的結果。看起來非常簡單直覺，直到我踩了坑...</p>
+]]></summary>
+        <content type="html"><![CDATA[<p><code>PHPickerViewController</code> 是系統內建的一個照片選取工具，透過 <code>PHPickerConfiguration</code> 設定它，然後從它的 delegate function <code>func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult])</code> 取得用戶選取的結果。看起來非常簡單直覺，直到我踩了坑...</p>
+<!-- more -->
+<p>我的目標是要從回傳的 <code>[PHPickerResult]</code> 轉成 <code>[PHAsset]</code>，首先要取得所有的 <code>assetIdentifier</code>，接下來使用 <code>PHAsset</code> 的 <code>fetchAssets(withLocalIdentifiers identifiers: [String], options: PHFetchOptions?) -&gt; PHFetchResult&lt;PHAsset&gt;</code> 得到 fetch results。</p>
+<h2 id="phpickerresult-的-assetidentifier-總是為-nil"><code>PHPickerResult</code> 的 <code>assetIdentifier</code> 總是為 <code>nil</code>？</h2>
+<p>從 <code>PHPickerViewControllerDelegate</code> 我們可以得到 <code>results: [PHPickerResult]</code>，然後就能將它轉成 <code>assetIdentifier</code> array</p>
+<pre><code class="language-swift">let identifiers = results.compactMap { $0.assetIdentifier }
+</code></pre>
+<p>但我發現 <code>identifiers</code> 總是空的...</p>
+<p>研究了好久之後才發現問題出在 <code>PHPickerConfiguration</code>。</p>
+<p>當我們要初始化它的時候，不能直接使用 <code>let config = PHPickerConfiguration()</code>，如果沒有提供 photo library 參數給它，<code>assetIdentifier</code> 就會總是為 <code>nil</code>。因此正確的做法如下：</p>
+<pre><code class="language-swift">let configuration = PHPickerConfiguration(photoLibrary: PHPhotoLibrary.shared())
+let picker = PHPickerViewController(configuration: configuration)
+picker.delegate = self
+self.present(picker, animated: true, completion: nil)
+</code></pre>
+<h2 id="phfetchresult-跟-phpickerresult-數量不一致"><code>PHFetchResult</code> 跟 <code>PHPickerResult</code> 數量不一致？</h2>
+<p>好不容易取得正確的 identifiers，接下來就是要透過 identifiers 取得 <code>PHAsset</code> 了。我們可以這麼做：</p>
+<pre><code class="language-swift">let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers:identifiers, options:nil)
+fetchResult.enumerateObjects() { asset, _, _ in
+    // Deal with the asset
+}
+</code></pre>
+<p>但我發現 <code>fetchResult.count</code> 跟 <code>identifiers.count</code> 並非總是一致，可取得的 assets 可能會比 identifiers 少。明明我們確定 identifiers 都是正確且合法的，為什麼無法取得所有對應的 PHAsset 呢？</p>
+<p>經過一番排查之後，我才發現這跟照片的存取權限有關：</p>
+<blockquote>
+<p>如果使用者有限制 app 只能存取特定照片，即使 <code>PHPickerViewController</code> 可以讓使用者看到並選取任何照片，但實際可以取得的只有使用者允許的部分。</p>
+</blockquote>
+<p>以上，就是我的踩坑之路。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[2023 買了讚讚清單]]></title>
+        <id>https://chiahsien.github.io/post/2023-best-buy/</id>
+        <link href="https://chiahsien.github.io/post/2023-best-buy/">
+        </link>
+        <updated>2023-12-30T15:39:34.000Z</updated>
+        <summary type="html"><![CDATA[<p>2023 已經到了尾聲，想說趁這個機會整理一下，我今年買的一些好棒棒的東西。錢錢沒有不見，只是變成我喜歡的樣子 😄</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>2023 已經到了尾聲，想說趁這個機會整理一下，我今年買的一些好棒棒的東西。錢錢沒有不見，只是變成我喜歡的樣子 😄</p>
+<!-- more -->
+<p><strong><a href="https://24h.pchome.com.tw/prod/DGBQ4J-A9009T6BU">Sony a6400</a></strong></p>
+<p>今年花了一些時間把我的第一台單眼相機 Canon 6D 出清，原因也很簡單，就是因為生活型態改變了，近年來幾乎都沒再使用過它。與其放在防潮箱，不如讓它到有需要的人手中繼續發光發熱。雖然現在都改用手機拍照了，但心中還是對單眼相機的成相品質與拍照感覺念念不忘，加上近年技術進步，隨身相機的體積放進 APSC 的感光元件已經逐漸普及，所以我就買了這台兩三年前的機型：Sony a6400。它體積輕巧、APSC 感光元件、外型好看、對焦迅速，已經完全可以滿足我日常出遊帶得出門拍得出來的需求；加上它是多年前的機型，價格便宜許多，CP 值很高啊。</p>
+<p><strong><a href="https://24h.pchome.com.tw/prod/DGBSB1-A900DW58X">Sigma 18-50mm f2.8</a></strong></p>
+<p>原本我是使用原廠配鏡，後來發現它的光圈不敷使用，所以就入手這支評價很高的 Sigma 18-50mm f2.8 恆定光圈鏡頭。它體積小、重量輕、光圈大，對於不需要長焦段的我說，是支非常適合我的鏡頭。</p>
+<p><strong><a href="https://24h.pchome.com.tw/prod/DPAD8R-A900GBWIV">LG StandByME 閨蜜機</a></strong></p>
+<p>原先只是看中它能無線移動的方便性，想要放在臥室追劇使用，後來卻是放在餐桌旁邊，方便吃東西的時候可以看個電視休息一下。另外，以前大人跟小孩會搶電視，現在就不會有這種情況了，大家可以各自看自己感興趣的內容。同時它也支援無線投影，我可以將筆電的內容投影到螢幕上，無論是作為第二螢幕或是想要分享螢幕內容都很方便。</p>
+<p><strong>XBOX Series S + XGPU</strong></p>
+<p>彌補了我從小到大都沒有遊戲主機的遺憾，也讓我看到現代的遊戲畫面有多麼精美。XGPU 更是美妙，隨時都有讓我感興趣的遊戲，也因為它是玩到飽的形式，讓我玩到一半就棄坑也不會有罪惡感，非常適合像我這種沒有太多時間玩遊戲的玩家！</p>
+<p><strong><a href="https://nuphy.com/products/air75-v2">NuPhy Air75 V2</a></strong></p>
+<p>對於像我這種長時間需要打字的人來說，擁有一把用起來愉快的鍵盤真的是一件超級重要的事情。雖然之前用了很多年的薄膜鍵盤，但我一直很清楚我喜歡的還是機械鍵盤，近幾年機械鍵盤的選擇越來越多，Mac 用戶最推崇的大概就是 Keychron 跟 NuPhy 這兩個品牌，最後我在 <a href="https://www.keychron.com/products/keychron-k3-non-backlight-ultra-slim-wireless-mechanical-keyboard-version-2">Keychron K3</a> 跟 <a href="https://nuphy.com/products/air75-v2">NuPhy Air75</a> 之間選擇了後者，因為它的鍵盤配色實在是太有趣了～實際用起來的手感也是相當不錯，茶軸的力道回饋、75% 的尺寸，對 Mac 系統的良好支援，讓我用得很開心。至於多種 RGB 背光模式跟 VIA 自訂鍵位，倒不是我考量的點。</p>
+<p>以上就是我今年的好棒棒清單，祝福大家也過個好年！</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Bitwarden 密碼管理工具]]></title>
+        <id>https://chiahsien.github.io/post/bitwarden-password-manager/</id>
+        <link href="https://chiahsien.github.io/post/bitwarden-password-manager/">
+        </link>
+        <updated>2023-04-19T16:40:42.000Z</updated>
+        <summary type="html"><![CDATA[<p>現代人離不開網路，所以我們會擁有許多不同的帳號和密碼。如果使用相同的密碼，一旦其中一個帳號被盜用，所有帳號都可能受到威脅；如果使用不同的密碼，又不可能全部都記住，尤其是每個網站對密碼的強度要求都不一樣。如果你想要一個方便又安全的解決方案，那麼我會推薦 <a href="https://bitwarden.com/">Bitwarden</a>。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>現代人離不開網路，所以我們會擁有許多不同的帳號和密碼。如果使用相同的密碼，一旦其中一個帳號被盜用，所有帳號都可能受到威脅；如果使用不同的密碼，又不可能全部都記住，尤其是每個網站對密碼的強度要求都不一樣。如果你想要一個方便又安全的解決方案，那麼我會推薦 <a href="https://bitwarden.com/">Bitwarden</a>。</p>
+<!-- more -->
+<h3 id="為何使用-bitwarden">為何使用 Bitwarden</h3>
+<ul>
+<li>
+<p>安全：使用 end-to-end AES-256 加密、Salted Hashing 和 PBKDF2 SHA-256 算法來保護資料，並採用零知識架構，意味著只有你自己能解開資料，即使是 Bitwarden 的團隊也無法讀取你的資料。使用 Bitwarden，我們可以隨時建立高強度密碼並定期更換它們，減少帳號被盜用的風險。</p>
+</li>
+<li>
+<p>方便：可以在任何設備上輕鬆存取你的帳號和密碼，並自動填寫登入表單。也可以使用它來生成隨機的高強度密碼，而且還可以自訂密碼規則。</p>
+</li>
+<li>
+<p>開源：Bitwarden 是一個開源項目，它的原始碼是公開的，因此可以進行審查和稽核。這增加了它的透明度和可信度。</p>
+</li>
+<li>
+<p>跨平台：支援多種設備和瀏覽器，例如 Windows、Mac、Linux、Android、iOS、Chrome、Firefox、Edge、Safari 等，甚至還有網頁版，讓你可以在任何設備上都能方便地使用它。</p>
+</li>
+<li>
+<p>免費：它有提供免費方案，可以無限制地儲存和同步無限數量的帳號和密碼，並且在無限裝置上使用。如果需要更多功能，如 2FA、密碼健康報告等，只需要支付每年 10 美元的費用。</p>
+</li>
+<li>
+<p>自託管：如果不希望將資料儲存於 Bitwarden 官方伺服器，可以經由簡單的步驟架設自己的 Bitwarden 服務平台。</p>
+</li>
+<li>
+<p>共享：Bitwarden 不僅可以自己使用，還可以與其他人共享加密資訊。它提供了稱為「Bitwarden Send」的方案，讓你可以安全地與同事、部門或整個公司共享私人資料。</p>
+</li>
+</ul>
+<p>更多細節，可以參考<a href="https://bitwarden.com/pricing/">付費方案</a>的比較表。</p>
+<h3 id="總結">總結</h3>
+<p>用過密碼管理工具之後，我超後悔沒有早點使用它，它真的讓我再也不用費心管理與記憶密碼，可以放心使用超長與超複雜的密碼，提高帳號的安全性。</p>
+<p><a href="https://bitwarden.com/">Bitwarden</a> 具有高度的安全性、開源透明、跨平台、免費方案、自託管和共享等優點。如果正在尋找一個方便且安全的密碼管理工具，推薦你試試看！</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Arc - 新一代的瀏覽器]]></title>
+        <id>https://chiahsien.github.io/post/the-arc-browser/</id>
+        <link href="https://chiahsien.github.io/post/the-arc-browser/">
+        </link>
+        <updated>2023-04-17T16:32:29.000Z</updated>
+        <summary type="html"><![CDATA[<p><a href="https://arc.net/">Arc</a> 是由 <a href="https://thebrowser.company/">The Browser Company</a> 推出的新一代瀏覽器，它基於 Chromium 開發，主打可以提高使用者的生產力。它有許多不錯的功能，以下幾個是我最喜歡的。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p><a href="https://arc.net/">Arc</a> 是由 <a href="https://thebrowser.company/">The Browser Company</a> 推出的新一代瀏覽器，它基於 Chromium 開發，主打可以提高使用者的生產力。它有許多不錯的功能，以下幾個是我最喜歡的。</p>
+<!-- more -->
+<h3 id="extension-強化上網體驗">Extension 強化上網體驗</h3>
+<p>Arc 瀏覽器完整支援 Google Chrome 的 Extension，讓我們能夠擴充瀏覽器的功能，進一步提升上網體驗。許多常用的擴充功能都可以在 Arc 瀏覽器上使用，例如廣告封鎖、翻譯、密碼管理等等。此外，Arc 瀏覽器也提供所謂的 &quot;Boost&quot; 功能，讓懂 HTML/CSS/JavaScript 的開發者可以針對特定網站撰寫自訂功能。</p>
+<h3 id="split-view-同時觀看多個網頁">Split View 同時觀看多個網頁</h3>
+<p>Arc 瀏覽器的 Split View 功能可以讓我們在同一個畫面打開多個網頁，並可指定上下或左右並排，讓我們能夠更加輕鬆地做筆記或資料整理。例如，我們可以在一個區域內閱讀文獻或文章，同時在另一個區域中寫筆記或做總結。這樣做不僅提升了生產力，同時也提高了工作效率。我最常用這個功能來一邊開視訊會議一邊做會議記錄，或是一邊打開 ticket 一邊打開 PR 頁面。</p>
+<h3 id="pip-影音播放器">PiP 影音播放器</h3>
+<p>Arc 瀏覽器的 PiP 功能是一個浮動的影音播放器，可以支援大多數影音網站，例如 YouTube、Spotify 等等。當我們觀看影片時，可以把影片放到 PiP 播放器中，然後切換到其他分頁繼續瀏覽其他內容。這樣做可以避免影片被其他網頁覆蓋。PiP 功能還支援拖曳和縮放等操作，讓使用者能夠更加輕鬆地操作。我很常一邊聽音樂一邊工作，這個功能對我來說超方便的。</p>
+<h3 id="peek-快速瞄一眼">Peek 快速瞄一眼</h3>
+<p>當我們點到會開啟新分頁的連結時，Arc 會在當前分頁開啟一個置中小畫面，讓我們快速瀏覽連結內容。這對我來說非常的好用，尤其是在閱讀電子報、新聞網站、RSS Feed、社交網站的時候，讓我不用在不同分頁之間頻繁切換。如果快速看完之後覺得不錯，也可以把小畫面轉換成一般分頁，方便稍候繼續閱讀。</p>
+<h3 id="little-arc">Little Arc</h3>
+<p>Arc 瀏覽器的 Little Arc 功能是一個簡化版的瀏覽器視窗，可以在其他應用程式點擊網路連結時自動開啟。這樣做可以提高瀏覽速度和效率，小小一個視窗不會覆蓋原先的應用程式，同時也可以減少開啟瀏覽器時的等待時間。</p>
+<h3 id="space-與-profile-讓工作更高效">Space 與 Profile 讓工作更高效</h3>
+<p>Space 與 Profile 功能顛覆我原先管理分頁的習慣，讓我們在工作上更加高效。舉例來說，如果我們同時需要管理個人和工作的網站，我們可以建立兩個 Profile，分別用不同的帳號登入，使我們可以快速切換帳號，避免混淆。同時，如果我們需要處理多個專案，可以建立不同的 Space，區分不同專案所需要的網站，讓我們可以快速切換，提高工作效率。此外，可以針對不同的目的，例如閱讀、工作、學習等等，建立不同的 Space，方便我們將網站整理成不同的分類，讓我們更加專注於目標。更棒的是它可以每個 Space 都指定不同的 Profile，Space 和 Profile 的功能結合，使得 Arc 瀏覽器成為一個很好的生產力工具。</p>
+<h3 id="preview-快速一覽重要通知">Preview 快速一覽重要通知</h3>
+<p>在瀏覽網站的同時，想要瞭解某個分頁中是否有重要訊息時，你可以使用 Preview 功能。只需要將滑鼠懸停在該分頁的標籤上，就能顯示該分頁中的消息預覽。Preview 目前支援 Google Calendar、Gmail、Outlook、Outlook Calendar、GitHub、Linear、Notion、Figma、Cron 等多種網站，讓你能夠更加方便地一窺重要訊息像是未讀信件、下一個行程、被指派的 PR 等等。</p>
+<hr>
+<p>Arc 已經成為我工作上不可或缺的工具了，如果你還沒有嘗試過 Arc 瀏覽器，不妨試試看。如果你想了解更多關於它的功能，可以<a href="https://arc.net/welcome-to-arc">來這個網頁看看</a>。目前它還在封測階段，有興趣的人可以<a href="https://arc.net/gift/572c9c39">使用我的邀請碼</a>。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[UIScrollView and AutoLayout]]></title>
+        <id>https://chiahsien.github.io/post/uiscrollview-and-autolayout/</id>
+        <link href="https://chiahsien.github.io/post/uiscrollview-and-autolayout/">
+        </link>
+        <updated>2023-01-08T05:12:00.000Z</updated>
+        <content type="html"><![CDATA[<h3 id="以前的作法">以前的作法</h3>
+<p>在以前要用 <code>Auto Layout</code> 來設置 <code>UIScrollView</code> 的 sub views 並不是一件讓人愉快的事情，雖然不複雜，但步驟就是有點麻煩。因為 scroll view 自身的特性，所以必須設定它本身的位置與尺寸，然後設定 sub views 的位置與尺寸，最後算出 <code>contentSize</code> 的尺寸。總結來說大概分成以下幾步：</p>
+<ol>
+<li>設定 <code>UIScrollView</code> 本身的位置與尺寸</li>
+<li>建立一個 <code>contentView</code> 並加到 <code>UIScrollView</code> 的 sub view</li>
+<li>設定 <code>contentView</code> 的位置，通常是四邊都貼齊 <code>UIScrollView</code></li>
+<li>可以滾動的 sub views 都加到 <code>contentView</code>，然後用 auto layout 設定這些 sub views 的位置與尺寸</li>
+<li>如果設定無誤的話，<code>contentView</code> 就可算出正確的尺寸，這就是 <code>UIScrollView</code> 的 <code>contentSize</code></li>
+</ol>
+<p>最讓人困惑且忽略的就是第三點，因為它很不自然，但在 <code>UIScrollView</code> 卻又是必須的。另外就是第四點，一定要有明確的位置跟尺寸，這樣才有辦法算出 <code>contentSize</code> 給 <code>UIScrollView</code> 使用。</p>
+<h3 id="現在的作法">現在的作法</h3>
+<p>從 iOS 11 開始，<code>UIScrollView</code> 多了 <code>frameLayoutGuide</code> 跟 <code>contentLayoutGuide</code> 這兩個方便的屬性，讓我們不必再用不自然的方式去設定 content 的 auto layout。</p>
+<ol>
+<li>可以使用舊有的方式或是使用 <code>frameLayoutGuide</code> 設定 <code>UIScrollView</code> 本身的位置與尺寸</li>
+<li>不需要額外的 <code>contentView</code> 了，直接把內容加到 sub view</li>
+<li>這些 sub views 與 <code>contentLayoutGuide</code> 建立 auto layout constraints</li>
+</ol>
+<p>整個設定流程變得自然許多，也更不容易出錯。現在我們只要確定 sub views 有設好明確的位置與尺寸，讓系統能夠算出 <code>contentSize</code> 即可。</p>
+]]></content>
+    </entry>
+</feed>
