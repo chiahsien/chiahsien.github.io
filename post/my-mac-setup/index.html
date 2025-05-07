@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>我的 Mac 設定 | Nelson</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="我的 Mac 設定 | Nelson - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <div class="post-detail">
+            <h1 class="post-title">我的 Mac 設定</h1>
+            <div class="post-date">2022-05-15</div>
+            
+            <div class="post-content">
+              <p>工程師都會有自己習慣的電腦設定，我自然也不例外。本文記錄了我自己的環境建置，方便以後換電腦或換工作時可以快速 setup，也歡迎有需要的人拿去修改或留言推薦你喜歡的工具。</p>
+<!-- more -->
+<h2 id="開發環境">開發環境</h2>
+<ul>
+<li>
+<p>Xcode</p>
+<p>我用 <a href="https://github.com/RobotsAndPencils/XcodesApp">Xcodes</a> 來下載與管理各個不同的 Xcode 版本，詳情可以參考<a href="../../post/xcode-the-right-way/">這篇文章</a>。</p>
+</li>
+<li>
+<p><a href="https://ohmyz.sh">Oh My Zsh</a></p>
+<pre><code class="language-shell">sh -c &quot;$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)&quot;
+</code></pre>
+</li>
+<li>
+<p><a href="https://brew.sh">Homebrew</a></p>
+<pre><code class="language-shell">/bin/bash -c &quot;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)&quot;
+</code></pre>
+<p>使用 Apple Silicon 晶片的人需要在 <code>~/.bashrc</code> 或 <code>~/.zshrc</code> 裡頭加上 <code>export PATH=&quot;/opt/homebrew/bin:$PATH&quot;</code> 並重新啟動終端機，才能找到 <code>brew</code> 指令。</p>
+<p>如果有安裝 Oh My Zsh 又想要自動補完 brew 的指令，需要在 <code>~/.zprofile</code> 加入以下文字：</p>
+<pre><code class="language-shell">eval $(/opt/homebrew/bin/brew shellenv)
+FPATH=&quot;$(brew --prefix)/share/zsh/site-functions:${FPATH}&quot;
+</code></pre>
+</li>
+<li>
+<p><a href="https://git-scm.com">Git</a></p>
+<pre><code class="language-shell">brew install git
+brew install git-lfs
+</code></pre>
+</li>
+<li>
+<p>Ruby</p>
+<p>我用 <code>rbenv</code> 來管理我的 Ruby 版本與環境。</p>
+<pre><code class="language-shell">brew install rbenv
+rbenv install 3.1.2 # 沒特殊需求的話可以指定最新穩定版
+rbenv rehash
+rbenv global 3.1.2
+</code></pre>
+<p>如果安裝過程有遇到 <strong>permission denied</strong> 的問題(我在 M1 晶片有遇到)，可以嘗試用這個指令修複：<code>sudo chown -R &quot;$(whoami)&quot;:admin /usr/local/var</code>。</p>
+<p>另外記得在 <code>~/.bashrc</code> 或 <code>~/.zshrc</code> 檔案結尾加入以下設定，然後重新登入。</p>
+<pre><code class="language-shell">export RBENV_ROOT=/usr/local/var/rbenv
+if which rbenv &gt; /dev/null; then eval &quot;$(rbenv init -)&quot;; fi
+</code></pre>
+</li>
+<li>
+<p><a href="https://cocoapods.org/">CocoaPods</a></p>
+<pre><code class="language-shell">gem install cocoapods
+</code></pre>
+</li>
+</ul>
+<h2 id="必備工具軟體">必備工具軟體</h2>
+<p>我的電腦裝的軟體不多，這邊列出的都是我比較常用的。</p>
+<h3 id="瀏覽器">瀏覽器</h3>
+<p>我以前常用的是 <a href="https://www.google.com.tw/chrome/browser/desktop/index.html">Google Chrome</a>，現在改用 <a href="https://vivaldi.com/?lang=zh_TW">Vivaldi</a>，兩個都符合我的需求：「多組帳號切換」、「設定可同步」、「套件多」。我不選擇 <a href="https://www.mozilla.org/zh-TW/firefox/new/">Firefox</a> 的原因是因為它的帳號切換不好用。</p>
+<p>另外同樣是基於 Chromium 的還有 <a href="https://www.microsoft.com/zh-tw/edge">Microsoft Edge</a>、<a href="https://brave.com/zh/">Brave</a> 跟 <a href="https://www.meetsidekick.com">Sidekick</a>，都有各自的特色，也都能使用 Google Chrome Extension。我自己必備的 Extension 有記錄在<a href="../../post/essential-google-chrome-extension/">這篇文章</a>。</p>
+<p>最近發現一款新的瀏覽器叫做 <a href="https://browser.kagi.com">Orion</a>，它就像是更重視隱私的 Safari + 支援 Chrome/Firefox extensions，是個有趣的嘗試。</p>
+<h3 id="通訊軟體">通訊軟體</h3>
+<p>除了用 <a href="https://apps.apple.com/tw/app/line/id539883307?mt=12">LINE</a> 跟親友聯絡之外，工作上還需要用到 <a href="https://slack.com/downloads/osx">Slack</a> 跟 <a href="https://www.skype.com/zh-Hant/download-skype/skype-for-mac/">Skype</a>，有時還會用 <a href="https://telegram.org">Telegram</a> 跟 <a href="https://www.messenger.com">Facebook Messenger</a> 聊天打屁。開一大堆視窗只為了傳訊息讓我覺得很蠢，所以我通常使用 <a href="https://ferdium.org">Ferdium</a> 這個整合型通訊工具，類似的整合工具還有 <a href="https://meetfranz.com/">Franz</a> 跟 <a href="https://getstation.com">Station</a>。</p>
+<h3 id="編輯器">編輯器</h3>
+<p>我的文字跟程式碼編輯器首選是 <a href="https://code.visualstudio.com/">Visual Studio Code</a>，理由是它「速度夠快」、「界面友好」、「套件多」，我必備的 VSCode 套件有記錄在<a href="../../post/visual-studio-code-extensions/">這篇文章</a>。之前我有用過 <a href="https://www.sublimetext.com">Sublime Text</a>，它真的很快，但因為它界面不夠友善而我懶得折騰所以放棄了。</p>
+<p>工程師一定要用的還有 Markdown 編輯器，我強烈推薦 <a href="https://typora.io/">Typora</a>，它的所見即所得以及多種佈景主題讓我用過就再也離不開，後起之秀 <a href="https://miaoyan.app">妙言</a> 看起來也很不錯，簡單輕巧是它的特色。</p>
+<h3 id="終端機">終端機</h3>
+<p>內建的 Terminal 不夠好用，所以我都會改用 <a href="https://www.iterm2.com/">iTerm</a>，配合 <a href="http://ohmyz.sh/">oh-my-zsh</a> 使用 Zsh shell。如果需要更強大的 Terminal，也可以試試看 <a href="https://tabby.sh">Tabby</a>，它不只跨平台，而且還支援了 SSH / Serial / Telnet 連線。</p>
+<h3 id="開發工具">開發工具</h3>
+<p>我都用 Git 做版本控制。Git 很強大但也很難用（雖然常用的指令就那麼幾個），還好它有很多免費或商用的 GUI。我用的是 <a href="https://git-fork.com/">Fork</a>，它的使用介面非常友善，並且操作非常流暢。其他比較有名氣的還有 <a href="https://www.sourcetreeapp.com/">SourceTree</a>、<a href="https://www.git-tower.com/mac/">Tower</a>、<a href="http://www.syntevo.com/smartgit/">SmartGit</a>、以及 <a href="https://www.gitkraken.com/git-client">GitKraken</a>。</p>
+<p>我用 <a href="https://kapeli.com/dash">Dash</a> 觀看 API 文件與管理程式碼片段，用 <a href="https://www.getpostman.com/">Postman</a> 管理與呼叫 API。</p>
+<p>如果要檢查 App 的 UI 的話，平時 Xcode 內建的工具就很夠用了，若需要進階一點可以考慮免費的 <a href="https://lookin.work">Lookin</a>，或是需要付費的 <a href="https://revealapp.com">Reveal</a> 或 <a href="https://sherlock.inspiredcode.io">Sherlock</a>。</p>
+<h3 id="生產力工具">生產力工具</h3>
+<ul>
+<li>為了支援更多的壓縮檔格式，我用 <a href="https://theunarchiver.com">The Unarchiver</a> 或 <a href="https://www.keka.io/">Keka</a> 解壓縮。如果不介意 command line 的話，也可以考慮 <a href="https://rar.tw/download.html">WinRAR for Mac</a>。</li>
+<li>使用心智圖來紀錄一些比較發散或是比較階層性的想法，<a href="https://www.xmind.net">XMind</a> 是個很好用的工具，最大的缺點大概就是稍嫌笨重吧。</li>
+<li>我用來做筆記的軟體是 <a href="https://logseq.com">Logseq</a>，不管在公司還是在家都會用，它是一套積極開發中的軟體。我也還在摸索找出適合自己的用法。之前用 <a href="https://joplinapp.org/">Joplin</a> 來紀錄，後來感覺它沒有 <a href="https://logseq.com">Logseq</a> 那麼隨心所欲，所以就不再用了。</li>
+<li>內建的 Spotlight 雖然不錯，但我更喜歡 <a href="https://www.raycast.com">Raycast</a>，它的自訂性比較高。<a href="https://www.alfredapp.com/">Alfred</a> 也是很棒的替代品。</li>
+<li>用 <a href="https://itunes.apple.com/tw/app/magnet/id441258766?mt=12">Magnet</a>（類似的免費替代品有 <a href="https://github.com/rxhanson/Rectangle">Rectangle</a>）跟 <a href="https://alt-tab-macos.netlify.app/">AltTab</a>（類似的免費替代品有 <a href="https://bahoom.com/hyperswitch">HyperSwitch</a>）強化 Mac 的視窗管理功能，用 <a href="https://github.com/Ji4n1ng/OpenInTerminal">Open In Terminal</a> 強化 Finder 的功能。</li>
+<li>工程師的文件很多都用 Markdown 撰寫，裝了 <a href="https://github.com/sbarex/QLMarkdown">QLMarkdown</a> 快速預覽套件，就可以按下空白鍵預覽 Markdown 文件。另外，工程師也需要整天跟程式碼打交道，有了 <a href="https://github.com/sbarex/SourceCodeSyntaxHighlight">Syntax Highlight</a> 快速預覽套件，就可以預覽原始碼了。</li>
+<li>如果覺得 Finder 真的太難用，可以考慮 <a href="https://www.binarynights.com/forklift/">ForkLift 3</a>，它除了是檔案總管之外，也是檔案傳輸工具。若是你只是需要多面板的 Finder，不需要檔案傳輸功能，可以考慮比較便宜的 <a href="https://apps.apple.com/tw/app/qspace/id1469774098?mt=12">QSpace</a>。</li>
+<li>用 <a href="https://apps.apple.com/tw/app/amphetamine/id937984704?mt=12">Amphetamine</a> 讓電腦不會自動休眠，某些時候（例如需要長時間執行程式或下載檔案）我會需要它。</li>
+<li>用 <a href="https://github.com/mangerlahn/Latest">Latest</a> 來一口氣檢查安裝的程式有沒有新版本，非常方便好用！比較討厭的一點是它在更新軟體的時候很容易 crash。</li>
+<li>如果要螢幕擷圖，<a href="https://shottr.cc">shottr</a> 是個好用的工具。</li>
+</ul>
+<h2 id="線上工具">線上工具</h2>
+<p>有些不常用的需求，可以使用一些免費的線上工具解決。</p>
+<ul>
+<li><a href="https://jsoneditoronline.org/">JSON Editor Online</a><br>
+檢視與編輯 JSON 的工具</li>
+<li><a href="https://www.draw.io/">draw.io</a>、<a href="https://www.zenflowchart.com/">Zen Flowchart</a>、<a href="https://www.yworks.com/yed-live/">yEd live</a><br>
+流程圖與其他圖表繪製工具</li>
+<li><a href="http://asciiflow.com/">ASCIIFlow Infinity</a><br>
+輕鬆畫出 ASCII 圖，我拿來畫程式架構，然後放在程式碼註解裡。</li>
+<li><a href="https://www.befunky.com/features/collage-maker/">Collage Maker</a><br>
+圖片拼貼工具，通常我在送 PR 給同事 review 時，如果是關於 UI 的修改，我會附上前後對照圖。</li>
+</ul>
+
+              <a href="https://www.buymeacoffee.com/chiahsien" target="_blank" rel="noopener noreferrer">
+                <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=chiahsien&button_colour=44414e&font_colour=ffffff&font_family=Comic&outline_colour=ffffff&coffee_colour=FFDD00" />
+              </a>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://chiahsien.github.io/tag/macos/" class="tag">
+                    macOS
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/work-flow/" class="tag">
+                    WorkFlow
+                  </a>
+                
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>
