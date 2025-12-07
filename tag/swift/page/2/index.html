@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>Nelson/Swift</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="Nelson/Swift - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <h1 class="current-tag">標籤: Swift</h1>
+          
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/watchos-app-development-note-communication/">
+            <h1 class="post-title">watchOS app 開發筆記：傳遞資料</h1>
+        </a>
+        <div class="post-date">
+            2021-11-09
+        </div>
+        <div class="post-abstract">
+            
+            <p>這一篇筆記主要是要記錄如何在 iPhone app 跟 watchOS app 之間傳遞資料。</p>
+<h2 id="iphone-跟-apple-watch-的溝通方式">iPhone 跟 Apple Watch 的溝通方式</h2>
+<p>iPhone app 跟 Watch app 可以透過設定相同的 App Group 共享檔案，也可以透過 <a href="https://developer.apple.com/documentation/watchconnectivity">WatchConnectivity</a> 溝通，App Group 的方式沒什麼好說的，所以來紀錄 WatchConnectivity 的作法。它主要分為兩種方式：</p>
+
+            <a href="https://chiahsien.github.io/post/watchos-app-development-note-communication/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/unity-to-swiftui-app-integration/">
+            <h1 class="post-title">整合 Unity 到 SwiftUI App</h1>
+        </a>
+        <div class="post-date">
+            2021-08-03
+        </div>
+        <div class="post-abstract">
+            
+            <p>最近剛好有機會要整合 Unity 到 SwiftUI 開發的 app 裡頭，整個過程不算難，但是蠻繁瑣的。網路上的資料絕大部分都是跟 Objective-C / UIKit 的整合，比較少 Swift / SwiftUi 相關資料，所以趁著記憶猶新的時候把它記錄下來，希望可以幫助到其他人以及未來的自己。</p>
+<p>從 Unity 2019.4 的版本開始，它提供了 UaaL (Unity as a Library) 功能，可以把 Unity 專案匯出成 framework 讓其他程式使用，開啟了原生平台與 Unity 互動的更多可能性。你可以只用 Unity 開發遊戲或其他精美畫面的部分，剩下的則是使用原生平台（例如 iOS 或 Android）開發。</p>
+<p>我使用的開發環境是 <code>Xcode 12.5</code> + <code>Unity 2020.3.15f2 LTS</code>，預期達成以下目標：</p>
+<ol>
+<li>在 SwiftUI 顯示 Unity 的畫面</li>
+<li>iOS 跟 Unity 可以雙向傳遞訊息</li>
+</ol>
+<p>先附上 <a href="https://github.com/chiahsien/UnityInSwiftUI">sample code</a>。這篇文章會有大量程式碼，也會假設你對 Xcode 跟 Unity 的操作有基本的認知，廢話不多說，讓我們開始吧！</p>
+
+            <a href="https://chiahsien.github.io/post/unity-to-swiftui-app-integration/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/ibeacon-development-in-swift/">
+            <h1 class="post-title">iBeacon 的 Swift 開發筆記</h1>
+        </a>
+        <div class="post-date">
+            2020-03-08
+        </div>
+        <div class="post-abstract">
+            
+            <p>最近因為工作上的需求，需要透過 app 與支援 iBeacon 的裝置溝通，所以整理了一些筆記。在 iOS 的世界，app 可以作為 iBeacon 的接收者，也可以讓裝置作為 iBeacon 的發送者，這裡我只紀錄前者（接收者）的開發。</p>
+
+            <a href="https://chiahsien.github.io/post/ibeacon-development-in-swift/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/common-ios-architecture-from-mvc-to-viper-with-redux/">
+            <h1 class="post-title">漫談 iOS 架構：從 MVC 到 VIPER，以及 Redux</h1>
+        </a>
+        <div class="post-date">
+            2019-09-21
+        </div>
+        <div class="post-abstract">
+            
+            <p>很榮幸我能在今年的 <a href="https://iplayground.io/2019/">iPlayground</a> 分享了過去幾年以來，我對於 iOS 架構的一些看法與心得，<a href="https://speakerdeck.com/chiahsien/common-ios-architectures-from-mvc-to-viper-with-redux">投影片由此下載</a>，本文則是比較詳細的文字稿。</p>
+<p>這幾年大家逐漸重視 iOS 的架構設計，從最基本的 MVC 到開始普及的 MVP / MVVM，到分工細膩的 VIPER，每個 pattern 都有擁護者；近期也有為了解決畫面轉換的 Router / Coordinator 以及為了解決資料一致性的 Redux。</p>
+<p>我們 app 早期的架構是 MVC，後來改成 MVVM，後來為了因應複雜的流程所以引進 Coordinator，也引進 Redux 處理資料一致性的問題。</p>
+<p>接下來會聊聊這幾種 pattern 及其演化過程。</p>
+
+            <a href="https://chiahsien.github.io/post/common-ios-architecture-from-mvc-to-viper-with-redux/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/how-to-specify-swift-version-for-each-pod-in-podfile/">
+            <h1 class="post-title">如何為各個 Pod 指定 Swift 版本</h1>
+        </a>
+        <div class="post-date">
+            2018-09-22
+        </div>
+        <div class="post-abstract">
+            
+            <p>最近升上 Swift 4.2，發現我用到的 Pods 有些還沒支援 4.2 導致編譯錯誤。解決方法也很簡單，只要指定每個 Pod target 的 <code>SWIFT_VERSION</code> 為 <code>4.0</code> 即可。</p>
+<p>但是我們不能手動在 Xcode 裡頭調整，因為 CocoaPods 會把 Pods 的 <code>SWIFT_VERSION</code> 設為跟你的 project 一樣，所以下次 <code>pod install</code> 又會被改掉。</p>
+
+            <a href="https://chiahsien.github.io/post/how-to-specify-swift-version-for-each-pod-in-podfile/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/how-to-fix-nstimer-retain-cycle/">
+            <h1 class="post-title">如何解決 NSTimer 造成的 retain cycle</h1>
+        </a>
+        <div class="post-date">
+            2017-04-05
+        </div>
+        <div class="post-abstract">
+            
+            <p>最近在替公司 app 做健康檢查，找到一些 memory leaks 的問題，其中一個就是由 <code>NSTimer</code> 所引起的 retain cycle。</p>
+<p><code>NSTimer</code> 是個很容易造成 retain cycle 的物件，無論是新手或是老手都很可能一個不留意就踩到這個坑。舉個很常見的例子，這樣寫就產生 retain cycle 了：</p>
+
+            <a href="https://chiahsien.github.io/post/how-to-fix-nstimer-retain-cycle/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+
+          <div class="pagination-container">
+  
+    <a href="https://chiahsien.github.io/tag/swift" class="prev"><i class="icon-arrow-ios-back-outline"></i> 上一頁</a>
+  
+  
+    <a href="https://chiahsien.github.io/tag/swift/page/3/" class="next">下一頁 <i class="icon-arrow-ios-forward-outline"></i></a>
+  
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>
