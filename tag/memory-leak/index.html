@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>Nelson/MemoryLeak</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="Nelson/MemoryLeak - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <h1 class="current-tag">標籤: MemoryLeak</h1>
+          
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/how-to-fix-nstimer-retain-cycle/">
+            <h1 class="post-title">如何解決 NSTimer 造成的 retain cycle</h1>
+        </a>
+        <div class="post-date">
+            2017-04-05
+        </div>
+        <div class="post-abstract">
+            
+            <p>最近在替公司 app 做健康檢查，找到一些 memory leaks 的問題，其中一個就是由 <code>NSTimer</code> 所引起的 retain cycle。</p>
+<p><code>NSTimer</code> 是個很容易造成 retain cycle 的物件，無論是新手或是老手都很可能一個不留意就踩到這個坑。舉個很常見的例子，這樣寫就產生 retain cycle 了：</p>
+
+            <a href="https://chiahsien.github.io/post/how-to-fix-nstimer-retain-cycle/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/retain-cycle-in-afnetworking/">
+            <h1 class="post-title">一個 AFNetworking 的 retain cycle 問題</h1>
+        </a>
+        <div class="post-date">
+            2017-03-28
+        </div>
+        <div class="post-abstract">
+            
+            <p><a href="https://github.com/AFNetworking/AFNetworking">AFNetworking</a> 封裝了網路連線的許多工作，讓 iOS/Mac 開發者可以用簡潔的寫法去處理連線，但你知道要如何正確使用，才不會出現 retain cycle 嗎？</p>
+
+            <a href="https://chiahsien.github.io/post/retain-cycle-in-afnetworking/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+
+          <div class="pagination-container">
+  
+  
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>
