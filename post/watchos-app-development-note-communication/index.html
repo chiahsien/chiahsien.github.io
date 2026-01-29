@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>watchOS app 開發筆記：傳遞資料 | Nelson</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="watchOS app 開發筆記：傳遞資料 | Nelson - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <div class="post-detail">
+            <h1 class="post-title">watchOS app 開發筆記：傳遞資料</h1>
+            <div class="post-date">2021-11-09</div>
+            
+            <div class="post-content">
+              <p>這一篇筆記主要是要記錄如何在 iPhone app 跟 watchOS app 之間傳遞資料。</p>
+<h2 id="iphone-跟-apple-watch-的溝通方式">iPhone 跟 Apple Watch 的溝通方式</h2>
+<p>iPhone app 跟 Watch app 可以透過設定相同的 App Group 共享檔案，也可以透過 <a href="https://developer.apple.com/documentation/watchconnectivity">WatchConnectivity</a> 溝通，App Group 的方式沒什麼好說的，所以來紀錄 WatchConnectivity 的作法。它主要分為兩種方式：</p>
+<!-- more -->
+<h3 id="interactive-messaging">Interactive Messaging</h3>
+<p>使用這個模式溝通，iPhone 跟 Watch 的 app 需要同時開著，這樣才可以傳遞即時資訊。主要重點如下：</p>
+<ul>
+<li>它是即時的</li>
+<li>傳送方應該要先檢查接收方是否 <code>reachable</code> 再決定要不要傳資訊</li>
+<li>提供 <code>reply handler</code> 機制讓接收方可以回應</li>
+<li>傳送的資訊是 <code>Dictionary</code> 或 <code>Data</code></li>
+</ul>
+<h3 id="background-transfer">Background Transfer</h3>
+<p>使用這個模式溝通，傳送方在傳遞資訊時，接收方可以不用開啟。系統會自行決定在適合的時機在背景傳完資訊，等到接收方啟動的時候再告知接收方。這個模式又可以分成三種模式：</p>
+<h4 id="application-context-mode">Application Context Mode</h4>
+<ul>
+<li>傳送的資料是 <code>Dictionary</code></li>
+<li>Transfer Queue 裡頭舊的資料會被新的蓋過，接收方只會拿到最新的資料</li>
+<li>接收方的 <code>func session(session: WCSession, didReceiveApplicationContext applicationContext: [String: AnyObject])</code> 只會被呼叫一次</li>
+</ul>
+<h4 id="user-information-transfer-mode">User Information Transfer Mode</h4>
+<ul>
+<li>傳送的資料是 <code>Dictionary</code></li>
+<li>FIFO 進 Transfer Queue，新資料不會蓋過舊資料</li>
+<li>傳完之前，傳送方可以取消任意一筆傳送</li>
+<li>傳完之前，接收方的 <code>func session(session: WCSession, didReceiveUserInfo userInfo: [String: AnyObject])</code> 會根據 FIFO 順序被多次呼叫</li>
+</ul>
+<h4 id="file-transfer-mode">File Transfer Mode</h4>
+<ul>
+<li>傳檔案</li>
+<li>機制跟 <code>User Information Transfer Mode</code> 一樣</li>
+<li>收到的檔案會暫存在 <code>Document/Inbox</code>，delegate function scope 結束就會自動被系統刪除</li>
+<li>為了避免檔案被刪除，要在 delegate function scope 結束前把檔案搬到其他地方 (可參考 sample code)</li>
+</ul>
+<h3 id="sample-code">Sample Code</h3>
+<h4 id="檔案傳送方">檔案傳送方</h4>
+<pre><code class="language-swift">import WatchConnectivity
+
+class Sender: NSObject {
+    private let session = WCSession.default
+
+    override init() {
+        super.init()
+        if WCSession.isSupported() {
+            // 要先設定 delegate 才能 activate
+            session.delegate = self
+            session.activate()
+        }
+    }
+
+    func transferFile() {
+        guard WCSession.isSupported() else {
+            print(&quot;WCSession not supported!&quot;)
+            return
+        }
+
+        // 傳遞時可以附帶 metadata dictionary
+        session.transferFile(fileURL, metadata: nil)
+    }
+}
+
+extension Sender: WCSessionDelegate {
+    // 為了支援配對多隻手錶的可能，這兩個 function 是必要的
+    func sessionDidBecomeInactive(_ session: WCSession) {
+    }
+
+    func sessionDidDeactivate(_ session: WCSession) {
+    }
+}
+</code></pre>
+<h4 id="檔案接收方">檔案接收方</h4>
+<pre><code class="language-swift">import WatchConnectivity
+
+class Receiver: NSObject {
+    private let session = WCSession.default
+
+    override init() {
+        super.init()
+        if WCSession.isSupported() {
+            session.delegate = self
+            session.activate()
+        }
+    }
+}
+
+extension Receiver: WCSessionDelegate {
+    func session(_ session: WCSession, didReceive file: WCSessionFile) {
+        /// 要在這個 delegate function 結束前把檔案搬到其他地方，
+        /// 不然會被系統自動刪除。
+        let fileManager = FileManager.default
+        var docDir = try! fileManager.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+        docDir.appendPathComponent(&quot;Received.bundle&quot;, isDirectory: true)
+
+        /// Create destination directory if it doesn't exist.
+        if !fileManager.fileExists(atPath: docDir.path, isDirectory: nil) {
+            do {
+                try fileManager.createDirectory(at: docDir, withIntermediateDirectories: true, attributes: nil)
+            } catch {
+                print(&quot;Create directory error: \(error.localizedDescription)&quot;)
+                return
+            }
+        }
+
+        let fileName = file.fileURL.lastPathComponent
+        let destURL = docDir.appendingPathComponent(fileName)
+
+        /// Replace existing file so that we make sure to use latest received file.
+        if fileManager.fileExists(atPath: destURL.path) {
+            do {
+                try fileManager.removeItem(at: destURL)
+            } catch {
+                print(&quot;Removing existing file error: \(error.localizedDescription)&quot;)
+            }
+        }
+        do {
+            try fileManager.moveItem(at: file.fileURL, to: destURL)
+        } catch {
+            print(&quot;Moving file error: \(error.localizedDescription)&quot;)
+        }
+    }
+}
+</code></pre>
+<h3 id="踩到的坑">踩到的坑</h3>
+<ul>
+<li>File Transfer Mode 只能傳檔案不能傳資料夾，所以看起來像檔案但其實是資料夾的 Bundle/App file 也不能傳</li>
+<li>一定要用實機測試，模擬器無法成功傳檔案，這是個存在已久的 bug</li>
+</ul>
+
+              <a href="https://www.buymeacoffee.com/chiahsien" target="_blank" rel="noopener noreferrer">
+                <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=chiahsien&button_colour=44414e&font_colour=ffffff&font_family=Comic&outline_colour=ffffff&coffee_colour=FFDD00" />
+              </a>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://chiahsien.github.io/tag/watchos/" class="tag">
+                    watchOS
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/swift/" class="tag">
+                    Swift
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/ios/" class="tag">
+                    iOS
+                  </a>
+                
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

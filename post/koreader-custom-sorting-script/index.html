@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>一個自訂 KOReader 書籍排序的腳本 | Nelson</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="一個自訂 KOReader 書籍排序的腳本 | Nelson - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <div class="post-detail">
+            <h1 class="post-title">一個自訂 KOReader 書籍排序的腳本</h1>
+            <div class="post-date">2025-05-07</div>
+            
+            <div class="post-content">
+              <p>我在 KOBO 電子書閱讀器上額外安裝了 <a href="https://koreader.rocks">KOReader</a> 系統，它的眾多設定讓我可以調整出自己最喜歡的樣子來觀看電子書，無論是 ePUB、PDF、CBZ 格式，高度自訂化佈局讓閱讀成為一件舒服的事。</p>
+<p>最近有一個困擾我的地方，就是它的書本排序方式雖然很多，但卻沒有我想要的排序方式，我想要讓書本「先按照作者排序，然後如果是系列套書就按照系列順序排序，最後再按照書名或是出版日期排序」，這樣才符合我整理書本的習慣。</p>
+<p>還好 KOReader 提供了讓使用者開發與安裝 <a href="https://github.com/koreader/koreader/wiki/User-patches">user patch</a> 的功能，那就自己來寫一個 patch 滿足我的需求吧！</p>
+<p>p.s.: 也有開發者搜集了很多實用的 user patch，可以<a href="https://github.com/sebdelsol/KOReader.patches">來這裡看看</a>！</p>
+<!-- more -->
+<p>你可以在我的 <a href="https://github.com/chiahsien/KOReader.Patches">GitHub Repo</a> 找到 patch 檔，安裝步驟如下：</p>
+<ol>
+<li>下載 <code>2-sort-by-author-series.lua</code> 這個檔案</li>
+<li>建立 <code>koreader/patches</code> 目錄</li>
+<li>將下載的檔案放到該目錄</li>
+<li>重新啟動 KOReader</li>
+</ol>
+<p>這樣你就可以在 KOReader 的檔案瀏覽器的 <code>Sort by:</code> 選單看到一個新增的選項囉！</p>
+<figure data-type="image" tabindex="1"><img src="https://chiahsien.github.io/post-images/1769699689625.jpeg" alt="" loading="lazy"></figure>
+
+              <a href="https://www.buymeacoffee.com/chiahsien" target="_blank" rel="noopener noreferrer">
+                <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=chiahsien&button_colour=44414e&font_colour=ffffff&font_family=Comic&outline_colour=ffffff&coffee_colour=FFDD00" />
+              </a>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://chiahsien.github.io/tag/open-source/" class="tag">
+                    Open-Source
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/programming/" class="tag">
+                    Programming
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/koreader/" class="tag">
+                    KOReader
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/kobo/" class="tag">
+                    Kobo
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/dian-zi-shu/" class="tag">
+                    電子書
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/dian-zi-shu-yue-du-qi/" class="tag">
+                    電子書閱讀器
+                  </a>
+                
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

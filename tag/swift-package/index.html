@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>Nelson/Swift-Package</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="Nelson/Swift-Package - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <h1 class="current-tag">標籤: Swift-Package</h1>
+          
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/swift-package-with-resources/">
+            <h1 class="post-title">如何為單一 Feature 建立 Swift Package</h1>
+        </a>
+        <div class="post-date">
+            2025-11-03
+        </div>
+        <div class="post-abstract">
+            
+            <p>在專案開發到一定規模後，你可能會發現某些 feature 其實相對獨立：它們有自己的流程、畫面、資源檔，甚至可以被其他專案重用。這時候，最乾淨、最有彈性的做法，就是把它抽成 <strong>Swift Package</strong>。</p>
+<p>以我最近在做的功能為例，它是一個完整的獨立模組 - 有多個頁面、支援多國語言、使用圖片與動畫資源。為了避免日後整合時出現命名衝突、相依過重或編譯過慢的問題，我選擇把它獨立成一個 Swift Package。在將 feature 抽出到 Package 的過程我也踩到了一些坑，趁著這個機會記錄下來，以免日後忘記。</p>
+<h2 id="為什麼要把-feature-打包成-swift-package">為什麼要把 Feature 打包成 Swift Package？</h2>
+<p>建立專屬的 Swift Package 有幾個明顯的好處：</p>
+<ul>
+<li>✅ <strong>可獨立開發與測試</strong>：模組化後不必依賴主專案，可單獨編譯與驗證。</li>
+<li>⚙️ <strong>降低相依與衝突</strong>：減少命名重複、依賴鏈過長等問題。</li>
+<li>🚀 <strong>加快編譯速度</strong>：主專案不需每次都重新編譯整個功能。</li>
+<li>🔄 <strong>方便整合與重用</strong>：未來可以直接被其他 app 或團隊使用。</li>
+</ul>
+
+            <a href="https://chiahsien.github.io/post/swift-package-with-resources/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/ListFormatter-swift-package/">
+            <h1 class="post-title">FormattedListKit: Elegant List Displays Made Easy</h1>
+        </a>
+        <div class="post-date">
+            2025-03-25
+        </div>
+        <div class="post-abstract">
+            
+            <p>When developing iOS and macOS applications, formatting lists is a common requirement. Whether it's terms and conditions, setting options, or tutorial steps, we often need to present ordered or unordered list content. However, Apple's native frameworks have relatively limited support for list formatting, which often puts developers in a dilemma: existing solutions aren't perfect, while heavier solutions seem like overkill.</p>
+<p>To solve this problem, I developed <a href="https://github.com/chiahsien/FormattedListKit">FormattedListKit</a>, a lightweight yet fully-featured Swift Package specifically designed for creating beautifully formatted ordered and unordered lists.</p>
+
+            <a href="https://chiahsien.github.io/post/ListFormatter-swift-package/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+
+          <div class="pagination-container">
+  
+  
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

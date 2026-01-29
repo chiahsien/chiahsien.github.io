@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>如何建立不同的 SSH Key 對應到不同的 Github 帳號 | Nelson</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="如何建立不同的 SSH Key 對應到不同的 Github 帳號 | Nelson - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <div class="post-detail">
+            <h1 class="post-title">如何建立不同的 SSH Key 對應到不同的 Github 帳號</h1>
+            <div class="post-date">2021-06-20</div>
+            
+            <div class="post-content">
+              <h2 id="情況">情況</h2>
+<p>我有私人的 GitHub 帳號，為了方便自己跟公司管理起見，我用公司的信箱申請另一個 GitHub 帳號來存取公司的 repo。</p>
+<h2 id="問題">問題</h2>
+<p>同一台電腦的一組 SSH Key 只能綁定到一個 GitHub 帳號，無法用同一組 SSH key 綁定到多組帳號，所以我無法把綁到私人帳號的 SSH Key 再綁到公司帳號。</p>
+<h2 id="解法">解法</h2>
+<p>我要在同一台電腦建立不同的 SSH Key 對應到不同的 GitHub 帳號，並且在執行 <code>git</code> 操作時，系統會自動選擇對應的 SSH key。</p>
+<!-- more -->
+<h3 id="1-建立-ssh-key">1. 建立 SSH key</h3>
+<p>可以參考 <a href="https://docs.github.com/en/github/authenticating-to-github/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent">GitHub 的說明文件</a> 建立多組 SSH Key，大致的步驟如下：</p>
+<pre><code>ssh-keygen -t ed25519 -C &quot;your.name@personal.com&quot;
+ssh-keygen -t ed25519 -C &quot;your.name@company.com&quot;
+</code></pre>
+<p>建立的過程會問你要儲存的檔名，建議可以使用 <code>id_ed25519_personal</code> 跟 <code>id_ed25519_company</code> 之類好辨認的名字。</p>
+<h3 id="2-把-key-加入-ssh-agent">2. 把 key 加入 ssh-agent</h3>
+<p>首先要執行 <code>eval &quot;$(ssh-agent -s)&quot;</code> 啟動 ssh-agent，然後執行以下命令把 key 加到 ssh-agent。</p>
+<pre><code>ssh-add id_ed25519_personal
+ssh-add id_ed25519_company
+</code></pre>
+<p>我們可以執行 <code>ssh-add -l</code> 檢查看看是不是有正確加入了。</p>
+<h3 id="3-把-ssh-key-加到-github-帳號">3. 把 SSH key 加到 GitHub 帳號</h3>
+<p>參考 <a href="https://docs.github.com/en/github/authenticating-to-github/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account">GitHub 說明文件</a> 把不同的 SSH Key 加到各自對應的 GitHub 帳號。</p>
+<h3 id="4-設定-git-config-指定對應的-user-name-email">4. 設定 git config 指定對應的 user name &amp; email</h3>
+<p>在我們打算存放公司 repo 的目錄下，修改 <code>.git/config</code> 檔，加入以下的資訊。</p>
+<pre><code>[user]
+    name = Your Name
+    email = your.name@company.com
+</code></pre>
+<h3 id="5-重開機之後自動把-key-加入-ssh-agent">5. 重開機之後自動把 key 加入 ssh-agent</h3>
+<p>為了避免每次重開機都要手動把 key 加入 ssh-agent，我們還需要一些設定。首先要修改 <code>~/.ssh/config</code> 檔，沒有這個檔就手動建立一個。</p>
+<pre><code># Default github account
+Host github.com
+  HostName github.com
+  AddKeysToAgent yes
+  IdentitiesOnly yes
+  IdentityFile ~/.ssh/id_ed25519_personal
+
+# Company github account
+Host github.com-company
+  HostName github.com
+  AddKeysToAgent yes
+  IdentitiesOnly yes
+  IdentityFile ~/.ssh/id_ed25519_company
+</code></pre>
+<p>然後在家目錄底下的 <code>~/.gitconfig</code> 檔加入以下設定。</p>
+<pre><code>[url &quot;git@github.com-company:company_github_account/&quot;]
+    insteadOf = git@github.com:company_github_account/
+</code></pre>
+<h2 id="參考資料">參考資料</h2>
+<ul>
+<li><a href="https://gist.github.com/oanhnn/80a89405ab9023894df7">gist: using-multiple-github-accounts-with-ssh-keys.md</a></li>
+<li><a href="https://dev.to/arnellebalane/setting-up-multiple-github-accounts-the-nicer-way-1m5m">Setting up multiple GitHub accounts, the nicer way - DEV Community</a></li>
+<li><a href="https://superuser.com/questions/366649/ssh-config-same-host-but-different-keys-and-usernames">StackOverflow: git - SSH config - same host but different keys and usernames - Super User</a></li>
+<li><a href="https://stackoverflow.com/questions/4220416/can-i-specify-multiple-users-for-myself-in-gitconfig/">StackOverflow: Can I specify multiple users for myself in .gitconfig?</a></li>
+</ul>
+
+              <a href="https://www.buymeacoffee.com/chiahsien" target="_blank" rel="noopener noreferrer">
+                <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=chiahsien&button_colour=44414e&font_colour=ffffff&font_family=Comic&outline_colour=ffffff&coffee_colour=FFDD00" />
+              </a>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://chiahsien.github.io/tag/ssh/" class="tag">
+                    SSH
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/github/" class="tag">
+                    GitHub
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/security/" class="tag">
+                    Security
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/git/" class="tag">
+                    Git
+                  </a>
+                
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>
