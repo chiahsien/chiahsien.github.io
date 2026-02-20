@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>漫談 iOS 架構：從 MVC 到 VIPER，以及 Redux | Nelson</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="漫談 iOS 架構：從 MVC 到 VIPER，以及 Redux | Nelson - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <div class="post-detail">
+            <h1 class="post-title">漫談 iOS 架構：從 MVC 到 VIPER，以及 Redux</h1>
+            <div class="post-date">2019-09-21</div>
+            
+            <div class="post-content">
+              <p>很榮幸我能在今年的 <a href="https://iplayground.io/2019/">iPlayground</a> 分享了過去幾年以來，我對於 iOS 架構的一些看法與心得，<a href="https://speakerdeck.com/chiahsien/common-ios-architectures-from-mvc-to-viper-with-redux">投影片由此下載</a>，本文則是比較詳細的文字稿。</p>
+<p>這幾年大家逐漸重視 iOS 的架構設計，從最基本的 MVC 到開始普及的 MVP / MVVM，到分工細膩的 VIPER，每個 pattern 都有擁護者；近期也有為了解決畫面轉換的 Router / Coordinator 以及為了解決資料一致性的 Redux。</p>
+<p>我們 app 早期的架構是 MVC，後來改成 MVVM，後來為了因應複雜的流程所以引進 Coordinator，也引進 Redux 處理資料一致性的問題。</p>
+<p>接下來會聊聊這幾種 pattern 及其演化過程。</p>
+<!-- more -->
+<h2 id="mvc">MVC</h2>
+<figure data-type="image" tabindex="1"><img src="https://chiahsien.github.io/post-images/1569079938840.png" alt="MVC" loading="lazy"></figure>
+<p>這是 Apple 的 MVC 架構（跟原始的 MVC 架構有些許不同，但這不重要），各自負責的職責如下所述：</p>
+<ul>
+<li><strong>Model</strong>：負責處理資料相關事務（計算、修改、存取等等），並通知 Controller 資料的變化，所以這裡的 model 不是單純的 data model 而是所謂的 fat model。</li>
+<li><strong>View</strong>：負責顯示各種畫面元件，並在使用者執行動作（滑動、點擊、按壓等等）時通知 Controller。</li>
+<li><strong>Controller</strong>：負責在使用者有動作的時候去執行特定工作、要求 Model 更新狀態、在 Model 有變化時更新 View 的內容來顯示這些變化。</li>
+</ul>
+<p>一切看來都很美好，直到我們的 app 變得稍微複雜。在現實環境中，我們的 Controller 承擔的責任不只這些，還需要負責其他事情：</p>
+<ul>
+<li>如果不是用 storyboard / xib，那就需要建立與擺放各個 views；就算是用 storyboard / xib，也可能需要透過程式碼調整一些設定。</li>
+<li>執行各種動畫。</li>
+<li>轉換資料以便讓各個 views 顯示。</li>
+<li>管理整個頁面的 state 變化。</li>
+<li>作為其他元件的 data sources 與 delegates。</li>
+<li>執行 API call 或 database access。</li>
+<li>present / dismiss 或 push / pop 其他的 view controllers</li>
+<li>其他有的沒的。。。</li>
+</ul>
+<p>通常這個時候 Controller 的程式碼已經破千行，到達一個難以管理、不想面對的狀態，這也是 MVC 被戲稱為 <strong>Massive View Controller</strong> 的原因。一個有經驗的工程師在這種情況下自然而然會想要 refactor，讓每個元件負責的事情簡化一點，因此就演化出接下來的 <strong>MVP</strong> 與 <strong>MVVM</strong> 架構。</p>
+<h2 id="mvp-與-mvvm">MVP 與 MVVM</h2>
+<p>在實際的開發中，我們會發現 View 跟 View Controller 的生命週期通常是一致的，並且它們的關係密不可分，所以我們可以把 View 跟 View Controller 視為一體，都稱作 <strong>View</strong>。顧名思義 View Controller 應該只負責跟處理畫面有關的事務，所以在 refactor 的過程就會自然的把「跟處理畫面無關」的程式碼（像是 API call、database access、把 raw data 轉成適合顯示的 data）抽出來交給另一個物件負責，這個物件在 MVP 叫做 <strong>Presenter</strong>，在 MVVM 叫做 <strong>View Model</strong>。</p>
+<figure data-type="image" tabindex="2"><img src="https://chiahsien.github.io/post-images/1569079981221.png" alt="MVP" loading="lazy"></figure>
+<figure data-type="image" tabindex="3"><img src="https://chiahsien.github.io/post-images/1569079993405.png" alt="MVVM" loading="lazy"></figure>
+<p>以上兩張分別是 MVP 與 MVVM 的架構圖，明顯看得出來兩者幾乎一模一樣，除了 Presenter 跟 View Model 的命名不同之外，最大的差異在於 View 跟 Presenter / View Model 的互動方式。</p>
+<p><strong>MVP</strong></p>
+<ul>
+<li>在使用者動作發生時，View 要求 Presenter 做事。</li>
+<li>Presenter 做完事之後，通知 View 更新畫面，透過 <code>delegate</code> 是最常見的做法。</li>
+</ul>
+<p><strong>MVVM</strong></p>
+<ul>
+<li>強調 binding，常見的 binding framework 有 <a href="https://github.com/ReactiveCocoa/ReactiveCocoa">ReactiveCocoa</a>、<a href="https://github.com/ReactiveX/RxSwift">RxSwift</a>、或是 Apple 在 iOS 13 推出的 <a href="https://developer.apple.com/documentation/combine">Combine</a>。</li>
+<li>將使用者動作綁定到 View Model 的某個 method。</li>
+<li>將 View Model 的 property 變化綁定到 View 的畫面更新。</li>
+</ul>
+<p>你會發現它們做的事情是一模一樣的，所謂的 <code>binding</code> 說穿了就是幫這些基本操作（<code>delegate</code>, <code>target-action</code>, <code>KVO</code>）裹上一層糖衣，讓程式碼變得更加容易維護。</p>
+<p>所以 MVP 跟 MVVM 是一樣的東西，但實作細節則是有些不同。一般來說我們應該視複雜度及團隊成員能力來決定要用 MVP 還是 MVVM，甚至同時混用也是有可能。</p>
+<h2 id="coordinator">Coordinator</h2>
+<p>身為 iOS 開發者，我們早就習慣在 View Controller 裡頭去建立並透過 <code>present / push</code> 的方式呈現另一個 View Controller，也很習慣在 View Controller 按了一個按鈕之後就把自己 <code>dismiss / pop</code>，更別說我們會在 View Controller 裡頭建立與設定 <code>UINavigationItem</code>。這樣的 View Controller 會有以下的問題：</p>
+<ul>
+<li><strong>難以重複使用</strong>：因為把呈現方式寫死了，所以很難在不同場景使用。</li>
+<li><strong>流程缺乏彈性</strong>：因為把下一個畫面寫死了，所以很難調整畫面流程。</li>
+<li><strong>知道太多</strong>：View Controller 應該專注於自身的畫面，不應該插手別的畫面。</li>
+<li><strong>不合理</strong>：View Controller 不應該知道自己會被包在 Navigation 或 Tabbar Controller 裡頭，更別說知道自己會被 present 或 push 到螢幕上。</li>
+</ul>
+<p>所以一個理想的 View Controller 會專心負責一個畫面，甚至只負責畫面的某個區域，有另一個綜觀全局的管理者負責組合、調度這些 View Controllers。這個角色就是 <strong>Coordinator</strong>，它的功能如下：</p>
+<ul>
+<li>負責<strong>建立與切換</strong> View Controllers。</li>
+<li>負責組合出<strong>一個畫面(Scene)<strong>或</strong>一套流程(Scenario)</strong>。</li>
+<li>負責組合多個 <strong>child coordinators</strong>。</li>
+</ul>
+<blockquote>
+<p>廣義來看，一個 Container View Controller 正是承擔了 Coordinator 的職責。</p>
+</blockquote>
+<p>因此一個 Coordinator 通常就是一組 feature 或是一個 module 的入口，我們可以透過這種方式靈活的組合出一個 app。Coordinator 可以套用在各種架構 (MVC / MVVM / VIPER) 與畫面實作 (code / storyboard / xib)；至於實作細節我推薦要繼承自 <code>UIViewController</code>（為何不繼承自 <code>NSObject</code> 或單純的 <code>class</code>，原因可參考<a href="https://www.appcoda.com.tw/coordinator/">這篇</a>與<a href="https://github.com/onmyway133/blog/issues/106">這篇</a>文章）。</p>
+<p>我們把 MVVM 搭配 Coordinator 的架構稱為 <strong>MVVM-C</strong>，由 View Controller 或 View Model 負責跟 Coordinator 溝通。我個人傾向於讓 <strong>View Controller</strong> 負責溝通，因為 View Controller 是管理畫面的人，它最清楚當前畫面是否已經顯示完畢，也代表它最清楚溝通的時機點。</p>
+<blockquote>
+<p>常見的溝通方法有兩種：</p>
+<ul>
+<li>Coordinator 是 View Controller 的 delegate，VC 通知 delegate 目前的畫面狀態</li>
+<li>View Controller weak reference 到 Coordinator，VC 根據目前的畫面狀態要求 Coordinator 做事</li>
+</ul>
+<p>兩者做法一樣但意義不同，我認為前者才是合理的。</p>
+</blockquote>
+<h2 id="common-codes">Common Codes</h2>
+<p>到目前為止我們把畫面轉換的邏輯搬到 <strong>Coordinator</strong>，把業務邏輯搬到 <strong>View Model</strong>，View Controller 精簡到只剩下單一畫面的管理，再也不是動輒破千行的怪物（根據經驗此時的 View Controller 大概不到五百行，就算不用 storyboard / xib 建立畫面，程式碼也不到八百行）。</p>
+<p>尷尬的是，由於業務邏輯通常程式碼都不少，所以在 View Controller 瘦身的同時，View Model 卻開始變得臃腫；更糟糕的是，可能有很多重複的業務邏輯散落在多個 View Model 裡頭。身為一個工程師，我們自然而然會想要把這些重複的部分抽出來。</p>
+<p>這些被抽出來的部分，我們通常會命名為 <code>Manager</code> / <code>Service</code> / <code>Helper</code> / <code>Utility</code>，它們會直接或間接存取 data model。如此一來，業務邏輯可被多人共用，View Model 也不再那麼龐大，只需要專注在調用業務邏輯與轉換資料格式即可。</p>
+<blockquote>
+<p>再次提醒：這裡提到的 View Model 跟 Presenter 是一樣的東西。</p>
+</blockquote>
+<h2 id="viper">VIPER</h2>
+<p>或許你有聽過或看過 VIPER 的介紹，然後就覺得它的名詞一大堆好複雜、檔案一大堆好麻煩，甚至還有人準備了給 Xcode 用的 VIPER New File Template，想到就覺得頭大、難以推廣，乾脆直接放棄，對吧？</p>
+<p>如果我告訴你，其實你已經會用 VIPER 了呢？</p>
+<figure data-type="image" tabindex="4"><img src="https://chiahsien.github.io/post-images/1569080028925.png" alt="VIPER" loading="lazy"></figure>
+<p>這是 VIPER 的架構圖，有沒有覺得很眼熟？</p>
+<ul>
+<li><strong>View</strong>：就是 MVVM / MVP 的 View</li>
+<li><strong>Presenter</strong>：就是 MVP 的 Presenter，也是 MVVM 的 View Model</li>
+<li><strong>Router</strong>（也有人稱為 <strong>Wireframe</strong>）：就是 Coordinator</li>
+<li><strong>Interactor</strong>：就是那些可共用或不可共用的 Manager / Service / Helper / Utility</li>
+<li><strong>Entity</strong>：就是單純的 data model</li>
+</ul>
+<p>說到這裡相信你已經理解，MVC / MVVM / VIPER 其實是同一件事，它們只是工程師在 refactor 過程針對不同程式碼複雜度的規劃罷了。</p>
+<blockquote>
+<p>附帶一提：我傾向由 View Controller 跟 Router 溝通，而不是圖中的 Presenter。</p>
+</blockquote>
+<h2 id="redux">Redux</h2>
+<p>行文至此，不知道你有沒有發現這些模式其實是「<strong>UI 架構</strong>」：它們假設你有一套辦法去存取或修改資料，然後它們提供的方案是<strong>關於如何處理「界面顯示 / 使用者互動 / 資料存取」之間的關係</strong>。</p>
+<p>當程式越長越大，要儲存的狀態越來越多，不同畫面之間需要同步的資料也越來越多，我們該如何管理資料的存取、確保其一致性與正確性呢？我們可以從前端的 Redux 架構得到啟發，其重點在於「<strong>資料的流動是單向的，只有一份資料，並且只有一個角色可以修改資料</strong>」。</p>
+<figure data-type="image" tabindex="5"><img src="https://chiahsien.github.io/post-images/1569080043778.jpg" alt="Redux" loading="lazy"></figure>
+<p>從上圖可以看到，Redux 架構很簡單，只有四個角色：</p>
+<p><strong>Action</strong></p>
+<ul>
+<li>單純的資料結構，沒有任何業務邏輯。</li>
+<li>用來表示某個動作，並附帶這個動作所需的資料。</li>
+</ul>
+<p><strong>Store</strong></p>
+<ul>
+<li>Redux 架構的中心。</li>
+<li>負責持有 Reducers。</li>
+<li>負責持有 State，並讓外界可以取得目前的 State。</li>
+<li>負責收到 Action，把 Action 跟目前的 State 傳給 Reducers。</li>
+<li>負責送出「State 已經更新」的通知給感興趣的人。</li>
+</ul>
+<blockquote>
+<p>送出 Action 到收到 State 變化之間是**「async」**的。</p>
+</blockquote>
+<p><strong>State</strong></p>
+<ul>
+<li>單純的資料結構。</li>
+<li>代表整個 app 需要共享的所有資料。</li>
+<li><a href="https://hackernoon.com/shape-your-redux-store-like-your-database-98faa4754fd5">像設計資料庫一樣設計你的 State</a>，至少做到<a href="https://redux.js.org/recipes/structuring-reducers/normalizing-state-shape">一階正規化</a>。</li>
+</ul>
+<blockquote>
+<p>雖然還沒實驗過，我覺得在龐大複雜的環境，直接用資料庫實作 State 應該是可行的。</p>
+</blockquote>
+<p><strong>Reducer</strong></p>
+<ul>
+<li>輸入是「Action」跟「State」，輸出是「<strong>修改過</strong>的 State」。</li>
+<li><strong>理論上</strong>是 <strong>pure function</strong>，實際上為了效能考量，我們直接修改 State。</li>
+</ul>
+<blockquote>
+<p>Reducers 之間不要有相依性，不要假設它們執行的先後次序。</p>
+</blockquote>
+<h2 id="完整流程">完整流程</h2>
+<p>要怎麼把 UI 架構跟 Redux 結合起來呢？你已經知道 MVC / MVP / MVVM / VIPER 是一樣的東西，以 VIPER 為例，完整流程如下：</p>
+<ol>
+<li>使用者執行某項操作，View 呼叫 Presenter 對應的函式。</li>
+<li>Presenter 呼叫 Interactor 對應的函式。</li>
+<li>Interactor 送出對應的 Action 與附加資訊給 Store。</li>
+<li>Store 把 Action 丟給 Reducers，認得這個 Action 的 Reducers 就會去修改 State。</li>
+<li>修改完畢後，Store 送出通知讓其他人知道 State 有變化。</li>
+<li>Interactor 收到通知後，跟 Store 取得最新的 State 裡頭感興趣的 data 傳給 Presenter。</li>
+<li>Presenter 通知 View 資料有變化，View 更新對應的 UI。</li>
+</ol>
+<blockquote>
+<p>補充說明：</p>
+<p>在 Redux 原始設計裡頭，有個東西叫做 <code>Middleware</code> 作為 <code>Action</code> 的擴充，它用來處理一些 <strong>async</strong> 的 Action（例如 API call）或是一些 <strong>side effect</strong>（像是 logging 或 event tracking）。但我覺得這樣的設計對 iOS 開發來說太複雜並且不直覺，所以我沒有照搬這套作法，我的作法是：</p>
+<ol>
+<li>API call / Logging / Event tracking 這些工作交給 Interactor / Service / Manager 等角色處理，<strong>處理完畢再送 Action</strong>。</li>
+<li>Action 單純代表要對 State 做的操作就好。</li>
+</ol>
+</blockquote>
+<p>附帶一提，你需要在資料有變化的時候更新對應的 UI，如果是在 <code>UITableView / UICollectionView</code> 的場景，你可以考慮借助 <a href="https://github.com/Instagram/IGListKit">IGListKit</a> 的 diff 功能或是 <a href="https://github.com/onmyway133/DeepDiff">DeepDiff</a>，如果是 iOS 13 則可以使用 <a href="https://developer.apple.com/videos/play/wwdc2019/220/">Diffable Data Source</a> 得知哪些資料變了。</p>
+<h2 id="寫在最後">寫在最後</h2>
+<p>我們大略的介紹了幾個 iOS 最常見的架構，講白了就是一連串的 refactor 過程，從 View Controller 開始逐步 refactor 到其他元件。除了上述這些之外，或許你還有聽過 <a href="https://clean-swift.com/clean-swift-ios-architecture/">VIP</a> 或 Uber 的 <a href="https://github.com/uber/RIBs">RIBs</a>，相信你現在再去看這些架構，會有一些不同的想法。</p>
+<p>有鑑於現在的 app 大多有好幾個複雜頁面，我推薦採用 <strong>MVVM-C</strong> 架構，視情況將元件拆成更小的元件；再搭配 <strong>Composition</strong> 的概念將多個 View Controller 組合成一個大的 View Controller，或是將多個 Coordinator 組合成一個大 Coordinator。</p>
+<p>如果你的 app 真的很難以 refactor，或是其他現實因素讓你無法套用這些 pattern，我建議至少試試看 <strong>Coordinator</strong>，它的技術門檻相對低、需要的改動少、效果也很好，很值得一試！</p>
+<p>我們的目標就是要合理劃分各個元件的職責，讓每個元件不要太龐大，並且讓同事以及未來的自己有能力繼續維護程式碼。</p>
+
+              <a href="https://www.buymeacoffee.com/chiahsien" target="_blank" rel="noopener noreferrer">
+                <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=chiahsien&button_colour=44414e&font_colour=ffffff&font_family=Comic&outline_colour=ffffff&coffee_colour=FFDD00" />
+              </a>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://chiahsien.github.io/tag/design-pattern/" class="tag">
+                    Design-Pattern
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/objective-c/" class="tag">
+                    Objective-C
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/redux/" class="tag">
+                    Redux
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/architecture/" class="tag">
+                    Architecture
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/swift/" class="tag">
+                    Swift
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/ios/" class="tag">
+                    iOS
+                  </a>
+                
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

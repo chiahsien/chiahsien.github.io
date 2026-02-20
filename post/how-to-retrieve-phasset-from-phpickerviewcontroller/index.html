@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>如何使用 PHPickerViewController 取得 PHAsset | Nelson</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="如何使用 PHPickerViewController 取得 PHAsset | Nelson - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <div class="post-detail">
+            <h1 class="post-title">如何使用 PHPickerViewController 取得 PHAsset</h1>
+            <div class="post-date">2024-03-02</div>
+            
+            <div class="post-content">
+              <p><code>PHPickerViewController</code> 是系統內建的一個照片選取工具，透過 <code>PHPickerConfiguration</code> 設定它，然後從它的 delegate function <code>func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult])</code> 取得用戶選取的結果。看起來非常簡單直覺，直到我踩了坑...</p>
+<!-- more -->
+<p>我的目標是要從回傳的 <code>[PHPickerResult]</code> 轉成 <code>[PHAsset]</code>，首先要取得所有的 <code>assetIdentifier</code>，接下來使用 <code>PHAsset</code> 的 <code>fetchAssets(withLocalIdentifiers identifiers: [String], options: PHFetchOptions?) -&gt; PHFetchResult&lt;PHAsset&gt;</code> 得到 fetch results。</p>
+<h2 id="phpickerresult-的-assetidentifier-總是為-nil"><code>PHPickerResult</code> 的 <code>assetIdentifier</code> 總是為 <code>nil</code>？</h2>
+<p>從 <code>PHPickerViewControllerDelegate</code> 我們可以得到 <code>results: [PHPickerResult]</code>，然後就能將它轉成 <code>assetIdentifier</code> array</p>
+<pre><code class="language-swift">let identifiers = results.compactMap { $0.assetIdentifier }
+</code></pre>
+<p>但我發現 <code>identifiers</code> 總是空的...</p>
+<p>研究了好久之後才發現問題出在 <code>PHPickerConfiguration</code>。</p>
+<p>當我們要初始化它的時候，不能直接使用 <code>let config = PHPickerConfiguration()</code>，如果沒有提供 photo library 參數給它，<code>assetIdentifier</code> 就會總是為 <code>nil</code>。因此正確的做法如下：</p>
+<pre><code class="language-swift">let configuration = PHPickerConfiguration(photoLibrary: PHPhotoLibrary.shared())
+let picker = PHPickerViewController(configuration: configuration)
+picker.delegate = self
+self.present(picker, animated: true, completion: nil)
+</code></pre>
+<h2 id="phfetchresult-跟-phpickerresult-數量不一致"><code>PHFetchResult</code> 跟 <code>PHPickerResult</code> 數量不一致？</h2>
+<p>好不容易取得正確的 identifiers，接下來就是要透過 identifiers 取得 <code>PHAsset</code> 了。我們可以這麼做：</p>
+<pre><code class="language-swift">let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers:identifiers, options:nil)
+fetchResult.enumerateObjects() { asset, _, _ in
+    // Deal with the asset
+}
+</code></pre>
+<p>但我發現 <code>fetchResult.count</code> 跟 <code>identifiers.count</code> 並非總是一致，可取得的 assets 可能會比 identifiers 少。明明我們確定 identifiers 都是正確且合法的，為什麼無法取得所有對應的 PHAsset 呢？</p>
+<p>經過一番排查之後，我才發現這跟照片的存取權限有關：</p>
+<blockquote>
+<p>如果使用者有限制 app 只能存取特定照片，即使 <code>PHPickerViewController</code> 可以讓使用者看到並選取任何照片，但實際可以取得的只有使用者允許的部分。</p>
+</blockquote>
+<p>以上，就是我的踩坑之路。</p>
+
+              <a href="https://www.buymeacoffee.com/chiahsien" target="_blank" rel="noopener noreferrer">
+                <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=chiahsien&button_colour=44414e&font_colour=ffffff&font_family=Comic&outline_colour=ffffff&coffee_colour=FFDD00" />
+              </a>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://chiahsien.github.io/tag/photokit/" class="tag">
+                    PhotoKit
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/tips/" class="tag">
+                    Tips
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/swift/" class="tag">
+                    Swift
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/ios/" class="tag">
+                    iOS
+                  </a>
+                
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

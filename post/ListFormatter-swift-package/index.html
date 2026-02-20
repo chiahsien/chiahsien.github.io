@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>FormattedListKit: Elegant List Displays Made Easy | Nelson</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="FormattedListKit: Elegant List Displays Made Easy | Nelson - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <div class="post-detail">
+            <h1 class="post-title">FormattedListKit: Elegant List Displays Made Easy</h1>
+            <div class="post-date">2025-03-25</div>
+            
+            <div class="post-content">
+              <p>When developing iOS and macOS applications, formatting lists is a common requirement. Whether it's terms and conditions, setting options, or tutorial steps, we often need to present ordered or unordered list content. However, Apple's native frameworks have relatively limited support for list formatting, which often puts developers in a dilemma: existing solutions aren't perfect, while heavier solutions seem like overkill.</p>
+<p>To solve this problem, I developed <a href="https://github.com/chiahsien/FormattedListKit">FormattedListKit</a>, a lightweight yet fully-featured Swift Package specifically designed for creating beautifully formatted ordered and unordered lists.</p>
+<!-- more -->
+<h2 id="why-formattedlistkit">Why FormattedListKit?</h2>
+<p>I've tried several existing solutions, but wasn't fully satisfied with any of them:</p>
+<ol>
+<li>
+<p><strong>Using Markdown</strong>: iOS/macOS has limited native support for Markdown. Although <code>AttributedString</code> can process markdown syntax, it performs poorly when it comes to list formatting.</p>
+</li>
+<li>
+<p><strong>Using third-party Markdown packages</strong>: Introducing a complete Markdown parsing engine just to display lists seems bloated and over-engineered.</p>
+</li>
+<li>
+<p><strong>Using WebView to display HTML</strong>: This requires converting simple text lists to HTML first, and WebViews consume more resources.</p>
+</li>
+<li>
+<p><strong>Custom implementation (handling markers and items separately)</strong>: Highly flexible, but requires dealing with relatively complex layout logic.</p>
+</li>
+</ol>
+<p>Based on these pain points, FormattedListKit was born. It provides a simple yet powerful solution that allows developers to create beautiful lists with just a few lines of code.</p>
+<h2 id="core-features-of-formattedlistkit">Core Features of FormattedListKit</h2>
+<p>FormattedListKit's design philosophy is &quot;simple and focused&quot; - it concentrates on solving the specific problem of list formatting. Here are its main features:</p>
+<h3 id="1-support-for-multiple-list-types">1. Support for Multiple List Types</h3>
+<ul>
+<li><strong>Ordered lists</strong>: Supports integers (1. 2. 3.), Roman numerals (i. ii. iii. or I. II. III.), and letters (a. b. c. or A. B. C.)</li>
+<li><strong>Unordered lists</strong>: Supports bullets (•), hollow circles (◦), squares (▪), and custom symbols</li>
+</ul>
+<h3 id="2-flexible-formatting-options">2. Flexible Formatting Options</h3>
+<ul>
+<li><strong>Marker alignment</strong>: Supports left or right alignment of markers</li>
+<li><strong>Custom font</strong>: Allows setting font for list items</li>
+<li><strong>Proper indentation</strong>: Ensures multi-line text is correctly aligned, improving readability</li>
+</ul>
+<h3 id="3-simple-api">3. Simple API</h3>
+<p>FormattedListKit provides a simple and intuitive API through <code>NSAttributedString</code> extensions, creating complete lists with just one function call.</p>
+<pre><code class="language-swift">let items = [&quot;First item&quot;, &quot;Second very long item that needs to wrap to the next line&quot;, &quot;Third item&quot;]
+let attributedString = NSAttributedString.createList(
+    for: items,
+    type: .ordered(style: .decimal),
+    font: .systemFont(ofSize: 16),
+    markerAlignment: .right
+)
+
+// Set the formatted list to a UILabel or UITextView
+myTextView.attributedText = attributedString
+</code></pre>
+<h3 id="4-cross-platform-support">4. Cross-platform Support</h3>
+<p>FormattedListKit supports both iOS and macOS platforms, ensuring consistent list display experiences across different devices.</p>
+<h2 id="how-to-use-formattedlistkit-in-your-project">How to Use FormattedListKit in Your Project</h2>
+<p>Add FormattedListKit to your project using Swift Package Manager, then just <code>import FormattedListKit</code>:</p>
+<pre><code class="language-swift">dependencies: [
+    .package(url: &quot;https://github.com/chiahsien/FormattedListKit.git&quot;, from: &quot;1.0.0&quot;)
+]
+</code></pre>
+<h2 id="practical-use-cases">Practical Use Cases</h2>
+<p>FormattedListKit is particularly suitable for:</p>
+<ol>
+<li><strong>User agreements and terms</strong>: Clearly formatted lists of terms, improving readability</li>
+<li><strong>Tutorials and guides</strong>: Step-by-step instructions or helpful tips</li>
+<li><strong>Content display</strong>: Any place where lists need to be displayed</li>
+</ol>
+<h2 id="conclusion">Conclusion</h2>
+<p>FormattedListKit was born from practical development needs, aiming to solve a seemingly simple but actually annoying problem: how to elegantly display formatted lists. By focusing on this specific functionality, it provides a lightweight but complete solution that both avoids reinventing the wheel and doesn't require overly large dependencies.</p>
+<p>Check out <a href="https://github.com/chiahsien/FormattedListKit">FormattedListKit</a>, and please consider contributing through Issues or PRs on GitHub 😁</p>
+
+              <a href="https://www.buymeacoffee.com/chiahsien" target="_blank" rel="noopener noreferrer">
+                <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=chiahsien&button_colour=44414e&font_colour=ffffff&font_family=Comic&outline_colour=ffffff&coffee_colour=FFDD00" />
+              </a>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://chiahsien.github.io/tag/swift-package/" class="tag">
+                    Swift-Package
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/open-source/" class="tag">
+                    Open-Source
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/side-project/" class="tag">
+                    Side-Project
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/library/" class="tag">
+                    Library
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/macos/" class="tag">
+                    macOS
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/swift/" class="tag">
+                    Swift
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/ios/" class="tag">
+                    iOS
+                  </a>
+                
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>如何正確設定 AFNetworking 的安全連線 | Nelson</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="如何正確設定 AFNetworking 的安全連線 | Nelson - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <div class="post-detail">
+            <h1 class="post-title">如何正確設定 AFNetworking 的安全連線</h1>
+            <div class="post-date">2015-04-29</div>
+            
+            <div class="post-content">
+              <h2 id="tldr">TL;DR</h2>
+<p>前一陣子 <a href="https://github.com/AFNetworking/AFNetworking">AFNetworking</a> 被爆出存在安全性漏洞，它們也針對這件事情發出<a href="https://github.com/AFNetworking/AFNetworking">聲明稿</a>。</p>
+<p>簡單的說，就是建議開發者使用最新版的 AFNetworking，並且啟用安全連線。不過它們也承認這一部份的說明文件沒有寫得很齊全，所以困擾了不少開發者。</p>
+<p>今天花了一點時間研究，順手把它記錄下來。安全相關的東西不是我的專長，所以如果有任何錯誤的地方，請留言告訴我。</p>
+<!--more-->
+<h2 id="取得安全憑證">取得安全憑證</h2>
+<h3 id="1-確認有使用安全連線">1. 確認有使用安全連線</h3>
+<p>如果你跟遠端伺服器是透過 HTTP 連線，那就不是安全連線，如果是 HTTPS 那就是安全連線。</p>
+<h3 id="2-準備好網站的安全憑證">2. 準備好網站的安全憑證</h3>
+<p>接下來我們需要憑證檔(Certification file)，它的副檔名是 <code>.cer</code>，你可以跟你們的網站管理員詢問，通常他們都知道怎麼拿到這個檔案。</p>
+<p>如果你的網站管理員沒有 <code>.cer</code> 檔，只有 <code>.crt</code> 檔，那你可以透過以下這行指令轉檔，要注意的是它是採用 <strong>DER</strong> 編碼格式（請自行將 <strong>myWebsite</strong> 替換成你想要的名字）：</p>
+<p><code>openssl x509 -in myWebsite.crt -out myWebsite.cer -outform der</code></p>
+<p>如果很不幸的，你的網站管理員連 <code>.crt</code> 檔都沒有，那你也可以使用下列這一整行指令從你們的網站取得憑證（請自行將 <strong>www.mywebsite.com</strong> 替換成你們的網址）：</p>
+<p><code>openssl s_client -connect www.mywebsite.com:443 &lt;/dev/null 2&gt;/dev/null | openssl x509 -outform DER &gt; myWebsite.cer</code></p>
+<p>現在你有一個憑證檔了。</p>
+<h3 id="3-將憑證加入你的專案">3. 將憑證加入你的專案</h3>
+<p>將你的憑證拖拉放到 Xcode 專案底下，記得要把 <code>Copy items if needed</code> 跟 <code>Add to targets</code> 打勾。</p>
+<figure data-type="image" tabindex="1"><img src="https://farm8.staticflickr.com/7709/17119573630_0bebee9a7b_o.png" alt="" loading="lazy"></figure>
+<p>好了，事前準備都做完，接著我們來設定 AFNetworking。</p>
+<h2 id="設定-afnetworking">設定 AFNetworking</h2>
+<h3 id="1-pinning-mode">1. Pinning Mode</h3>
+<p>AFNetworking 的安全相關設定放在 <code>AFSecurityPolicy</code>，它定義了三種 SSL Pinning Mode:</p>
+<pre><code class="language-objc">/*
+ `AFSSLPinningModeNone`
+ Do not used pinned certificates to validate servers.
+
+ `AFSSLPinningModePublicKey`
+ Validate host certificates against public keys of pinned certificates.
+
+ `AFSSLPinningModeCertificate`
+ Validate host certificates against pinned certificates.
+*/
+typedef NS_ENUM(NSUInteger, AFSSLPinningMode) {
+    AFSSLPinningModeNone,
+    AFSSLPinningModePublicKey,
+    AFSSLPinningModeCertificate,
+};
+</code></pre>
+<p>關於 pinning mode 詳細的說明可以參考<a href="https://www.owasp.org/index.php/Certificate_and_Public_Key_Pinning#What_Is_Pinning.3F">這篇文章</a>，簡單的說就是你可以將憑證跟你的 APP 一起打包，藉由此機制來避免中間人偽造憑證的風險。</p>
+<ul>
+<li><code>AFSSLPinningModeNone</code> : 你不必將憑證跟你的 APP 一起打包，完全信任伺服器的憑證</li>
+<li><code>AFSSLPinningModeCertificate</code> : 比對伺服器憑證跟你的憑證是否完全匹配</li>
+<li><code>AFSSLPinningModePublicKey</code> : 只比對伺服器憑證的 public key 跟你的憑證的 public key 是否匹配</li>
+</ul>
+<p><strong>那要選用何種模式比較好呢？</strong></p>
+<p><code>AFSSLPinningModeCertificate</code> 比較安全但也比較麻煩，它會比對你打包的憑證跟伺服器的憑證是否一致。因為你的憑證是跟 APP 一起打包的，這也就代表說如果你的憑證過期了或是變動了，你就得出一版新的 APP 而且舊版 APP 的憑證就失效了。你也可以在每次 APP 啟動時，就自動連到某個伺服器下載最新的憑證，不過此時這個下載連線就會是有風險的。</p>
+<p><code>AFSSLPinningModePublicKey</code> 則是只有比對憑證裡的 public key，所以即使伺服器憑證有所變動，只要 public key 不變，就能通過驗證。</p>
+<p>所以如果你能確保每個使用者總是使用最新版本的 APP（例如是公司企業內部專用的），那就可以考慮 <code>AFSSLPinningModeCertificate</code>，否則的話選擇 <code>AFSSLPinningModePublicKey</code> 是比較實際的作法。</p>
+<h3 id="2-certification-chain">2. Certification Chain</h3>
+<pre><code class="language-objc">/**
+ Whether to evaluate an entire SSL certificate chain, or just the leaf certificate. Defaults to `YES`.
+ */
+@property (nonatomic, assign) BOOL validatesCertificateChain;
+</code></pre>
+<p>你的憑證是某家機構發出的，該機構的憑證是由更高一級的機構發出的，一路往上追，最後會到一個根機構，這樣一串由各機構發出的憑證稱為 certification chain。</p>
+<p>如果你把 <code>validatesCertificateChain</code> 設為 YES，那就得把這一整串憑證都打包進你的 APP，必須每個驗證都通過才算通過。如果設為 NO，只需要打包你自己的憑證就夠了。</p>
+<p><strong>Update: <code>validatesCertificateChain</code> 這個選項已經在 AFNetworking v2.6.0 拿掉了。</strong></p>
+<h3 id="3-如何使用-afsecuritypolicy">3. 如何使用 AFSecurityPolicy</h3>
+<p>這裡以最新版的 AFNetworking 為例，假設你有一個 <code>APIManager</code> 處理所有的 API call，它繼承自 <code>AFHTTPSessionManager</code>，我們可以設定它的 security policy 如下：</p>
+<pre><code class="language-objc">@interface APIManager : AFHTTPSessionManager
++ (APIManager *)sharedInstance;
+@end
+
+@implementation APIManager
++ (APIManager *)sharedInstance {
+  static APIManager *_sharedClient = nil;
+  static dispatch_once_t onceToken;
+
+  dispatch_once(&amp;onceToken, ^{
+    NSURLSessionConfiguration *sessionConfiguration = [NSURLSessionConfiguration defaultSessionConfiguration];
+    _sharedClient = [[APIManager alloc] initWithBaseURL:nil sessionConfiguration:sessionConfiguration];
+    AFSecurityPolicy *policy = [AFSecurityPolicy policyWithPinningMode:AFSSLPinningModePublicKey];
+     policy.validatesCertificateChain = NO; // v2.6.0 之後沒有這個選項了
+    _sharedClient.securityPolicy = policy;
+  });
+
+  return _sharedClient;
+}
+@end
+</code></pre>
+<p>好了，到此大功告成，你已經正確設定好安全連線了！</p>
+<h2 id="錯誤排解">錯誤排解</h2>
+<h3 id="q-為什麼我可以連上其他的網址我不是應該只能連上憑證綁定的網址嗎">Q: 為什麼我可以連上其他的網址？我不是應該只能連上憑證綁定的網址嗎？</h3>
+<ol>
+<li>檢查 <code>validatesDomainName</code> 是否設為 NO 了，是的話就將它改成 YES。</li>
+<li>檢查是否連到 <code>http</code> 開頭的網址，非安全連線是不受限制的。</li>
+</ol>
+<h3 id="q-為什麼有打包憑證了還是會連線失敗">Q: 為什麼有打包憑證了，還是會連線失敗？</h3>
+<ol>
+<li>確認你的憑證有加到你的 target 裡頭，拖拉到 Xcode 時要把 <code>Copy items if needed</code> 跟 <code>Add to targets</code> 打勾。</li>
+<li>如果 <code>validatesCertificateChain</code> 是 YES，記得把它改成 NO，或是把上級憑證也一同打包進 APP。(v2.6.0 之後沒有這個選項了）</li>
+</ol>
+<h2 id="參考文件">參考文件</h2>
+<p>https://github.com/AFNetworking/AFNetworking/issues/2673</p>
+<p>https://github.com/rnapier/RNPinnedCertValidator</p>
+<p>http://stackoverflow.com/a/24625969</p>
+<p>http://oncenote.com/2014/10/21/Security-1-HTTPS/</p>
+
+              <a href="https://www.buymeacoffee.com/chiahsien" target="_blank" rel="noopener noreferrer">
+                <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=chiahsien&button_colour=44414e&font_colour=ffffff&font_family=Comic&outline_colour=ffffff&coffee_colour=FFDD00" />
+              </a>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://chiahsien.github.io/tag/network/" class="tag">
+                    Network
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/security/" class="tag">
+                    Security
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/objective-c/" class="tag">
+                    Objective-C
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/ios/" class="tag">
+                    iOS
+                  </a>
+                
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

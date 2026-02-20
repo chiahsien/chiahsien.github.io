@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>Nelson/macOS</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="Nelson/macOS - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <h1 class="current-tag">標籤: macOS</h1>
+          
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/my-mac-setup/">
+            <h1 class="post-title">我的 Mac 設定</h1>
+        </a>
+        <div class="post-date">
+            2025-07-26
+        </div>
+        <div class="post-abstract">
+            
+            <p>工程師都會有自己習慣的電腦設定，我自然也不例外。本文記錄了我自己的環境建置，方便以後換電腦或換工作時可以快速 setup。</p>
+
+            <a href="https://chiahsien.github.io/post/my-mac-setup/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/ListFormatter-swift-package/">
+            <h1 class="post-title">FormattedListKit: Elegant List Displays Made Easy</h1>
+        </a>
+        <div class="post-date">
+            2025-03-25
+        </div>
+        <div class="post-abstract">
+            
+            <p>When developing iOS and macOS applications, formatting lists is a common requirement. Whether it's terms and conditions, setting options, or tutorial steps, we often need to present ordered or unordered list content. However, Apple's native frameworks have relatively limited support for list formatting, which often puts developers in a dilemma: existing solutions aren't perfect, while heavier solutions seem like overkill.</p>
+<p>To solve this problem, I developed <a href="https://github.com/chiahsien/FormattedListKit">FormattedListKit</a>, a lightweight yet fully-featured Swift Package specifically designed for creating beautifully formatted ordered and unordered lists.</p>
+
+            <a href="https://chiahsien.github.io/post/ListFormatter-swift-package/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/public-and-drop-box-folders-in-macos/">
+            <h1 class="post-title">macOS 的「公用」與「投遞箱」目錄的用途</h1>
+        </a>
+        <div class="post-date">
+            2021-07-10
+        </div>
+        <div class="post-abstract">
+            
+            <p>在每個 macOS 使用者的根目錄底下都有一個「公用 (Public)」目錄，而且這個目錄裡頭還有一個「投遞箱 (Drop Box)」目錄，身為 Mac 使用者這麼多年一直不知道它們的真正用途，直到最近...</p>
+<p>最近因應疫情，很多人必須使用自己的電腦在家工作，然而我家只有一台電腦，所以我就幫家人建立一個新的使用者帳號方便工作用。建立好新的使用者帳號之後，該怎麼讓不同帳號之間共享檔案呢？這時候就需要「公用」跟「投遞箱」了：</p>
+<ul>
+<li>你要給別人：你放在「公用」目錄裡頭的檔案可以讓其他帳號存取，但是其他人無法修改或刪除檔案。</li>
+<li>別人要給你：其他帳號可以把檔案拖移到你的「投遞箱」目錄，但是只有你看得到「投遞箱」的內容，其他帳號看不到。</li>
+</ul>
+<p>更詳細的說明可以參考<a href="https://support.apple.com/zh-tw/guide/mac-help/mchlp1122/11.0/mac/11.0">蘋果官方說明文件</a>。</p>
+
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/xcode-the-right-way/">
+            <h1 class="post-title">如何下載、安裝、管理 Xcode</h1>
+        </a>
+        <div class="post-date">
+            2021-04-28
+        </div>
+        <div class="post-abstract">
+            
+            <h2 id="下載">下載</h2>
+<p>不要透過 AppStore，因為速度太慢太不穩定了，要去<a href="https://developer.apple.com/download/more/">官方網站</a>下載才快。但是我們還有更快的方法，可以透過下載軟體同時開啟多條連線下載，我推薦使用 <a href="https://github.com/RobotsAndPencils/XcodesApp">XcodesApp</a> 或 <a href="https://github.com/vineetchoudhary/Downloader-for-Apple-Developers">Downloader-for-Apple-Developers</a>，前者比較漂亮，後者還可以下載 WWDC 的影片。</p>
+<h2 id="安裝">安裝</h2>
+<p>不要直接解壓縮 <code>xip</code> 檔，這樣會花很長的時間。下指令去解會快很多：</p>
+<pre><code class="language-shell">xip -x Xcode.xip
+</code></pre>
+<h2 id="管理">管理</h2>
+<p>可以放多個不同版本的 Xcode 在 Applications 資料夾，只要名稱不一樣就好了，記得要下指令來指定要使用哪個版本。</p>
+<pre><code class="language-shell">sudo xcode-select -s /Applications/Xcode.app
+</code></pre>
+<p>時間久了之後，會產生很多沒再用的檔案佔用空間，我們可以使用 <a href="https://apps.apple.com/tw/app/devcleaner-for-xcode/id1388020431?mt=12">DevCleaner for Xcode</a> 或 <a href="https://github.com/waylybaye/XcodeCleaner-SwiftUI">XcodeCleaner-SwiftUI</a> 來幫忙清理，效果非常的好！</p>
+<h2 id="參考資料">參考資料</h2>
+<p><a href="https://www.notion.so/Xcode-dfbe2d934ff84b2d84e34ffceef56fe0#9a1443e99f244cc9b699a9bf890e2749">安裝 Xcode 的正確姿勢</a></p>
+
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/detect-images-by-coreml/">
+            <h1 class="post-title">利用 CoreML 來判別圖片</h1>
+        </a>
+        <div class="post-date">
+            2019-04-23
+        </div>
+        <div class="post-abstract">
+            
+            <p>在 WWDC 2018 蘋果推出了 <a href="https://developer.apple.com/documentation/createml">Create ML</a> ，讓開發者可以輕鬆的建立並訓練適合自己需求的機器學習模型，它支援圖片、自然語言、表格資料的學習。最近這幾天我就想到要訓練一個自家的模型，用來檢查使用者是否打算上傳不恰當的圖片。</p>
+
+            <a href="https://chiahsien.github.io/post/detect-images-by-coreml/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/quicklook-plugins-i-use/">
+            <h1 class="post-title">我在用的 QuickLook plugins</h1>
+        </a>
+        <div class="post-date">
+            2013-07-13
+        </div>
+        <div class="post-abstract">
+            
+            <p>Mac 有個很棒的功能叫做「<strong>QuickLook</strong>」，它讓我們瀏覽檔案時，按下空白鍵就能快速瀏覽選中的檔案。更棒的是，我們可以透過新增 plugins 的方式，讓它支援更多種類的檔案。</p>
+<p>底下是我目前在用的一些 QuickLook plugins，安裝的方法很簡單，把解壓縮之後得到的 <code>.qlgenerator</code> 檔放到 <code>~/Library/QuickLook/</code> 底下就完成了，若是沒有 QuickLook 目錄就自己建立一個。若是裝了沒反應，就在終端機底下打指令 <code>qlmanage -r</code> 即可。</p>
+
+            <a href="https://chiahsien.github.io/post/quicklook-plugins-i-use/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+
+          <div class="pagination-container">
+  
+  
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

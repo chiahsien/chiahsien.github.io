@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>Nelson</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="Nelson - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/how-to-use-different-ssh-key-for-different-github-account/">
+            <h1 class="post-title">如何建立不同的 SSH Key 對應到不同的 Github 帳號</h1>
+        </a>
+        <div class="post-date">
+            2021-06-20
+        </div>
+        <div class="post-abstract">
+            
+            <h2 id="情況">情況</h2>
+<p>我有私人的 GitHub 帳號，為了方便自己跟公司管理起見，我用公司的信箱申請另一個 GitHub 帳號來存取公司的 repo。</p>
+<h2 id="問題">問題</h2>
+<p>同一台電腦的一組 SSH Key 只能綁定到一個 GitHub 帳號，無法用同一組 SSH key 綁定到多組帳號，所以我無法把綁到私人帳號的 SSH Key 再綁到公司帳號。</p>
+<h2 id="解法">解法</h2>
+<p>我要在同一台電腦建立不同的 SSH Key 對應到不同的 GitHub 帳號，並且在執行 <code>git</code> 操作時，系統會自動選擇對應的 SSH key。</p>
+
+            <a href="https://chiahsien.github.io/post/how-to-use-different-ssh-key-for-different-github-account/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/what-time-a-side-project-for-kid/">
+            <h1 class="post-title">What Time: 一個寫給孩子的小玩具</h1>
+        </a>
+        <div class="post-date">
+            2021-06-09
+        </div>
+        <div class="post-abstract">
+            
+            <p>我的小孩逐漸長大，到了需要看得懂時鐘的年紀了，但經過多次的嘗試，無論是看圖學習或是寫練習本，他就是記不住要怎麼看指針時鐘。</p>
+<p>還好，我是一個工程師，而且是一個會開發 iOS App 的工程師。</p>
+<p>既然小孩會被手機 app 吸引、研究報告又證實在遊戲中學習的效果好，那我就來開發一款 app 讓孩子可以不停的練習吧。所以趁著防疫期間，我就做了一個很簡單的 app，它會隨機顯示時間，只要正確輸入顯示的時間，就會再隨機顯示另一組時間。</p>
+<p>就是這麼簡單樸實的一個小東西，卻可以讓小孩玩得不亦樂乎，而且效果驚人，不到一個星期他已經會看時鐘了！</p>
+<p>有興趣的人可以來這裡<a href="https://github.com/chiahsien/What-Time">下載原始碼</a>，自己安裝到手機上玩。</p>
+<figure data-type="image" tabindex="1"><img src="https://github.com/chiahsien/What-Time/raw/main/Screenshot.png" alt="" loading="lazy"></figure>
+
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/xcode-the-right-way/">
+            <h1 class="post-title">如何下載、安裝、管理 Xcode</h1>
+        </a>
+        <div class="post-date">
+            2021-04-28
+        </div>
+        <div class="post-abstract">
+            
+            <h2 id="下載">下載</h2>
+<p>不要透過 AppStore，因為速度太慢太不穩定了，要去<a href="https://developer.apple.com/download/more/">官方網站</a>下載才快。但是我們還有更快的方法，可以透過下載軟體同時開啟多條連線下載，我推薦使用 <a href="https://github.com/RobotsAndPencils/XcodesApp">XcodesApp</a> 或 <a href="https://github.com/vineetchoudhary/Downloader-for-Apple-Developers">Downloader-for-Apple-Developers</a>，前者比較漂亮，後者還可以下載 WWDC 的影片。</p>
+<h2 id="安裝">安裝</h2>
+<p>不要直接解壓縮 <code>xip</code> 檔，這樣會花很長的時間。下指令去解會快很多：</p>
+<pre><code class="language-shell">xip -x Xcode.xip
+</code></pre>
+<h2 id="管理">管理</h2>
+<p>可以放多個不同版本的 Xcode 在 Applications 資料夾，只要名稱不一樣就好了，記得要下指令來指定要使用哪個版本。</p>
+<pre><code class="language-shell">sudo xcode-select -s /Applications/Xcode.app
+</code></pre>
+<p>時間久了之後，會產生很多沒再用的檔案佔用空間，我們可以使用 <a href="https://apps.apple.com/tw/app/devcleaner-for-xcode/id1388020431?mt=12">DevCleaner for Xcode</a> 或 <a href="https://github.com/waylybaye/XcodeCleaner-SwiftUI">XcodeCleaner-SwiftUI</a> 來幫忙清理，效果非常的好！</p>
+<h2 id="參考資料">參考資料</h2>
+<p><a href="https://www.notion.so/Xcode-dfbe2d934ff84b2d84e34ffceef56fe0#9a1443e99f244cc9b699a9bf890e2749">安裝 Xcode 的正確姿勢</a></p>
+
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/android-app-communice-with-device-via-uart-port/">
+            <h1 class="post-title">如何讓 Android App 透過 UART Port 跟機器通訊</h1>
+        </a>
+        <div class="post-date">
+            2021-03-26
+        </div>
+        <div class="post-abstract">
+            
+            <p>最近公司內部有個需求，需要開發一個 Android app 裝在我們的機器上，讓它可以透過 UART port 跟機器溝通。過程基本上不難，但還挺繁雜的，乾脆做個紀錄以便日後查詢。</p>
+<p>我的開發環境是 Windows 10 搭配 Android Studio 4.1.2</p>
+
+            <a href="https://chiahsien.github.io/post/android-app-communice-with-device-via-uart-port/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/how-do-i-start-my-investment/">
+            <h1 class="post-title">我是如何開始投資的</h1>
+        </a>
+        <div class="post-date">
+            2021-03-04
+        </div>
+        <div class="post-abstract">
+            
+            <p>出社會也十幾年了，雖然看過不少書，也上了一些課，早期也有試著投資一些東西。但嚴格說起來，真的找到自己舒服的方式並且持續的投資，是從去年才開始的。這樣的投資方式持續了整整一年，沒意外的話應該也會持續下去，藉由這篇文章記錄一些我的作法。</p>
+
+            <a href="https://chiahsien.github.io/post/how-do-i-start-my-investment/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/alternative-kobo-e-reader-koreader-and-plato/">
+            <h1 class="post-title">第三方 Kobo 閱讀軟體：KOReader &amp; Plato</h1>
+        </a>
+        <div class="post-date">
+            2020-09-13
+        </div>
+        <div class="post-abstract">
+            
+            <h2 id="為何需要第三方閱讀軟體">為何需要第三方閱讀軟體</h2>
+<p>Kobo 閱讀器內建的軟體在閱讀它們自家電子書的表現，其實已經很符合絕大多數人的需求了。但如果你有以下需求，就會想要尋找更強大的閱讀軟體：</p>
+<ul>
+<li>想看其他來源的電子書：如果那本電子書排版沒有設計得很好，加上內建的閱讀軟體可調整的選項不多，這樣讀起來就會有些痛苦。</li>
+<li>想要閱讀 PDF 檔：很多 PDF 檔四周會留下不少空白，它又不能調整文字大小，甚至有的 PDF 是兩欄或三欄的排版，在十吋以下的螢幕閱讀會非常辛苦。由於電子紙的物理特性，不能一直放大縮小移動頁面，所以很難閱讀。</li>
+<li>想看其他的電子書格式，但是系統不支援。</li>
+</ul>
+<p>做了一些功課之後，我發現目前在 Kobo 系統上比較多人使用的就是 KOReader 跟 Plato 這兩套閱讀器，簡單整理成一張表格給有興趣嘗試的人參考。</p>
+
+            <a href="https://chiahsien.github.io/post/alternative-kobo-e-reader-koreader-and-plato/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+
+          <div class="pagination-container">
+  
+    <a href="https://chiahsien.github.io/page/4/" class="prev"><i class="icon-arrow-ios-back-outline"></i> 上一頁</a>
+  
+  
+    <a href="https://chiahsien.github.io/page/6/" class="next">下一頁 <i class="icon-arrow-ios-forward-outline"></i></a>
+  
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

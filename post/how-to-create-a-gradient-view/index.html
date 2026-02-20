@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>如何建立一個漸層的 View | Nelson</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="如何建立一個漸層的 View | Nelson - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <div class="post-detail">
+            <h1 class="post-title">如何建立一個漸層的 View</h1>
+            <div class="post-date">2015-02-12</div>
+            
+            <div class="post-content">
+              <img src="http://i.imgur.com/WsX15UJ.gif">
+<p>我們的 APP 有一個這樣的畫面，它有這幾點需求：</p>
+<ul>
+<li>要顯示文字描述在圖片上</li>
+<li>文字描述的背景是漸層色</li>
+<li>因為文字長度不同，所以漸層的高度也不同</li>
+</ul>
+<!-- more -->
+<h2 id="最常見的作法">最常見的作法</h2>
+<p>很直覺反應的，我在圖片上加了一個 <code>UIView</code> 當作 overlay，再放上 <code>UILabel</code> 顯示文字，然後在 overlay 插入一個 <code>CAGradientLayer</code> 顯示漸層 layer。這的確是可行的作法，也是網路上很常見的「建立漸層 View」的作法。只是一來我們得額外建立一個 layer，二來得想辦法讓 layer 隨著 overlay 調整尺寸，處理這些細節的程式碼有點不漂亮。</p>
+<h2 id="利用-layerclass">利用 layerClass</h2>
+<p>後來我發現 <code>UIView</code> 有個 <code>+ (Class)layerClass</code> method 可以用，在預設的情況下，<code>UIView</code> 的背後其實是一個 <code>CALayer</code>，透過 override 這個 method，我們可以讓它變成其他的 layer，在這裡我要把它變成 <code>CAGradientLayer</code>。具體作法如下：</p>
+<pre><code class="language-objc">@implementation OverlayView
++ (Class)layerClass {
+  return [CAGradientLayer class];
+}
+
+- (instancetype)initWithFrame:(CGRect)frame {
+  if (self = [super initWithFrame:frame]) {
+    CAGradientLayer *layer = (CAGradientLayer *)self.layer;
+    UIColor *lightColor = [UIColor clearColor];
+    UIColor *middleColor = [UIColor colorWithWhite:0 alpha:0.35];
+    UIColor *anotherColor = [UIColor colorWithWhite:0 alpha:0.65];
+    UIColor *darkColor = [UIColor colorWithWhite:0 alpha:0.8];
+    layer.colors = @[(id)lightColor.CGColor, (id)middleColor.CGColor, (id)anotherColor.CGColor, (id)darkColor.CGColor];
+    layer.locations = @[@(0), @(0.2), @(0.65), @(1)];
+  }
+  return self;
+}
+@end
+</code></pre>
+
+              <a href="https://www.buymeacoffee.com/chiahsien" target="_blank" rel="noopener noreferrer">
+                <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=chiahsien&button_colour=44414e&font_colour=ffffff&font_family=Comic&outline_colour=ffffff&coffee_colour=FFDD00" />
+              </a>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://chiahsien.github.io/tag/auto-layout/" class="tag">
+                    Auto-Layout
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/objective-c/" class="tag">
+                    Objective-C
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/swift/" class="tag">
+                    Swift
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/ios/" class="tag">
+                    iOS
+                  </a>
+                
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

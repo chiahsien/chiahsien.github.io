@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>Nelson/iOS</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="Nelson/iOS - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <h1 class="current-tag">標籤: iOS</h1>
+          
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/ibeacon-development-in-swift/">
+            <h1 class="post-title">iBeacon 的 Swift 開發筆記</h1>
+        </a>
+        <div class="post-date">
+            2020-03-08
+        </div>
+        <div class="post-abstract">
+            
+            <p>最近因為工作上的需求，需要透過 app 與支援 iBeacon 的裝置溝通，所以整理了一些筆記。在 iOS 的世界，app 可以作為 iBeacon 的接收者，也可以讓裝置作為 iBeacon 的發送者，這裡我只紀錄前者（接收者）的開發。</p>
+
+            <a href="https://chiahsien.github.io/post/ibeacon-development-in-swift/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/iplayground-2019-video/">
+            <h1 class="post-title">iPlayground 2019 的影片上線啦</h1>
+        </a>
+        <div class="post-date">
+            2019-11-27
+        </div>
+        <div class="post-abstract">
+            
+            <p>期待已久的 iPlayground 2019 的影片終於弄好上線啦，感謝工作人員的辛勞！<a href="https://www.youtube.com/watch?v=7ZkE7fyd20g&amp;list=PLJN8Q2M8xECkvIbNFM30Bu91qbN92SXND">趕緊去瞧瞧</a>!</p>
+<p>這是我講的「漫談 iOS 架構：MVC / MVVM / VIPER 與 Redux」，搭配<a href="../../post/common-ios-architecture-from-mvc-to-viper-with-redux">之前的文章</a>觀看會更清楚。</p>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/qDyb6AkX0s0" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/common-ios-architecture-from-mvc-to-viper-with-redux/">
+            <h1 class="post-title">漫談 iOS 架構：從 MVC 到 VIPER，以及 Redux</h1>
+        </a>
+        <div class="post-date">
+            2019-09-21
+        </div>
+        <div class="post-abstract">
+            
+            <p>很榮幸我能在今年的 <a href="https://iplayground.io/2019/">iPlayground</a> 分享了過去幾年以來，我對於 iOS 架構的一些看法與心得，<a href="https://speakerdeck.com/chiahsien/common-ios-architectures-from-mvc-to-viper-with-redux">投影片由此下載</a>，本文則是比較詳細的文字稿。</p>
+<p>這幾年大家逐漸重視 iOS 的架構設計，從最基本的 MVC 到開始普及的 MVP / MVVM，到分工細膩的 VIPER，每個 pattern 都有擁護者；近期也有為了解決畫面轉換的 Router / Coordinator 以及為了解決資料一致性的 Redux。</p>
+<p>我們 app 早期的架構是 MVC，後來改成 MVVM，後來為了因應複雜的流程所以引進 Coordinator，也引進 Redux 處理資料一致性的問題。</p>
+<p>接下來會聊聊這幾種 pattern 及其演化過程。</p>
+
+            <a href="https://chiahsien.github.io/post/common-ios-architecture-from-mvc-to-viper-with-redux/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/detect-images-by-coreml/">
+            <h1 class="post-title">利用 CoreML 來判別圖片</h1>
+        </a>
+        <div class="post-date">
+            2019-04-23
+        </div>
+        <div class="post-abstract">
+            
+            <p>在 WWDC 2018 蘋果推出了 <a href="https://developer.apple.com/documentation/createml">Create ML</a> ，讓開發者可以輕鬆的建立並訓練適合自己需求的機器學習模型，它支援圖片、自然語言、表格資料的學習。最近這幾天我就想到要訓練一個自家的模型，用來檢查使用者是否打算上傳不恰當的圖片。</p>
+
+            <a href="https://chiahsien.github.io/post/detect-images-by-coreml/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/how-to-use-appium-to-test-ios-app/">
+            <h1 class="post-title">如何用 Appium 測試 iOS App</h1>
+        </a>
+        <div class="post-date">
+            2019-04-09
+        </div>
+        <div class="post-abstract">
+            
+            <p>前一陣子我們開始嘗試 UI 自動化測試，我們首先嘗試 Appium，藉此機會幫安裝過程做個記錄。</p>
+
+            <a href="https://chiahsien.github.io/post/how-to-use-appium-to-test-ios-app/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/how-to-support-rtl-languages-in-ios-app/">
+            <h1 class="post-title">iOS App 如何支援 RTL 語言</h1>
+        </a>
+        <div class="post-date">
+            2019-02-25
+        </div>
+        <div class="post-abstract">
+            
+            <p>公司的產品越做越大，前一陣子幫公司的 app 加上阿拉伯文介面，開發過程也累積了一些支援 RTL 語系的心得，藉這個機會跟大家分享。</p>
+
+            <a href="https://chiahsien.github.io/post/how-to-support-rtl-languages-in-ios-app/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+
+          <div class="pagination-container">
+  
+    <a href="https://chiahsien.github.io/tag/ios/page/2/" class="prev"><i class="icon-arrow-ios-back-outline"></i> 上一頁</a>
+  
+  
+    <a href="https://chiahsien.github.io/tag/ios/page/4/" class="next">下一頁 <i class="icon-arrow-ios-forward-outline"></i></a>
+  
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

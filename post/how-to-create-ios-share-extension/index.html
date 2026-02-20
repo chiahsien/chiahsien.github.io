@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>如何建立 iOS Share Extension | Nelson</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="如何建立 iOS Share Extension | Nelson - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <div class="post-detail">
+            <h1 class="post-title">如何建立 iOS Share Extension</h1>
+            <div class="post-date">2024-11-03</div>
+            
+            <div class="post-content">
+              <p>在網路上已經有很多關於 iOS <a href="https://developer.apple.com/library/archive/documentation/General/Conceptual/ExtensibilityPG/Share.html">Share Extension</a> 的教學，例如<a href="https://medium.com/@henribredtprivat/create-an-ios-share-extension-with-custom-ui-in-swift-and-swiftui-2023-6cf069dc1209">這裡就有一篇</a>。有需要的人可以自行在網路上搜尋，這邊就不多作著墨。我這次想要分享的主要是在開發 share extension 的過程遇到一些要注意的事項，以及踩到的一些坑。</p>
+<p>我的開發環境是 macOS Sonoma + Xcode 15，使用 Swift 開發。</p>
+<p>要建立一個 share extension 很簡單，就是在你的專案新增一個 <code>target</code> 然後選擇 <code>Share Extension</code> 即可。Xcode 會自動幫忙產生必要的檔案，以及做好基本設定。</p>
+<!-- more -->
+<h2 id="設定入口畫面">設定入口畫面</h2>
+<p>Xcode 會自動產生 <code>ShareViewController</code> 這個檔案，在蘋果的規劃裡頭，它預期大部分 Share Extension 的情境就是要把內容轉發到其他網路平台，所以這個 ShareViewController 會繼承自 <code>SLComposeServiceViewController</code> 並且也有提供發文的程式碼骨架。如果這符合你的情境，那很棒；如果不是的話，你可以手動把它改成繼承自 <code>UIViewController</code> 然後刪除那些骨架程式碼。</p>
+<p>Xcode 也會自動幫忙產生一個 <code>MainInterface.storyboard</code> 作為入口點。目前 storyboard 已經不被鼓勵使用，而且很多開發者也逐步轉向 SwiftUI 開發畫面，所以我們可以刪除這個檔案，然後在 <code>ShareViewController</code> 裡頭刻畫面。</p>
+<p>要修改畫面入口點，除了刪除 storyboard 之外，還要修改 <code>Info.plist</code> 告訴 Xcode 我們的入口點是什麼。在 Share Extension 的 <code>Info.plist</code> 裡面，找到 <code>NSExtensionMainStoryboard</code> 這組 key，把它的名稱改成 <code>NSExtensionPrincipalClass</code> 並且把對應的 value 改成 <code>$(PRODUCT_NAME).ShareViewController</code>。</p>
+<h2 id="設定要支援的分享內容格式">設定要支援的分享內容格式</h2>
+<p>使用者有可能分享多種內容格式，最常見的就是「文字」、「圖片」、「網址」這幾種，當然還有各種不同的檔案類型等等。我們需要在 <code>Info.plist</code> 裡頭設定，告訴系統我們的 share extension 支援哪些內容格式，只有當使用者分享的內容是我們支援的，系統的分享選單才會出現我們的 share extension。</p>
+<p>要支援的格式放在 <code>NSExtensionActivationRule</code> key 底下，支援的格式<a href="https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/AppExtensionKeys.html#//apple_ref/doc/uid/TP40014212-SW2">寫在這篇文件裡</a>，如果預設的支援格式不符使用要求，也可以使用更複雜也更有彈性的 <a href="https://developer.apple.com/library/archive/documentation/General/Conceptual/ExtensibilityPG/ExtensionScenarios.html#//apple_ref/doc/uid/TP40014214-CH21-SW8">Predicate</a>。</p>
+<p>舉例來說，如果要支援網址的分享，<code>Info.plist</code> 長得像這樣：</p>
+<pre><code class="language-xml">&lt;key&gt;NSExtensionAttributes&lt;/key&gt;
+&lt;dict&gt;
+    &lt;key&gt;NSExtensionActivationRule&lt;/key&gt;
+    &lt;dict&gt;
+        &lt;key&gt;NSExtensionActivationSupportsWebURLWithMaxCount&lt;/key&gt;
+        &lt;integer&gt;1&lt;/integer&gt;
+    &lt;/dict&gt;
+&lt;/dict&gt;
+</code></pre>
+<p>有些 app 的分享功能同時分享了多種內容格式，例如瀏覽器的網頁分享可能同時包含「文字（這個網頁的標題）」跟「網址（這個網頁的網址）」。通常我們會希望分享內容有我們支援的格式，系統選單就要出現我們的 share extension，但實際情況是並不是如此。</p>
+<p>以我們的例子來說，在 <code>Info.plist</code> 裡頭宣告支援網址格式，系統就會在分享內容「只有」網址格式的時候，才會出現我們的 share extension；不會在分享內容「同時有」網址跟其他格式的時候出現。</p>
+<p>這顯然不是我們要的結果，解法就是在 <code>Info.plist</code> 加入 <code>NSExtensionActivationDictionaryVersion</code> key 並將 value 設為 <code>2</code>。</p>
+<pre><code class="language-xml">&lt;key&gt;NSExtensionAttributes&lt;/key&gt;
+&lt;dict&gt;
+    &lt;key&gt;NSExtensionActivationRule&lt;/key&gt;
+    &lt;dict&gt;
+        &lt;key&gt;NSExtensionActivationDictionaryVersion&lt;/key&gt;
+        &lt;integer&gt;2&lt;/integer&gt;
+        &lt;key&gt;NSExtensionActivationSupportsWebURLWithMaxCount&lt;/key&gt;
+        &lt;integer&gt;1&lt;/integer&gt;
+    &lt;/dict&gt;
+&lt;/dict&gt;
+</code></pre>
+<h2 id="處理分享內容的時間點">處理分享內容的時間點</h2>
+<p>網路上很多教學都是在 <code>viewDidLoad</code> 處理分享內容，但我測試發現會遇到一些奇怪的 UI 問題，所以我選擇在 <code>viewDidAppear</code> 處理。</p>
+<pre><code class="language-swift">override func viewDidAppear(_ animated: Bool) {
+    super.viewDidAppear(animated)
+    // Make sure to load shared content and update UI after view did appear, otherwise UI may not work as expected.
+    loadSharedContent()
+}
+
+private func loadSharedContent() {
+    // ....
+}
+</code></pre>
+<h2 id="要在-main-thread-處理-ui">要在 Main Thread 處理 UI</h2>
+<p>這看起來很像是基本常識，但是在開發 Share Extension 的時候很容易忘記它。當你發現畫面不如預期變化的時候，很有可能就是沒有在 main thread 處理 UI 的關係。</p>
+<pre><code class="language-swift">private func loadSharedContent() {
+    guard let item = extensionContext?.inputItems.first as? NSExtensionItem,
+          let attachment = item.attachments?.first(where: { $0.hasItemConformingToTypeIdentifier(UTType.url.identifier) })
+    else {
+        finish()
+        return
+    }
+
+    attachment.loadItem(forTypeIdentifier: UTType.url.identifier, options: nil) { [weak self] data, error in
+        if let url = data as? URL {
+            self?.handleURL(url)
+        }
+    }
+}
+
+private func finish() {
+    DispatchQueue.main.async {
+        self.extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
+    }
+}
+
+private func handleURL(_ url: URL) {
+    // Make sure to run in main thread, otherwise UI may freeze.
+    DispatchQueue.main.async {
+        self.label.text = url.absoluteString
+    }
+}
+</code></pre>
+<p>以上就是本次分享的內容，希望可以幫助各位少踩一些坑。</p>
+
+              <a href="https://www.buymeacoffee.com/chiahsien" target="_blank" rel="noopener noreferrer">
+                <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=chiahsien&button_colour=44414e&font_colour=ffffff&font_family=Comic&outline_colour=ffffff&coffee_colour=FFDD00" />
+              </a>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://chiahsien.github.io/tag/development/" class="tag">
+                    Development
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/programming/" class="tag">
+                    Programming
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/mobile/" class="tag">
+                    Mobile
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/xcode/" class="tag">
+                    Xcode
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/swift/" class="tag">
+                    Swift
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/ios/" class="tag">
+                    iOS
+                  </a>
+                
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

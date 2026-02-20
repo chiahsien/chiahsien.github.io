@@ -1,0 +1,901 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://chiahsien.github.io</id>
+    <title>Nelson</title>
+    <updated>2026-02-20T12:37:15.713Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://chiahsien.github.io"/>
+    <link rel="self" href="https://chiahsien.github.io/atom.xml"/>
+    <subtitle>我寫故我在</subtitle>
+    <logo>https://chiahsien.github.io/images/avatar.png</logo>
+    <icon>https://chiahsien.github.io/favicon.ico</icon>
+    <rights>All rights reserved 2026, Nelson</rights>
+    <entry>
+        <title type="html"><![CDATA[自動排序 Xcode 專案檔以減少合併衝突]]></title>
+        <id>https://chiahsien.github.io/post/sort-xcode-project-file-reduce-merge-conflicts/</id>
+        <link href="https://chiahsien.github.io/post/sort-xcode-project-file-reduce-merge-conflicts/">
+        </link>
+        <updated>2026-02-15T14:48:37.000Z</updated>
+        <summary type="html"><![CDATA[<p>Xcode 的 <code>project.pbxproj</code> 檔案採用文字格式儲存專案結構，但 Xcode 在新增檔案或修改設定時，不保證項目的插入順序一致。多人協作時，即使修改不同的檔案或 target，也可能因為項目順序差異而產生 merge conflict。這些衝突往往與實際變更無關，純粹是格式問題。</p>
+<h2 id="我的解決方案">我的解決方案</h2>
+<p>將 <code>project.pbxproj</code> 中的各個區塊按固定規則排序，確保相同內容產生相同的檔案結構。配合 git pre-commit hook，每次提交前自動排序，團隊成員的專案檔就能維持一致的順序，大幅降低無意義的衝突。</p>
+<p>我開發了一個腳本工具來執行這個任務，也已經在多個專案上跑了好幾年，GitHub repo 放在這裡：<a href="https://github.com/chiahsien/sort-Xcode-project-file">https://github.com/chiahsien/sort-Xcode-project-file</a></p>
+<p>雖然目前推崇使用 Swift Package Manager 進行模組化，Xcode 16 也引入了 buildable folders 功能來減少專案檔變更，甚至也有 Tuist 或 Xcode Gen 這類的工具來生成專案檔，但這些新技術主要針對新專案或願意大幅重構的專案。對於已經開發多年、結構複雜的舊專案，貿然改用 SPM 模組化或轉換成 folder references 風險過高。此時，這個排序工具仍是最務實的選擇，能以最小成本解決 merge conflict 問題。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>Xcode 的 <code>project.pbxproj</code> 檔案採用文字格式儲存專案結構，但 Xcode 在新增檔案或修改設定時，不保證項目的插入順序一致。多人協作時，即使修改不同的檔案或 target，也可能因為項目順序差異而產生 merge conflict。這些衝突往往與實際變更無關，純粹是格式問題。</p>
+<h2 id="我的解決方案">我的解決方案</h2>
+<p>將 <code>project.pbxproj</code> 中的各個區塊按固定規則排序，確保相同內容產生相同的檔案結構。配合 git pre-commit hook，每次提交前自動排序，團隊成員的專案檔就能維持一致的順序，大幅降低無意義的衝突。</p>
+<p>我開發了一個腳本工具來執行這個任務，也已經在多個專案上跑了好幾年，GitHub repo 放在這裡：<a href="https://github.com/chiahsien/sort-Xcode-project-file">https://github.com/chiahsien/sort-Xcode-project-file</a></p>
+<p>雖然目前推崇使用 Swift Package Manager 進行模組化，Xcode 16 也引入了 buildable folders 功能來減少專案檔變更，甚至也有 Tuist 或 Xcode Gen 這類的工具來生成專案檔，但這些新技術主要針對新專案或願意大幅重構的專案。對於已經開發多年、結構複雜的舊專案，貿然改用 SPM 模組化或轉換成 folder references 風險過高。此時，這個排序工具仍是最務實的選擇，能以最小成本解決 merge conflict 問題。</p>
+<!-- more -->
+<h2 id="排序範圍">排序範圍</h2>
+<p>此工具排序以下 array 結構：</p>
+<ul>
+<li><code>children</code> — group 內的檔案與 subgroup（目錄排在檔案前面）</li>
+<li><code>files</code> — build phase 的檔案列表</li>
+<li><code>buildConfigurations</code> — build configuration 列表</li>
+<li><code>targets</code> — 專案 target 列表</li>
+<li><code>packageProductDependencies</code> — Swift Package product dependency</li>
+<li><code>packageReferences</code> — Swift Package reference</li>
+</ul>
+<h2 id="安全性">安全性</h2>
+<p>這些 array 是宣告性內容，Xcode 透過 24 字元的十六進位 ID 參照物件，而非依賴位置。排序不影響建置行為或專案結構，僅改變檔案內的呈現順序。</p>
+<p>不排序的區塊：<code>PBXFrameworksBuildPhase</code> section 的 framework 連結順序會影響符號解析，工具會偵測到這個區塊並完整保留原始順序。其餘不在上述排序範圍內的 array（例如 <code>buildPhases</code>）則不會被處理，同樣維持原始順序。</p>
+<p>寫入方式採用原子操作（透過暫存檔 + <code>os.replace()</code>），即使過程中發生錯誤，也不會留下損壞的 <code>.pbxproj</code> 檔案。</p>
+<p><strong>警告：</strong><br>
+雖然這個工具已經在多個不同專案執行很長一段時間了，我還是強烈建議在修改之前先做好備份，才不會出現難以挽回的錯誤！</p>
+<h2 id="與原版的差異">與原版的差異</h2>
+<p>本版本是 WebKit 專案的 fork，以 Python 3 重寫並新增以下功能：</p>
+<ul>
+<li><strong>Natural sorting</strong>：數字部分按數值比較，<code>file2.m</code> 排在 <code>file10.m</code> 前面，符合人類直覺</li>
+<li><strong>Case-insensitive 選項</strong>：提供 <code>--case-insensitive</code> 參數支援不分大小寫排序，預設仍為 case-sensitive 以保持原始行為</li>
+<li><strong>目錄優先排序</strong>：<code>children</code> array 中目錄排在檔案前面，符合檔案系統慣例</li>
+<li><strong>自動去除重複</strong>：移除重複的項目 reference</li>
+<li><strong>擴充排序範圍</strong>：包含所有 <code>children</code> array、<code>files</code> array、<code>targets</code> 列表、<code>packageProductDependencies</code> 與 <code>packageReferences</code></li>
+<li><strong>CI 檢查模式</strong>：<code>--check</code> 參數可檢查檔案是否已排序，不修改檔案，適合整合到 CI pipeline</li>
+<li><strong>遞迴搜尋</strong>：<code>-r</code> 參數可遞迴搜尋目錄下所有 <code>project.pbxproj</code> 並排序，適合 monorepo</li>
+<li><strong>Stdin/stdout 支援</strong>：使用 <code>-</code> 參數可從 stdin 讀取、寫到 stdout，方便管線操作</li>
+<li><strong>原子寫入</strong>：透過暫存檔 + <code>os.replace()</code> 確保寫入過程不會損壞原始檔案</li>
+</ul>
+<h2 id="使用方法">使用方法</h2>
+<h3 id="基本呼叫">基本呼叫</h3>
+<pre><code class="language-bash">python3 sort-Xcode-project-file.py path/to/Project.xcodeproj
+</code></pre>
+<p>腳本會自動找到 <code>project.pbxproj</code> 並就地排序。也可以直接指定 <code>project.pbxproj</code> 檔案路徑。</p>
+<h3 id="選項">選項</h3>
+<pre><code class="language-bash"># 使用 case-insensitive sorting
+python3 sort-Xcode-project-file.py --case-insensitive Project.xcodeproj
+
+# CI 檢查模式：exit 0 = 已排序，exit 1 = 未排序（不修改檔案）
+python3 sort-Xcode-project-file.py --check Project.xcodeproj
+
+# 遞迴搜尋目錄下所有 project.pbxproj 並排序
+python3 sort-Xcode-project-file.py -r .
+
+# 從 stdin 讀取，寫到 stdout
+cat project.pbxproj | python3 sort-Xcode-project-file.py - &gt; sorted.pbxproj
+
+# 抑制 warning 訊息
+python3 sort-Xcode-project-file.py -w Project.xcodeproj
+
+# 顯示版本號
+python3 sort-Xcode-project-file.py --version
+
+# 顯示說明
+python3 sort-Xcode-project-file.py --help
+</code></pre>
+<h3 id="git-pre-commit-hook-整合">Git Pre-commit Hook 整合</h3>
+<p>在專案根目錄建立 <code>Scripts</code> 目錄，將 <code>sort-Xcode-project-file.py</code> 放進去，然後建立 <code>.git/hooks/pre-commit</code>：</p>
+<pre><code class="language-bash">#!/bin/sh
+
+echo 'Sorting Xcode project files'
+
+GIT_ROOT=$(git rev-parse --show-toplevel)
+sorter=&quot;$GIT_ROOT/Scripts/sort-Xcode-project-file.py&quot;
+
+git diff --name-only --cached | grep &quot;project.pbxproj&quot; | while IFS= read -r filePath; do
+  fullFilePath=&quot;$GIT_ROOT/$filePath&quot;
+  python3 &quot;$sorter&quot; &quot;$fullFilePath&quot;
+  git add &quot;$fullFilePath&quot;
+done
+
+echo 'Done sorting Xcode project files'
+</code></pre>
+<p>記得設定執行權限：</p>
+<pre><code class="language-bash">chmod +x .git/hooks/pre-commit
+</code></pre>
+<p>另外可以在 <code>.gitattributes</code> 加上以下設定，進一步減少合併衝突：</p>
+<pre><code>*.pbxproj merge=union
+</code></pre>
+<blockquote>
+<p><strong>注意：</strong> <code>merge=union</code> 會讓 Git 自動保留衝突的雙方內容。搭配排序工具使用效果很好，但如果專案檔沒有經過排序，可能會產生無效的結果。請確保團隊成員都有使用這個排序工具。</p>
+</blockquote>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[讓 KOReader 的資料夾顯示書籍封面]]></title>
+        <id>https://chiahsien.github.io/post/koreader-patch-browser-cover/</id>
+        <link href="https://chiahsien.github.io/post/koreader-patch-browser-cover/">
+        </link>
+        <updated>2026-02-01T15:18:52.000Z</updated>
+        <summary type="html"><![CDATA[<p>這次要介紹的是我為 KOReader 檔案瀏覽（Mosaic）所做的另一個 userpatch：<code>2-browser-folder-cover.lua</code>。這個 patch 可以讓資料夾在 Mosaic 檢視時顯示封面圖片，支援放置自訂 <code>.cover</code> 檔案，若無自訂封面則會自動從該資料夾或其子資料夾的書籍取得封面。此外還提供兩種顯示風格：單一封面或 2×2 格狀封面。</p>
+<p>下載路徑：<a href="https://github.com/chiahsien/KOReader.Patches">https://github.com/chiahsien/KOReader.Patches</a></p>
+]]></summary>
+        <content type="html"><![CDATA[<p>這次要介紹的是我為 KOReader 檔案瀏覽（Mosaic）所做的另一個 userpatch：<code>2-browser-folder-cover.lua</code>。這個 patch 可以讓資料夾在 Mosaic 檢視時顯示封面圖片，支援放置自訂 <code>.cover</code> 檔案，若無自訂封面則會自動從該資料夾或其子資料夾的書籍取得封面。此外還提供兩種顯示風格：單一封面或 2×2 格狀封面。</p>
+<p>下載路徑：<a href="https://github.com/chiahsien/KOReader.Patches">https://github.com/chiahsien/KOReader.Patches</a></p>
+<!-- more -->
+<p><strong>重點摘要</strong></p>
+<ul>
+<li>功能：資料夾顯示自訂或來源於書籍的封面；支援單一封面與 2×2 格狀兩種風格；遞迴搜尋子資料夾。</li>
+<li>來源：修改自 <code>sebdelsol/KOReader.patches</code> 的 <code>2-browser-folder-cover.lua</code>，新增格狀封面、遞迴搜尋、<code>.cover</code> 支援、非同步載入、e-ink 閃爍消除、LRU 快取與 UI 選項。</li>
+</ul>
+<h2 id="為什麼會需要這個-patch">為什麼會需要這個 patch</h2>
+<p>KOReader 的 Mosaic 檢視本身會以書籍封面作為格子顯示；但資料夾通常只會顯示資料夾名稱或預設圖示。這個 patch 補強了資料夾的視覺表現，讓資料夾也能像書籍一樣顯示代表性的封面，改進瀏覽體驗，特別適合把資料夾當作書櫃或系列集合來管理的使用者。</p>
+<h2 id="主要功能">主要功能</h2>
+<ul>
+<li>支援自訂封面檔案：將自訂圖片放在資料夾內，檔名前綴為 <code>.cover</code> 並附上副檔名（範例：<code>.cover.jpg</code>、<code>.cover.png</code>、<code>.cover.webp</code>）。</li>
+<li>兩種封面風格：
+<ul>
+<li><strong>Single cover</strong>（單一封面）：每個資料夾顯示一張書籍封面，底部對齊。</li>
+<li><strong>Grid (2×2)</strong>（格狀封面）：最多顯示四張書籍封面以 2×2 格狀排列，每格使用 aspect fill（裁切溢出以填滿格子）。支援不完整的格狀排列：2 張填滿上排、3 張多填左下角。只找到 1 張時自動退回單一封面顯示。</li>
+</ul>
+</li>
+<li>自動從書籍封面取代：若沒有 <code>.cover</code>，會在資料夾內尋找有效的書籍封面並使用。</li>
+<li>遞迴搜尋子資料夾：若資料夾本身沒有可用封面，會往下搜尋子資料夾（預設深度 3）以找到合適的書籍封面。</li>
+<li>非同步封面載入：當書籍封面尚未被 KOReader 擷取時，資料夾格子會在封面就緒後自動重新整理，不需手動操作。</li>
+<li>e-ink 閃爍消除：資料夾跳過預設的 <code>original_update()</code> 流程，避免先畫預設圖示再替換封面所產生的 e-ink 閃爍。</li>
+<li>性能優化：Per-directory LRU widget 快取（最多保留 10 個目錄）與封面來源快取，避免重複掃描目錄；settings version 追蹤機制，只在設定變更時才清除快取。</li>
+</ul>
+<h2 id="封面搜尋順序">封面搜尋順序</h2>
+<p>Patch 依以下優先順序決定資料夾封面：</p>
+<ol>
+<li><strong>自訂 <code>.cover</code> 檔案</strong>：檢查資料夾內是否有 <code>.cover.{jpg,jpeg,png,webp,gif}</code>。找到即直接使用，不論目前選擇的封面風格為何，自訂封面一律以單一封面方式顯示。</li>
+<li><strong>封面來源快取</strong>：若該資料夾先前已解析過書籍封面路徑，直接重用，跳過目錄掃描。</li>
+<li><strong>掃描資料夾內的書籍</strong>：呼叫 <code>BookInfoManager:getBookInfo()</code> 逐一檢查檔案，收集有效封面（grid 模式最多 4 張、single 模式 1 張）。</li>
+<li><strong>遞迴搜尋子資料夾</strong>：若仍需更多封面，往下遞迴搜尋子資料夾（最多深度 3）以尋找額外的書籍封面。</li>
+</ol>
+<p>若封面仍在背景擷取中，資料夾格子會註冊到 CoverBrowser 的 polling 機制，待封面就緒後自動重試。</p>
+<h2 id="與上游原作者差異">與上游（原作者）差異</h2>
+<p>此版本基於 <code>sebdelsol/KOReader.patches</code> 的實作，但做了下列主要改動：</p>
+<ul>
+<li>新增 2×2 格狀封面模式（Grid mode），支援不完整排列。</li>
+<li>新增對自訂 <code>.cover</code> 檔案的偵測與使用。</li>
+<li>新增遞迴搜尋子資料夾以尋找書籍封面（避免空資料夾顯示預設圖示）。</li>
+<li>新增非同步封面載入，封面未就緒時自動重試。</li>
+<li>消除 e-ink 閃爍：資料夾直接設定封面，不再先畫預設圖示。</li>
+<li>改用 Per-directory LRU widget 快取（最多 10 個目錄）與封面來源快取，大幅降低 UI 建構成本。</li>
+<li>尊重 KOReader 既有的封面快取有效性檢查，避免使用過期封面。</li>
+</ul>
+<h2 id="安裝與使用">安裝與使用</h2>
+<ol>
+<li>
+<p>將 <code>2-browser-folder-cover.lua</code> 複製到 KOReader 的 <code>patches</code> 資料夾（通常位於 <code>&lt;koreader_data_dir&gt;/patches/</code>）。常見路徑：</p>
+<ul>
+<li>Kobo: <code>/mnt/onboard/.adds/koreader/patches/</code></li>
+<li>Kindle: <code>/mnt/us/documents/koreader/patches/</code></li>
+<li>Android: <code>/sdcard/koreader/patches/</code></li>
+<li>Desktop: <code>~/.koreader/patches/</code></li>
+</ul>
+</li>
+<li>
+<p>重新啟動 KOReader，patch 會在啟動時自動載入。</p>
+</li>
+<li>
+<p>使用方法：</p>
+<ul>
+<li>若要使用自訂封面，於資料夾放入檔名為 <code>.cover</code> 並含有副檔名的圖片檔（例如 <code>.cover.jpg</code>）。</li>
+<li>若未放 <code>.cover</code>，patch 會先檢查該資料夾內的書籍封面，找不到時再往子資料夾遞迴搜尋（最多 3 層）。</li>
+<li>可於 KOReader 設定中找到新增的選項（File browser settings → Mosaic and detailed list settings）：
+<ul>
+<li><strong>Folder cover style</strong>：子選單，可選擇 &quot;Single cover&quot;（預設）或 &quot;Grid (2×2)&quot;。</li>
+<li>Crop folder custom image（裁切自訂封面，預設啟用）</li>
+<li>Show folder name（顯示資料夾名稱，預設啟用）</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<h2 id="注意事項與建議">注意事項與建議</h2>
+<ul>
+<li><code>.cover</code> 的優先度高於書籍封面：一旦發現 <code>.cover</code>，patch 會直接使用該圖片並略過書籍封面搜尋。自訂封面一律以單一封面顯示，不受封面風格設定影響。</li>
+<li>若資料夾或子資料夾包含大量檔案或深度很深，遞迴搜尋可能帶來額外的檔案系統存取成本，建議將預設深度（目前程式內使用 3）視情況調整或僅在目標目錄使用 <code>.cover</code>。</li>
+<li>若發現封面顯示不正常，請先檢查 <code>BookInfoManager</code> 是否已正確擷取並快取了該書的封面，或在 KOReader 中重建封面快取。</li>
+</ul>
+<h2 id="授權與來源">授權與來源</h2>
+<p>此 patch 為我自行維護的衍生版本，原始實作與靈感來自：</p>
+<ul>
+<li><a href="https://github.com/sebdelsol/KOReader.patches">sebdelsol/KOReader.patches</a></li>
+</ul>
+<p>若想回到上游版本或查看原始程式碼，可參考上面連結。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[如何為單一 Feature 建立 Swift Package]]></title>
+        <id>https://chiahsien.github.io/post/swift-package-with-resources/</id>
+        <link href="https://chiahsien.github.io/post/swift-package-with-resources/">
+        </link>
+        <updated>2025-11-03T15:12:51.000Z</updated>
+        <summary type="html"><![CDATA[<p>在專案開發到一定規模後，你可能會發現某些 feature 其實相對獨立：它們有自己的流程、畫面、資源檔，甚至可以被其他專案重用。這時候，最乾淨、最有彈性的做法，就是把它抽成 <strong>Swift Package</strong>。</p>
+<p>以我最近在做的功能為例，它是一個完整的獨立模組 - 有多個頁面、支援多國語言、使用圖片與動畫資源。為了避免日後整合時出現命名衝突、相依過重或編譯過慢的問題，我選擇把它獨立成一個 Swift Package。在將 feature 抽出到 Package 的過程我也踩到了一些坑，趁著這個機會記錄下來，以免日後忘記。</p>
+<h2 id="為什麼要把-feature-打包成-swift-package">為什麼要把 Feature 打包成 Swift Package？</h2>
+<p>建立專屬的 Swift Package 有幾個明顯的好處：</p>
+<ul>
+<li>✅ <strong>可獨立開發與測試</strong>：模組化後不必依賴主專案，可單獨編譯與驗證。</li>
+<li>⚙️ <strong>降低相依與衝突</strong>：減少命名重複、依賴鏈過長等問題。</li>
+<li>🚀 <strong>加快編譯速度</strong>：主專案不需每次都重新編譯整個功能。</li>
+<li>🔄 <strong>方便整合與重用</strong>：未來可以直接被其他 app 或團隊使用。</li>
+</ul>
+]]></summary>
+        <content type="html"><![CDATA[<p>在專案開發到一定規模後，你可能會發現某些 feature 其實相對獨立：它們有自己的流程、畫面、資源檔，甚至可以被其他專案重用。這時候，最乾淨、最有彈性的做法，就是把它抽成 <strong>Swift Package</strong>。</p>
+<p>以我最近在做的功能為例，它是一個完整的獨立模組 - 有多個頁面、支援多國語言、使用圖片與動畫資源。為了避免日後整合時出現命名衝突、相依過重或編譯過慢的問題，我選擇把它獨立成一個 Swift Package。在將 feature 抽出到 Package 的過程我也踩到了一些坑，趁著這個機會記錄下來，以免日後忘記。</p>
+<h2 id="為什麼要把-feature-打包成-swift-package">為什麼要把 Feature 打包成 Swift Package？</h2>
+<p>建立專屬的 Swift Package 有幾個明顯的好處：</p>
+<ul>
+<li>✅ <strong>可獨立開發與測試</strong>：模組化後不必依賴主專案，可單獨編譯與驗證。</li>
+<li>⚙️ <strong>降低相依與衝突</strong>：減少命名重複、依賴鏈過長等問題。</li>
+<li>🚀 <strong>加快編譯速度</strong>：主專案不需每次都重新編譯整個功能。</li>
+<li>🔄 <strong>方便整合與重用</strong>：未來可以直接被其他 app 或團隊使用。</li>
+</ul>
+<!-- more -->
+<hr>
+<h2 id="問題一如何支援多國語言">問題一：如何支援多國語言？</h2>
+<p>若要在 Package 內使用多國語言，有兩件事情一定要搞清楚：</p>
+<ol>
+<li><strong>檔案結構要正確放置。</strong></li>
+<li><strong>讀取時要明確指定 <code>.module</code>。</strong></li>
+</ol>
+<h3 id="正確的資料夾結構">正確的資料夾結構</h3>
+<p>根據 Apple 官方文件，多國語言檔（<code>.lproj</code>）必須直接放在 <code>Resources</code> 資料夾底下，<strong>不能再有子目錄</strong>。正確的結構如下：</p>
+<pre><code>MyPackage/
+├─ Sources/
+│  └─ MyLibrary/
+│     └─ Resources/
+│        ├─ en.lproj/
+│        │  └─ Localizable.strings
+│        ├─ zh-Hant.lproj/
+│        │  └─ Localizable.strings
+│        └─ Strings.dict
+</code></pre>
+<p>這樣做可以確保 <code>.lproj</code> 檔會被正確地讀取與載入。若放錯層級，Xcode 雖然不會報錯，但翻譯字串就是不會出現。</p>
+<h3 id="正確的呼叫方式">正確的呼叫方式</h3>
+<p>在 Package 內呼叫多國語言字串時，別忘了指定 <code>bundle: .module</code>。否則 Swift 會自動去主專案尋找對應字串，導致載不到 Package 內的翻譯。</p>
+<pre><code class="language-swift">extension String {
+    var localized: String {
+        NSLocalizedString(
+            self,
+            tableName: &quot;Localizable&quot;,
+            bundle: .module,    // 關鍵：指定為 package 的 bundle
+            value: self,
+            comment: &quot;&quot;
+        )
+    }
+}
+</code></pre>
+<p>使用時只要 <code>&quot;Some.Localized.String.Key&quot;.localized</code> 就能正確取回包內的翻譯字串。這樣做讓 package 在任何專案中都能獨立運作，無需依賴主專案的語言設定。</p>
+<hr>
+<h2 id="問題二如何使用圖片與動畫資源">問題二：如何使用圖片與動畫資源？</h2>
+<p>圖片與多國語言的處理方式類似，同樣要注意<strong>資料夾結構</strong>與<strong>載入方式</strong>。</p>
+<h3 id="圖片資源結構">圖片資源結構</h3>
+<p>官方建議將圖片檔（<code>.xcassets</code>）放在 <code>Resources</code> 目錄底下。若你使用像 Lottie 這類第三方函式庫，也可以把相關 JSON 資源放在同個目錄。</p>
+<pre><code>MyPackage/
+├─ Sources/
+│  └─ MyLibrary/
+│     └─ Resources/
+│        ├─ Images.xcassets/
+│        │  ├─ Avatar.imageset/
+│        │  ├─ Error.imageset/
+│        │  └─ ...
+│        └─ Lottie/
+│           ├─ greeting.json
+│           └─ ...
+</code></pre>
+<h3 id="呼叫圖片的方式">呼叫圖片的方式</h3>
+<p>有兩種常見方式可以載入圖片：</p>
+<ol>
+<li><code>UIImage(resource: .xxx)</code></li>
+<li><code>UIImage(named: &quot;xxx&quot;, in: .module, with: nil)</code></li>
+</ol>
+<p>而如果你使用 Lottie 動畫，則要記得加上 <code>bundle</code>：</p>
+<p><code>LottieAnimationView(name: &quot;greeting&quot;, bundle: .module)</code></p>
+<p>這樣才能確保動畫資源來自 package，而不是主專案。</p>
+<hr>
+<h2 id="問題三packageswift-要怎麼設定">問題三：Package.swift 要怎麼設定？</h2>
+<p>最後一步，就是在 <code>Package.swift</code> 中設定好本地化與資源處理。這一步如果漏掉，前面做的一切可能都不會生效。</p>
+<pre><code class="language-swift">let package = Package(
+    name: &quot;MyLibrary&quot;,
+    defaultLocalization: &quot;en&quot;,  // 一定要設定預設語言
+    platforms: [
+        .iOS(.v16)
+    ],
+    products: [
+        .library(
+            name: &quot;MyLibrary&quot;,
+            targets: [&quot;MyLibrary&quot;]
+        ),
+    ],
+    dependencies: [
+        .package(url: &quot;https://github.com/airbnb/lottie-spm.git&quot;, from: &quot;4.5.2&quot;),
+    ],
+    targets: [
+        .target(
+            name: &quot;MyLibrary&quot;,
+            dependencies: [
+                .product(name: &quot;Lottie&quot;, package: &quot;lottie-spm&quot;),
+            ],
+            resources: [
+                .process(&quot;Resources&quot;)  // 使用 .process 讓 Xcode 處理資源檔
+            ]
+        ),
+    ]
+)
+</code></pre>
+<p>這裡的兩個重點是：</p>
+<ul>
+<li><code>defaultLocalization</code>：沒有這行，多國語言會無法自動套用。</li>
+<li><code>.process(&quot;Resources&quot;)</code>：讓 Xcode 知道要把資源包含進 target。</li>
+</ul>
+<hr>
+<h2 id="結語讓-feature-真正成為可重用的模組">結語：讓 Feature 真正成為可重用的模組</h2>
+<p>當一個功能變得越來越複雜時，把它獨立成 Swift Package 不只是整潔問題，更是 <strong>架構與維護性的升級</strong>。</p>
+<p>模組化能讓你：</p>
+<ul>
+<li>更容易進行單元測試；</li>
+<li>快速重用或移植到新專案；</li>
+<li>明確定義每個功能的邊界與責任。</li>
+</ul>
+<p>只要依照上面的步驟設定語言與資源，就能建立一個乾淨、可移植、可重用的 Feature Package。當你下一次打開 Xcode 時，或許就會開始想：「這個功能，其實也該是一個獨立的 package 吧？」</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[我的 Mac 設定]]></title>
+        <id>https://chiahsien.github.io/post/my-mac-setup/</id>
+        <link href="https://chiahsien.github.io/post/my-mac-setup/">
+        </link>
+        <updated>2025-07-26T06:36:04.000Z</updated>
+        <summary type="html"><![CDATA[<p>工程師都會有自己習慣的電腦設定，我自然也不例外。本文記錄了我自己的環境建置，方便以後換電腦或換工作時可以快速 setup。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>工程師都會有自己習慣的電腦設定，我自然也不例外。本文記錄了我自己的環境建置，方便以後換電腦或換工作時可以快速 setup。</p>
+<!-- more -->
+<hr>
+<h2 id="01-系統地基-system-foundation">01. 系統地基 (System Foundation)</h2>
+<p>拿到新電腦的第一步，先把終端機與套件管理搞定，這是所有開發工作的基礎。</p>
+<h3 id="套件管理homebrew">套件管理：Homebrew</h3>
+<p><a href="https://brew.sh/">Homebrew</a> 是 macOS 必備的套件管理工具。</p>
+<pre><code class="language-shell">/bin/bash -c &quot;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)&quot;
+</code></pre>
+<p><strong>Apple Silicon (M1/M2/M3...) 設定注意：</strong></p>
+<p>安裝完成後，為了讓系統能正確找到 <code>brew</code> 指令，建議將環境變數設定寫入 <code>~/.zprofile</code>（而非 <code>.zshrc</code>），這樣能避免每次開新分頁都重複執行，提升效能：</p>
+<pre><code class="language-shell">echo 'eval &quot;$(/opt/homebrew/bin/brew shellenv)&quot;' &gt;&gt; ~/.zprofile
+eval &quot;$(/opt/homebrew/bin/brew shellenv)&quot;
+</code></pre>
+<h3 id="終端機與-shell">終端機與 Shell</h3>
+<ul>
+<li><strong>Terminal App</strong>
+<ul>
+<li>我改用 <a href="https://ghostty.org/">Ghostty</a>（推薦，已推出正式版）或 <a href="https://iterm2.com/">iTerm2</a> 取代內建終端機。</li>
+<li>如果需要更強大的功能，可以試試 <a href="https://tabby.sh/">Tabby</a>，它跨平台且支援 SSH / Serial / Telnet 連線。</li>
+<li><em>Tip: Ghostty 雖然強調開箱即用，還是可以透過修改設定檔自訂。有人建立了 <a href="https://spectre-ghostty-config.vercel.app/">這個網站</a> 方便使用者調整設定。</em></li>
+</ul>
+</li>
+<li><strong>Shell</strong>
+<ul>
+<li><a href="https://ohmyz.sh/">Oh My Zsh</a>：讓 Zsh 更好用、更漂亮的必裝框架。</li>
+</ul>
+</li>
+</ul>
+<pre><code class="language-shell">sh -c &quot;$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)&quot;
+</code></pre>
+<p>如果安裝了 Oh My Zsh 又想要自動補完 brew 的指令，記得在 <code>~/.zprofile</code> 加入：</p>
+<pre><code class="language-shell">FPATH=&quot;$(brew --prefix)/share/zsh/site-functions:${FPATH}&quot;
+</code></pre>
+<h3 id="版本控制核心git">版本控制核心：Git</h3>
+<p><a href="https://git-scm.com/">Git</a> 是版本控制的靈魂。</p>
+<pre><code class="language-shell">brew install git
+brew install git-lfs
+</code></pre>
+<hr>
+<h2 id="02-開發與語言環境-coding-environment">02. 開發與語言環境 (Coding Environment)</h2>
+<h3 id="編輯器與-ide">編輯器與 IDE</h3>
+<ul>
+<li><strong><a href="https://code.visualstudio.com/">Visual Studio Code</a></strong>：我的首選編輯器，理由是「速度快」、「界面友好」、「套件生態系豐富」。必備套件可參考 <a href="https://chiahsien.github.io/post/visual-studio-code-extensions/">這篇文章</a>。</li>
+<li><strong><a href="https://developer.apple.com/xcode/">Xcode</a></strong>：iOS/macOS 開發必備。
+<ul>
+<li>推薦使用 <a href="https://github.com/RobotsAndPencils/XcodesApp">Xcodes</a> 來管理多版本 Xcode，詳情參考 <a href="https://chiahsien.github.io/post/xcode-the-right-way/">這篇文章</a>。</li>
+<li>定期使用 <a href="https://github.com/vashpan/xcode-dev-cleaner">DevCleaner</a> 清理肥大的暫存檔。</li>
+<li>搭配 <a href="https://github.com/github/CopilotForXcode">Github Copilot for Xcode</a> 輔助開發。</li>
+</ul>
+</li>
+<li><strong><a href="https://zed.dev/">Zed</a></strong>：使用 Rust 開發的高效能編輯器，速度極快且內建 AI 支援，適合追求極致效能或需要開啟大檔案的人。</li>
+<li><strong><a href="https://www.sublimetext.com/">Sublime Text</a></strong>：以前用過，真的很快，但因介面不夠友善懶得折騰而放棄。</li>
+<li><strong><a href="https://typora.io/">Typora</a></strong>：Markdown 編輯器首選，<strong>所見即所得</strong>的體驗與佈景主題讓我離不開它。
+<ul>
+<li><em>輕量替代品：<a href="https://miaoyan.app/">妙言</a>，簡單輕巧是它的特色。</em></li>
+</ul>
+</li>
+</ul>
+<h3 id="語言執行環境-runtimes">語言執行環境 (Runtimes)</h3>
+<p>以 Ruby 為例，我使用 <code>rbenv</code> 來管理版本：</p>
+<pre><code class="language-shell">brew install rbenv ruby-build
+</code></pre>
+<p>接著安裝常用的 Ruby 版本並設為全域預設：</p>
+<pre><code class="language-shell">rbenv install 3.2.2 # 請依當下最新穩定版調整
+rbenv rehash
+rbenv global 3.2.2
+</code></pre>
+<p>最後記得在 <code>~/.zshrc</code> 加入初始化設定：</p>
+<pre><code class="language-shell">eval &quot;$(rbenv init - zsh)&quot;
+</code></pre>
+<p><em>(如果安裝過程遇到 permission denied，可嘗試 <code>sudo chown -R &quot;$(whoami)&quot;:admin /usr/local/var</code> 修復)</em></p>
+<hr>
+<h2 id="03-開發輔助工具-development-tools">03. 開發輔助工具 (Development Tools)</h2>
+<h3 id="git-gui-客戶端">Git GUI 客戶端</h3>
+<p>Git 指令雖然強大，但在檢視複雜的線圖或做部分 commit 時，GUI 工具還是比較直覺。</p>
+<ul>
+<li><strong><a href="https://git-fork.com/">Fork</a></strong>：目前的主力，介面非常友善且操作流暢。</li>
+<li><strong>其他選擇</strong>：
+<ul>
+<li><a href="https://www.sourcetreeapp.com/">SourceTree</a></li>
+<li><a href="https://www.git-tower.com/mac/">Tower</a></li>
+<li><a href="http://www.syntevo.com/smartgit/">SmartGit</a></li>
+<li><a href="https://www.gitkraken.com/git-client">GitKraken</a></li>
+</ul>
+</li>
+</ul>
+<h3 id="api-與網路除錯">API 與網路除錯</h3>
+<ul>
+<li><strong><a href="https://www.usebruno.com/">Bruno</a></strong>：管理與呼叫 API 的工具。</li>
+<li><strong><a href="https://kapeli.com/dash">Dash</a></strong>：強大的離線 API 文件瀏覽器與程式碼片段管理工具。</li>
+<li><strong><a href="https://proxyman.com/">Proxyman</a></strong>：介面漂亮的抓包工具，用來檢查與修改 HTTP/HTTPS 請求。</li>
+</ul>
+<h3 id="ui-檢測">UI 檢測</h3>
+<ul>
+<li><strong><a href="https://lookin.work/">Lookin</a></strong> (免費)：若 Xcode 內建工具不夠用時的進階選擇。</li>
+<li><strong>其他付費選擇</strong>：<a href="https://revealapp.com/">Reveal</a> 或 <a href="https://sherlock.inspiredcode.io/">Sherlock</a>。</li>
+</ul>
+<hr>
+<h2 id="04-生產力與系統增強-productivity-utilities">04. 生產力與系統增強 (Productivity &amp; Utilities)</h2>
+<p>這區塊收錄了讓 Mac 更順手的小工具，依照功能分類：</p>
+<h3 id="滑鼠增強">滑鼠增強</h3>
+<ul>
+<li><strong><a href="https://better-mouse.com/">Better Mouse</a></strong>：我不喜歡安裝肥大的驅動程式，這是更流暢、功能強大的輕量化替代品。</li>
+<li><strong><a href="https://github.com/tjsky/logi-options-plus-mini">logi-options-plus-mini</a></strong>：如果你依然必須使用羅技官方驅動 (Logi Options+)，建議使用這個工具進行最小化安裝，去除不必要的臃腫功能。</li>
+</ul>
+<h3 id="視窗與檔案管理">視窗與檔案管理</h3>
+<ul>
+<li><strong>視窗管理</strong>：
+<ul>
+<li>用 <a href="https://itunes.apple.com/tw/app/magnet/id441258766?mt=12">Magnet</a> 或 <a href="https://github.com/rxhanson/Rectangle">Rectangle</a> (免費) 進行視窗分割。</li>
+<li>用 <a href="https://alt-tab-macos.netlify.app/">AltTab</a> 或 <a href="https://bahoom.com/hyperswitch">HyperSwitch</a> 將 Windows 的視窗切換邏輯帶回 Mac。</li>
+<li><em>Tip: 如果你有安裝 <a href="https://www.raycast.com/">Raycast</a>，它的 Window Management extension 也能完美處理視窗分割的需求。</em></li>
+</ul>
+</li>
+<li><strong>Finder 增強</strong>：
+<ul>
+<li><a href="https://github.com/Ji4n1ng/OpenInTerminal">Open In Terminal</a>：在 Finder 快速開啟終端機。</li>
+<li><a href="https://github.com/sbarex/QLMarkdown">QLMarkdown</a>：按空白鍵預覽 Markdown 文件。</li>
+<li><a href="https://github.com/sbarex/SourceCodeSyntaxHighlight">Syntax Highlight</a>：按空白鍵預覽帶有高亮色彩的原始碼。</li>
+<li><a href="https://www.binarynights.com/forklift/">ForkLift 3</a>：雙視窗檔案管理 + FTP 傳輸工具。</li>
+<li><a href="https://apps.apple.com/tw/app/qspace/id1469774098?mt=12">QSpace</a>：功能單純的多面板 Finder。</li>
+</ul>
+</li>
+<li><strong>解壓縮</strong>：
+<ul>
+<li><a href="https://theunarchiver.com/">The Unarchiver</a> 或 <a href="https://www.keka.io/">Keka</a>。</li>
+<li>如果不介意 command line，也可考慮 <a href="https://rar.tw/download.html">WinRAR for Mac</a>。</li>
+</ul>
+</li>
+</ul>
+<h3 id="知識管理-pkm">知識管理 (PKM)</h3>
+<ul>
+<li><strong>筆記軟體</strong>：<a href="https://logseq.com/">Logseq</a> 與 <a href="https://obsidian.md/">Obsidian</a>，無論在家或公司都用它們整理思緒。</li>
+<li><strong>心智圖</strong>：<a href="https://www.xmind.net/">XMind</a>，用於紀錄發散性或階層性的想法（雖然稍嫌笨重）。</li>
+</ul>
+<h3 id="系統優化與小工具">系統優化與小工具</h3>
+<ul>
+<li><strong>啟動器</strong>：
+<ul>
+<li><a href="https://www.raycast.com/">Raycast</a>：我的首選，自訂性高。</li>
+<li><a href="https://www.alfredapp.com/">Alfred</a>：也是很棒的替代品。</li>
+</ul>
+</li>
+<li><strong>防休眠</strong>：
+<ul>
+<li><a href="https://apps.apple.com/tw/app/amphetamine/id937984704?mt=12">Amphetamine</a>：長時間跑程式或下載時防止電腦休眠。</li>
+<li><em>Tip: Raycast 也有 Coffee / Anti-sleep 相關的 extension 可以達到一樣的效果，不一定要裝獨立 App。</em></li>
+</ul>
+</li>
+<li><strong>軟體更新檢查</strong>：<a href="https://github.com/mangerlahn/Latest">Latest</a> 或 <a href="https://aerolite.dev/applite">Applite</a>，檢查新版本非常方便。</li>
+<li><strong>截圖工具</strong>：<a href="https://shottr.cc/">Shottr</a>。</li>
+</ul>
+<hr>
+<h2 id="05-日常應用-daily-essentials">05. 日常應用 (Daily Essentials)</h2>
+<h3 id="瀏覽器">瀏覽器</h3>
+<p>我目前的需求是「多組帳號切換」、「設定可同步」與「套件多」。</p>
+<ul>
+<li><strong>主力使用</strong>：<a href="https://vivaldi.com/?lang=zh_TW">Vivaldi</a>。</li>
+<li><strong>其他 Chromium 選擇</strong>：<a href="https://www.google.com.tw/chrome/browser/desktop/index.html">Google Chrome</a> (以前常用)、<a href="https://www.microsoft.com/zh-tw/edge">Microsoft Edge</a>、<a href="https://brave.com/zh/">Brave</a>、<a href="https://arc.net/">Arc</a>。
+<ul>
+<li><em>必備 Extension 記錄在 <a href="https://chiahsien.github.io/post/essential-google-chrome-extension/">這篇文章</a>。</em></li>
+</ul>
+</li>
+<li><strong>WebKit 選擇</strong>：<a href="https://browser.kagi.com/">Orion</a> (重視隱私且支援 Chrome 套件)。</li>
+<li><strong>AI 瀏覽器 (新趨勢)</strong>：
+<ul>
+<li><a href="https://www.diabrowser.com">Dia</a></li>
+<li><a href="https://chatgpt.com/zh-Hant/atlas/">ChatGPT Atlas</a></li>
+<li><a href="https://www.perplexity.ai/comet">Perplexity Comet</a></li>
+</ul>
+</li>
+<li><strong>Firefox</strong>：<a href="https://www.mozilla.org/zh-TW/firefox/new/">Firefox</a> (因帳號切換功能不符需求而未採用)。</li>
+</ul>
+<h3 id="通訊軟體">通訊軟體</h3>
+<p>為了避免開一大堆視窗，我通常使用整合型工具：</p>
+<ul>
+<li><strong>整合工具</strong>：<a href="https://ferdium.org/">Ferdium</a> (主力)，其他類似選擇還有 <a href="https://meetfranz.com/">Franz</a> 與 <a href="https://getstation.com/">Station</a>。</li>
+<li><strong>常用服務</strong>：<a href="https://apps.apple.com/tw/app/line/id539883307?mt=12">LINE</a>、<a href="https://slack.com/downloads/osx">Slack</a>、<a href="https://telegram.org/">Telegram</a>、<a href="https://www.messenger.com/">Facebook Messenger</a>。</li>
+</ul>
+<hr>
+<h2 id="06-線上工具-online-tools">06. 線上工具 (Online Tools)</h2>
+<p>偶爾才用一次的需求，可以使用一些免費的線上工具解決。</p>
+<ul>
+<li><strong><a href="https://jsoneditoronline.org/">JSON Editor Online</a></strong>：檢視與編輯 JSON 的工具。</li>
+<li><strong>圖表繪製</strong>：
+<ul>
+<li><a href="https://www.draw.io/">draw.io</a>、<a href="https://excalidraw.com/">Excalidraw</a>、<a href="https://www.tldraw.com/">tldraw</a>、<a href="https://www.zenflowchart.com/">Zen Flowchart</a>、<a href="https://www.yworks.com/yed-live/">yEd live</a>。</li>
+<li><a href="http://asciiflow.com/">ASCIIFlow Infinity</a>：輕鬆畫出 ASCII 圖，適合放在程式碼註解裡說明架構。</li>
+</ul>
+</li>
+<li><strong>圖片工具</strong>：
+<ul>
+<li><a href="https://collagemaker.tools/photo/">Collage Maker</a>：圖片拼貼工具，通常送 PR 給同事 review UI 修改時，用來製作前後對照圖。</li>
+</ul>
+</li>
+</ul>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[必備的 Google Chrome Extension]]></title>
+        <id>https://chiahsien.github.io/post/essential-google-chrome-extension/</id>
+        <link href="https://chiahsien.github.io/post/essential-google-chrome-extension/">
+        </link>
+        <updated>2025-07-26T06:04:16.000Z</updated>
+        <summary type="html"><![CDATA[<p>我用的瀏覽器主要是 Chromium based，從早期愛用的 <a href="https://www.google.com.tw/chrome/">Google Chrome</a>，到現在改用 <a href="https://vivaldi.com/zh-hant/">Vivaldi</a>、<a href="https://brave.com/zh/">Brave Browser</a>、<a href="https://arc.net/">Arc</a>、<a href="https://diabrowser.com/">Dia</a>。有時還會用 WebKit based 而且支援 Chrome/Firefox 套件的 <a href="https://browser.kagi.com">Orion Browser</a>。</p>
+<p>每次換工作都是一次整理工作環境的機會，我的瀏覽器也藉此重裝，雖然每次的工作都不完全一樣，但我發現有些 extension 是不管在之前還是現在的工作、不管是公司還是家裏都會安裝的。以下就是我必備的幾個 extension：</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>我用的瀏覽器主要是 Chromium based，從早期愛用的 <a href="https://www.google.com.tw/chrome/">Google Chrome</a>，到現在改用 <a href="https://vivaldi.com/zh-hant/">Vivaldi</a>、<a href="https://brave.com/zh/">Brave Browser</a>、<a href="https://arc.net/">Arc</a>、<a href="https://diabrowser.com/">Dia</a>。有時還會用 WebKit based 而且支援 Chrome/Firefox 套件的 <a href="https://browser.kagi.com">Orion Browser</a>。</p>
+<p>每次換工作都是一次整理工作環境的機會，我的瀏覽器也藉此重裝，雖然每次的工作都不完全一樣，但我發現有些 extension 是不管在之前還是現在的工作、不管是公司還是家裏都會安裝的。以下就是我必備的幾個 extension：</p>
+<!-- more -->
+<ul>
+<li>
+<p><a href="https://chromewebstore.google.com/detail/adguard-adblocker/bgnkhhnnamicmpeenaelnjfhikgbkllg">AdGuard 廣告封鎖器</a><br>
+這一定是我第一個安裝的套件，實在是因為現在的網頁充斥著大量的廣告，不裝擋廣告套件根本無法好好瀏覽網頁了。</p>
+</li>
+<li>
+<p><a href="https://chrome.google.com/webstore/detail/bitwarden-free-password-m/nngceckbapebfimnlniiiahkandclblb">Bitwarden</a><br>
+我使用 Bitwarden 來儲存帳號密碼，透過這個套件就可以在瀏覽器快速存取密碼登入網站了。</p>
+</li>
+<li>
+<p><a href="https://chrome.google.com/webstore/detail/tab-group/gjgjkhbmehogehkdnoooeihkipifimme">Tab Group</a><br>
+很容易為了查資料不知不覺就開啟幾十個分頁，由於只是臨時查詢的頁面，存為書籤感覺不太必要，一直開著又很浪費資源。這時我就會用這個套件把分頁存成不同的 group 方便日後參考，不需要的時候就把整個 group 砍掉。<a href="https://arc.net/">Arc Browser</a> 跟 <a href="https://vivaldi.com/zh-hant/">Vivaldi</a> 瀏覽器在分頁管理方面做得非常好，完全不需要這個套件。</p>
+</li>
+<li>
+<p><a href="https://chromewebstore.google.com/detail/tab-copy/micdllihgoppmejpecmkilggmaagfdmb">Tab Copy</a><br>
+這個套件可以讓你自訂格式，複製目前開啟的分頁資訊，對於時常需要寫信寫文件傳訊息的工程師來說很方便。</p>
+</li>
+<li>
+<p><a href="https://chrome.google.com/webstore/detail/autopagerize/igiofjhpmpihnifddepnpngfjhkfenbp">AutoPagerize</a><br>
+顧名思義就是自動載入下一頁的套件，幫忙我們節省寶貴的時間。</p>
+</li>
+<li>
+<p><a href="https://immersivetranslate.com/zh-TW/">沉浸式翻譯</a><br>
+方便翻譯單字、片段或是全文的好工具。</p>
+</li>
+<li>
+<p><a href="https://chrome.google.com/webstore/detail/clearly-reader-your-missi/odfonlkabodgbolnmmkdijkaeggofoop">Cleary Reader</a>、<a href="https://chrome.google.com/webstore/detail/simpread-reader-view/ijllcpnolfcooahcekpamkbidhejabll">簡悅 - SimpRead</a> 或是 <a href="https://ranhe.xyz/circle/">Circle 閱讀模式</a><br>
+讓你瞬間進入沉浸式閱讀的 Chrome 擴展，提供與 Safari 類似的 read mode，以及其他更有彈性的設定。</p>
+</li>
+</ul>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[一個自訂 KOReader 書籍排序的腳本]]></title>
+        <id>https://chiahsien.github.io/post/koreader-custom-sorting-script/</id>
+        <link href="https://chiahsien.github.io/post/koreader-custom-sorting-script/">
+        </link>
+        <updated>2025-05-07T03:43:31.000Z</updated>
+        <summary type="html"><![CDATA[<p>我在 KOBO 電子書閱讀器上額外安裝了 <a href="https://koreader.rocks">KOReader</a> 系統，它的眾多設定讓我可以調整出自己最喜歡的樣子來觀看電子書，無論是 ePUB、PDF、CBZ 格式，高度自訂化佈局讓閱讀成為一件舒服的事。</p>
+<p>最近有一個困擾我的地方，就是它的書本排序方式雖然很多，但卻沒有我想要的排序方式，我想要讓書本「先按照作者排序，然後如果是系列套書就按照系列順序排序，最後再按照書名或是出版日期排序」，這樣才符合我整理書本的習慣。</p>
+<p>還好 KOReader 提供了讓使用者開發與安裝 <a href="https://github.com/koreader/koreader/wiki/User-patches">user patch</a> 的功能，那就自己來寫一個 patch 滿足我的需求吧！</p>
+<p>p.s.: 也有開發者搜集了很多實用的 user patch，可以<a href="https://github.com/sebdelsol/KOReader.patches">來這裡看看</a>！</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>我在 KOBO 電子書閱讀器上額外安裝了 <a href="https://koreader.rocks">KOReader</a> 系統，它的眾多設定讓我可以調整出自己最喜歡的樣子來觀看電子書，無論是 ePUB、PDF、CBZ 格式，高度自訂化佈局讓閱讀成為一件舒服的事。</p>
+<p>最近有一個困擾我的地方，就是它的書本排序方式雖然很多，但卻沒有我想要的排序方式，我想要讓書本「先按照作者排序，然後如果是系列套書就按照系列順序排序，最後再按照書名或是出版日期排序」，這樣才符合我整理書本的習慣。</p>
+<p>還好 KOReader 提供了讓使用者開發與安裝 <a href="https://github.com/koreader/koreader/wiki/User-patches">user patch</a> 的功能，那就自己來寫一個 patch 滿足我的需求吧！</p>
+<p>p.s.: 也有開發者搜集了很多實用的 user patch，可以<a href="https://github.com/sebdelsol/KOReader.patches">來這裡看看</a>！</p>
+<!-- more -->
+<p>你可以在我的 <a href="https://github.com/chiahsien/KOReader.Patches">GitHub Repo</a> 找到 patch 檔，安裝步驟如下：</p>
+<ol>
+<li>下載 <code>2-sort-by-author-series.lua</code> 這個檔案</li>
+<li>建立 <code>koreader/patches</code> 目錄</li>
+<li>將下載的檔案放到該目錄</li>
+<li>重新啟動 KOReader</li>
+</ol>
+<p>這樣你就可以在 KOReader 的檔案瀏覽器的 <code>Sort by:</code> 選單看到一個新增的選項囉！</p>
+<figure data-type="image" tabindex="1"><img src="https://chiahsien.github.io/post-images/1769699689625.jpeg" alt="" loading="lazy"></figure>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[FormattedListKit: Elegant List Displays Made Easy]]></title>
+        <id>https://chiahsien.github.io/post/ListFormatter-swift-package/</id>
+        <link href="https://chiahsien.github.io/post/ListFormatter-swift-package/">
+        </link>
+        <updated>2025-03-25T07:41:05.000Z</updated>
+        <summary type="html"><![CDATA[<p>When developing iOS and macOS applications, formatting lists is a common requirement. Whether it's terms and conditions, setting options, or tutorial steps, we often need to present ordered or unordered list content. However, Apple's native frameworks have relatively limited support for list formatting, which often puts developers in a dilemma: existing solutions aren't perfect, while heavier solutions seem like overkill.</p>
+<p>To solve this problem, I developed <a href="https://github.com/chiahsien/FormattedListKit">FormattedListKit</a>, a lightweight yet fully-featured Swift Package specifically designed for creating beautifully formatted ordered and unordered lists.</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>When developing iOS and macOS applications, formatting lists is a common requirement. Whether it's terms and conditions, setting options, or tutorial steps, we often need to present ordered or unordered list content. However, Apple's native frameworks have relatively limited support for list formatting, which often puts developers in a dilemma: existing solutions aren't perfect, while heavier solutions seem like overkill.</p>
+<p>To solve this problem, I developed <a href="https://github.com/chiahsien/FormattedListKit">FormattedListKit</a>, a lightweight yet fully-featured Swift Package specifically designed for creating beautifully formatted ordered and unordered lists.</p>
+<!-- more -->
+<h2 id="why-formattedlistkit">Why FormattedListKit?</h2>
+<p>I've tried several existing solutions, but wasn't fully satisfied with any of them:</p>
+<ol>
+<li>
+<p><strong>Using Markdown</strong>: iOS/macOS has limited native support for Markdown. Although <code>AttributedString</code> can process markdown syntax, it performs poorly when it comes to list formatting.</p>
+</li>
+<li>
+<p><strong>Using third-party Markdown packages</strong>: Introducing a complete Markdown parsing engine just to display lists seems bloated and over-engineered.</p>
+</li>
+<li>
+<p><strong>Using WebView to display HTML</strong>: This requires converting simple text lists to HTML first, and WebViews consume more resources.</p>
+</li>
+<li>
+<p><strong>Custom implementation (handling markers and items separately)</strong>: Highly flexible, but requires dealing with relatively complex layout logic.</p>
+</li>
+</ol>
+<p>Based on these pain points, FormattedListKit was born. It provides a simple yet powerful solution that allows developers to create beautiful lists with just a few lines of code.</p>
+<h2 id="core-features-of-formattedlistkit">Core Features of FormattedListKit</h2>
+<p>FormattedListKit's design philosophy is &quot;simple and focused&quot; - it concentrates on solving the specific problem of list formatting. Here are its main features:</p>
+<h3 id="1-support-for-multiple-list-types">1. Support for Multiple List Types</h3>
+<ul>
+<li><strong>Ordered lists</strong>: Supports integers (1. 2. 3.), Roman numerals (i. ii. iii. or I. II. III.), and letters (a. b. c. or A. B. C.)</li>
+<li><strong>Unordered lists</strong>: Supports bullets (•), hollow circles (◦), squares (▪), and custom symbols</li>
+</ul>
+<h3 id="2-flexible-formatting-options">2. Flexible Formatting Options</h3>
+<ul>
+<li><strong>Marker alignment</strong>: Supports left or right alignment of markers</li>
+<li><strong>Custom font</strong>: Allows setting font for list items</li>
+<li><strong>Proper indentation</strong>: Ensures multi-line text is correctly aligned, improving readability</li>
+</ul>
+<h3 id="3-simple-api">3. Simple API</h3>
+<p>FormattedListKit provides a simple and intuitive API through <code>NSAttributedString</code> extensions, creating complete lists with just one function call.</p>
+<pre><code class="language-swift">let items = [&quot;First item&quot;, &quot;Second very long item that needs to wrap to the next line&quot;, &quot;Third item&quot;]
+let attributedString = NSAttributedString.createList(
+    for: items,
+    type: .ordered(style: .decimal),
+    font: .systemFont(ofSize: 16),
+    markerAlignment: .right
+)
+
+// Set the formatted list to a UILabel or UITextView
+myTextView.attributedText = attributedString
+</code></pre>
+<h3 id="4-cross-platform-support">4. Cross-platform Support</h3>
+<p>FormattedListKit supports both iOS and macOS platforms, ensuring consistent list display experiences across different devices.</p>
+<h2 id="how-to-use-formattedlistkit-in-your-project">How to Use FormattedListKit in Your Project</h2>
+<p>Add FormattedListKit to your project using Swift Package Manager, then just <code>import FormattedListKit</code>:</p>
+<pre><code class="language-swift">dependencies: [
+    .package(url: &quot;https://github.com/chiahsien/FormattedListKit.git&quot;, from: &quot;1.0.0&quot;)
+]
+</code></pre>
+<h2 id="practical-use-cases">Practical Use Cases</h2>
+<p>FormattedListKit is particularly suitable for:</p>
+<ol>
+<li><strong>User agreements and terms</strong>: Clearly formatted lists of terms, improving readability</li>
+<li><strong>Tutorials and guides</strong>: Step-by-step instructions or helpful tips</li>
+<li><strong>Content display</strong>: Any place where lists need to be displayed</li>
+</ol>
+<h2 id="conclusion">Conclusion</h2>
+<p>FormattedListKit was born from practical development needs, aiming to solve a seemingly simple but actually annoying problem: how to elegantly display formatted lists. By focusing on this specific functionality, it provides a lightweight but complete solution that both avoids reinventing the wheel and doesn't require overly large dependencies.</p>
+<p>Check out <a href="https://github.com/chiahsien/FormattedListKit">FormattedListKit</a>, and please consider contributing through Issues or PRs on GitHub 😁</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[在 KOReader 使用偽直排字體]]></title>
+        <id>https://chiahsien.github.io/post/vertical-reading-in-koreader/</id>
+        <link href="https://chiahsien.github.io/post/vertical-reading-in-koreader/">
+        </link>
+        <updated>2025-03-11T02:23:47.000Z</updated>
+        <summary type="html"><![CDATA[<p>我很喜歡閱讀中文書籍，有些類型的中文書在直排版面下閱讀總是特別有韻味。然而在電子閱讀器上，要享受直排閱讀的體驗並不容易。今天要分享一個在 <a href="https://koreader.rocks/">KOReader</a> 上實現「偽直排」的方法，讓我們能在電子書閱讀器上，也能享受傳統直排的閱讀樂趣。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>我很喜歡閱讀中文書籍，有些類型的中文書在直排版面下閱讀總是特別有韻味。然而在電子閱讀器上，要享受直排閱讀的體驗並不容易。今天要分享一個在 <a href="https://koreader.rocks/">KOReader</a> 上實現「偽直排」的方法，讓我們能在電子書閱讀器上，也能享受傳統直排的閱讀樂趣。</p>
+<!-- more -->
+<h2 id="為什麼需要直排閱讀">為什麼需要直排閱讀？</h2>
+<p>傳統的中文書籍都是採用直排方式，從右至左、從上至下閱讀。這種排版方式不只是傳統，更是為了適應漢字的特性而生。即使到了現代，許多文學作品、古籍，甚至是日文書籍，仍然採用直排方式。在紙本書上，我們可以輕易找到直排版本，但在電子書的世界裡，直排版面卻成了一個難題。</p>
+<h2 id="偽直排的運作原理">偽直排的運作原理</h2>
+<p>這個解決方案的原理其實很有趣：</p>
+<ol>
+<li>首先使用特製的偽直排字體，每個字都被旋轉了 90 度</li>
+<li>接著透過 <a href="https://koreader.rocks/">KOReader</a> 的腳本功能，將內容區域旋轉 90 度</li>
+<li>這樣一來，旋轉的字體就會「站」起來，形成直排的效果</li>
+<li>最重要的是，UI 介面依然保持原本的方向，不會影響操作</li>
+</ol>
+<p>以下是一些可以用來實現偽直排效果的字體：</p>
+<ul>
+<li><a href="https://github.com/tonyhuan/GuanKiapTsingKhai">原俠正楷</a></li>
+<li><a href="https://here.vixual.net/files/fonts/rotate/">偽直排 源流明體 / 懷源黑體 / 花明蘭黑體</a></li>
+</ul>
+<p>這些字體都是經過特殊設計，能夠在旋轉後仍然保持良好的可讀性。</p>
+<h2 id="實際效果">實際效果</h2>
+<p>使用這個方法的優點是：</p>
+<ul>
+<li>不需要修改原始檔案，可以隨時切換橫排/直排模式</li>
+<li>保留了 <a href="https://koreader.rocks/">KOReader</a> 的所有功能，包括字體大小調整、版面調整等</li>
+<li>UI 介面維持原本方向，操作起來更直覺</li>
+</ul>
+<h2 id="如何安裝">如何安裝</h2>
+<p>以下是安裝步驟：</p>
+<ol>
+<li>到<a href="https://github.com/plateaukao/koreader_patch_vertical_read">這裡</a>下載腳本檔案 <code>2-cre-rotate-japanese-book.lua</code>，不要修改檔名。</li>
+<li>將檔案放到 <code>koreader/patches</code> 目錄下，如果沒有 <code>patches</code> 目錄就手動建立一個。</li>
+<li>重新啟動 KOReader。</li>
+<li>開啟一本書，在上方的書籍相關設定選單裡頭，會多出一個「Toggle vertical reading」的選單，勾選即可啟動。</li>
+<li>選擇一個偽直排字體。</li>
+</ol>
+<h2 id="使用建議">使用建議</h2>
+<p>安裝完成後，有幾個小技巧可以讓閱讀體驗更好：</p>
+<ol>
+<li>建議將邊距調整得更寬一些，讓版面更有餘裕</li>
+<li>可以嘗試不同的偽直排字體，找到最適合自己的選擇</li>
+<li>如果覺得預設的行距太擠，可以適當調整行距</li>
+</ol>
+<h2 id="結語">結語</h2>
+<p>透過這個方法，我們可以在 KOReader 上重現傳統直排的閱讀體驗。雖然是「偽」直排，但實際使用起來的效果相當不錯，特別適合閱讀古文、文學作品。如果你也喜歡直排閱讀，不妨試試這個方法，相信會讓你的閱讀體驗更加豐富。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[如何建立 iOS Share Extension]]></title>
+        <id>https://chiahsien.github.io/post/how-to-create-ios-share-extension/</id>
+        <link href="https://chiahsien.github.io/post/how-to-create-ios-share-extension/">
+        </link>
+        <updated>2024-11-03T08:49:27.000Z</updated>
+        <summary type="html"><![CDATA[<p>在網路上已經有很多關於 iOS <a href="https://developer.apple.com/library/archive/documentation/General/Conceptual/ExtensibilityPG/Share.html">Share Extension</a> 的教學，例如<a href="https://medium.com/@henribredtprivat/create-an-ios-share-extension-with-custom-ui-in-swift-and-swiftui-2023-6cf069dc1209">這裡就有一篇</a>。有需要的人可以自行在網路上搜尋，這邊就不多作著墨。我這次想要分享的主要是在開發 share extension 的過程遇到一些要注意的事項，以及踩到的一些坑。</p>
+<p>我的開發環境是 macOS Sonoma + Xcode 15，使用 Swift 開發。</p>
+<p>要建立一個 share extension 很簡單，就是在你的專案新增一個 <code>target</code> 然後選擇 <code>Share Extension</code> 即可。Xcode 會自動幫忙產生必要的檔案，以及做好基本設定。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>在網路上已經有很多關於 iOS <a href="https://developer.apple.com/library/archive/documentation/General/Conceptual/ExtensibilityPG/Share.html">Share Extension</a> 的教學，例如<a href="https://medium.com/@henribredtprivat/create-an-ios-share-extension-with-custom-ui-in-swift-and-swiftui-2023-6cf069dc1209">這裡就有一篇</a>。有需要的人可以自行在網路上搜尋，這邊就不多作著墨。我這次想要分享的主要是在開發 share extension 的過程遇到一些要注意的事項，以及踩到的一些坑。</p>
+<p>我的開發環境是 macOS Sonoma + Xcode 15，使用 Swift 開發。</p>
+<p>要建立一個 share extension 很簡單，就是在你的專案新增一個 <code>target</code> 然後選擇 <code>Share Extension</code> 即可。Xcode 會自動幫忙產生必要的檔案，以及做好基本設定。</p>
+<!-- more -->
+<h2 id="設定入口畫面">設定入口畫面</h2>
+<p>Xcode 會自動產生 <code>ShareViewController</code> 這個檔案，在蘋果的規劃裡頭，它預期大部分 Share Extension 的情境就是要把內容轉發到其他網路平台，所以這個 ShareViewController 會繼承自 <code>SLComposeServiceViewController</code> 並且也有提供發文的程式碼骨架。如果這符合你的情境，那很棒；如果不是的話，你可以手動把它改成繼承自 <code>UIViewController</code> 然後刪除那些骨架程式碼。</p>
+<p>Xcode 也會自動幫忙產生一個 <code>MainInterface.storyboard</code> 作為入口點。目前 storyboard 已經不被鼓勵使用，而且很多開發者也逐步轉向 SwiftUI 開發畫面，所以我們可以刪除這個檔案，然後在 <code>ShareViewController</code> 裡頭刻畫面。</p>
+<p>要修改畫面入口點，除了刪除 storyboard 之外，還要修改 <code>Info.plist</code> 告訴 Xcode 我們的入口點是什麼。在 Share Extension 的 <code>Info.plist</code> 裡面，找到 <code>NSExtensionMainStoryboard</code> 這組 key，把它的名稱改成 <code>NSExtensionPrincipalClass</code> 並且把對應的 value 改成 <code>$(PRODUCT_NAME).ShareViewController</code>。</p>
+<h2 id="設定要支援的分享內容格式">設定要支援的分享內容格式</h2>
+<p>使用者有可能分享多種內容格式，最常見的就是「文字」、「圖片」、「網址」這幾種，當然還有各種不同的檔案類型等等。我們需要在 <code>Info.plist</code> 裡頭設定，告訴系統我們的 share extension 支援哪些內容格式，只有當使用者分享的內容是我們支援的，系統的分享選單才會出現我們的 share extension。</p>
+<p>要支援的格式放在 <code>NSExtensionActivationRule</code> key 底下，支援的格式<a href="https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/AppExtensionKeys.html#//apple_ref/doc/uid/TP40014212-SW2">寫在這篇文件裡</a>，如果預設的支援格式不符使用要求，也可以使用更複雜也更有彈性的 <a href="https://developer.apple.com/library/archive/documentation/General/Conceptual/ExtensibilityPG/ExtensionScenarios.html#//apple_ref/doc/uid/TP40014214-CH21-SW8">Predicate</a>。</p>
+<p>舉例來說，如果要支援網址的分享，<code>Info.plist</code> 長得像這樣：</p>
+<pre><code class="language-xml">&lt;key&gt;NSExtensionAttributes&lt;/key&gt;
+&lt;dict&gt;
+    &lt;key&gt;NSExtensionActivationRule&lt;/key&gt;
+    &lt;dict&gt;
+        &lt;key&gt;NSExtensionActivationSupportsWebURLWithMaxCount&lt;/key&gt;
+        &lt;integer&gt;1&lt;/integer&gt;
+    &lt;/dict&gt;
+&lt;/dict&gt;
+</code></pre>
+<p>有些 app 的分享功能同時分享了多種內容格式，例如瀏覽器的網頁分享可能同時包含「文字（這個網頁的標題）」跟「網址（這個網頁的網址）」。通常我們會希望分享內容有我們支援的格式，系統選單就要出現我們的 share extension，但實際情況是並不是如此。</p>
+<p>以我們的例子來說，在 <code>Info.plist</code> 裡頭宣告支援網址格式，系統就會在分享內容「只有」網址格式的時候，才會出現我們的 share extension；不會在分享內容「同時有」網址跟其他格式的時候出現。</p>
+<p>這顯然不是我們要的結果，解法就是在 <code>Info.plist</code> 加入 <code>NSExtensionActivationDictionaryVersion</code> key 並將 value 設為 <code>2</code>。</p>
+<pre><code class="language-xml">&lt;key&gt;NSExtensionAttributes&lt;/key&gt;
+&lt;dict&gt;
+    &lt;key&gt;NSExtensionActivationRule&lt;/key&gt;
+    &lt;dict&gt;
+        &lt;key&gt;NSExtensionActivationDictionaryVersion&lt;/key&gt;
+        &lt;integer&gt;2&lt;/integer&gt;
+        &lt;key&gt;NSExtensionActivationSupportsWebURLWithMaxCount&lt;/key&gt;
+        &lt;integer&gt;1&lt;/integer&gt;
+    &lt;/dict&gt;
+&lt;/dict&gt;
+</code></pre>
+<h2 id="處理分享內容的時間點">處理分享內容的時間點</h2>
+<p>網路上很多教學都是在 <code>viewDidLoad</code> 處理分享內容，但我測試發現會遇到一些奇怪的 UI 問題，所以我選擇在 <code>viewDidAppear</code> 處理。</p>
+<pre><code class="language-swift">override func viewDidAppear(_ animated: Bool) {
+    super.viewDidAppear(animated)
+    // Make sure to load shared content and update UI after view did appear, otherwise UI may not work as expected.
+    loadSharedContent()
+}
+
+private func loadSharedContent() {
+    // ....
+}
+</code></pre>
+<h2 id="要在-main-thread-處理-ui">要在 Main Thread 處理 UI</h2>
+<p>這看起來很像是基本常識，但是在開發 Share Extension 的時候很容易忘記它。當你發現畫面不如預期變化的時候，很有可能就是沒有在 main thread 處理 UI 的關係。</p>
+<pre><code class="language-swift">private func loadSharedContent() {
+    guard let item = extensionContext?.inputItems.first as? NSExtensionItem,
+          let attachment = item.attachments?.first(where: { $0.hasItemConformingToTypeIdentifier(UTType.url.identifier) })
+    else {
+        finish()
+        return
+    }
+
+    attachment.loadItem(forTypeIdentifier: UTType.url.identifier, options: nil) { [weak self] data, error in
+        if let url = data as? URL {
+            self?.handleURL(url)
+        }
+    }
+}
+
+private func finish() {
+    DispatchQueue.main.async {
+        self.extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
+    }
+}
+
+private func handleURL(_ url: URL) {
+    // Make sure to run in main thread, otherwise UI may freeze.
+    DispatchQueue.main.async {
+        self.label.text = url.absoluteString
+    }
+}
+</code></pre>
+<p>以上就是本次分享的內容，希望可以幫助各位少踩一些坑。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Repository Design Pattern]]></title>
+        <id>https://chiahsien.github.io/post/repository-design-pattern/</id>
+        <link href="https://chiahsien.github.io/post/repository-design-pattern/">
+        </link>
+        <updated>2024-04-27T14:47:20.000Z</updated>
+        <summary type="html"><![CDATA[<h2 id="為何需要-repository-design-pattern">為何需要 Repository Design Pattern</h2>
+<p>在最近參與的專案當中，我們開始導入了 <a href="https://www.geeksforgeeks.org/repository-design-pattern/">Repository Design Pattern</a>，一句話總結它的用途就是「負責處理資料的新增、讀取、更新、刪除 (CRUD) 的角色」，建立這樣一個角色來負責處理資料能帶來什麼好處呢？</p>
+]]></summary>
+        <content type="html"><![CDATA[<h2 id="為何需要-repository-design-pattern">為何需要 Repository Design Pattern</h2>
+<p>在最近參與的專案當中，我們開始導入了 <a href="https://www.geeksforgeeks.org/repository-design-pattern/">Repository Design Pattern</a>，一句話總結它的用途就是「負責處理資料的新增、讀取、更新、刪除 (CRUD) 的角色」，建立這樣一個角色來負責處理資料能帶來什麼好處呢？</p>
+<!-- more -->
+<p>我認為有以下幾點：</p>
+<ul>
+<li>
+<p><strong>隱藏資料存取的細節</strong><br>
+呼叫 Repository 的使用者不需要知道底層是如何存取資料的，可能是透過網路、可能是存在資料庫或是存在檔案系統、可能有加密也可能沒有。這些細節都被 Repository 包起來，未來如果需要調整底層資料的存取方式只要動 Repository 即可，不會影響到使用者。</p>
+</li>
+<li>
+<p><strong>隱藏資料轉換的細節</strong><br>
+有的時候上層使用的資料模型跟底層存取的資料模型可能長得完全不一樣，Repository 可以隱藏這些資料轉換的業務邏輯，讓使用者專心使用資料，不需要費心去處理轉換，如果有很多地方都會用到這些資料，好處會更明顯。哪些情境會遇到資料轉換呢？舉例來說：一個新聞聚合器會有許多不同的新聞來源，它需要將不同來源的新聞轉成一致的新聞格式；做監控軟體的可能會支援多種不同廠牌的鏡頭，它需要將不同廠牌的鏡頭資料轉成一致的鏡頭格式；原始資料來源可能是很底層的硬體資料，需要轉成符合應用層使用的格式。</p>
+</li>
+<li>
+<p><strong>確保單一資料來源</strong><br>
+單一資料來源 (Single source of truth) 在軟體開發領域一再的被提醒，而 Repository 正好能夠套用這句話。套用 Repository Pattern 之後，我們就能要求所有資料存取一律都要透過 Repository，可以避免資料被不預期的修改或是使用不一致的資料。</p>
+</li>
+<li>
+<p><strong>簡化開發心智模型</strong><br>
+導入 Repository Pattern 之後，存取資料相關的程式碼一律都放在 Repository 裡頭，再也不用煩惱要放在哪裡，對開發或維護來說都是一大幫助。</p>
+</li>
+</ul>
+<h2 id="repository-實際應用場景">Repository 實際應用場景</h2>
+<p>在這裡列出幾個常見的應用場景，這些都有實際用於我參與過的專案。</p>
+<ul>
+<li>
+<p><strong>打 API</strong><br>
+Repository 用來存取資料，而資料可以來自網路，所以用來打 API 是很自然的一件事。現在 RESTful API 被很多專案採用，RESTful 的 R 就是 Resource，通常我們可以根據 Resource 建立不同的 Repository。舉例來說，如果是一款天氣預報的應用，就可以建立一個 <code>WeatherRepository</code> 負責打 API 取得天氣資訊並轉成需要的 <code>Weather</code> 資料模型，給應用層使用。</p>
+</li>
+<li>
+<p><strong>存取應用程式的各項設定</strong><br>
+開發過 app 就會知道一款 app 會有許許多多不同的設定：舉例來說，我們可能需要切換到不同的環境 (Production / Staging / Development)，不同的環境就會有不同的設定值（例如不同的網址、不同的 key 等等）。此外，使用者也會有許多的設定需要儲存，像是針對 app 的偏好設置、是否看過某些教學或對話框，如果有支援切換不同使用者，那就會更麻煩。</p>
+</li>
+<li>
+<p><strong>存取硬體相關的功能</strong><br>
+例如存取 NFC、地理位置、相機、藍芽等等硬體相關的功能，為了存取這些硬體功能，除了呼叫相關的系統 API 之外通常還需要處理權限的請求，將它包在 Repository 裡頭會讓使用更方便。</p>
+</li>
+<li>
+<p><strong>一般資料的存取</strong><br>
+如同一開始提到的，使用 Repository 隱藏資料實際的存取方式，使用者不必關心資料是存在資料庫還是存在本地檔案、是明碼還是加密。舉個常見的例子：假設有一款 iOS app 使用 <code>JWT</code> 做為 access token，所以它建立一個 <code>UserTokenRepository</code> 來存取 JWT。開發初期它將 JWT 存到 <code>UserDefaults</code>，後來它發現這樣很危險所以改成存到 <code>Keychain</code>。雖然底下存取的實作改變了，可是外部使用者的存取方式並不會受到影響。</p>
+</li>
+</ul>
+<h2 id="總結">總結</h2>
+<p>以前還沒有導入 Repository Design Pattern 的時候，這些資料存取的行為不是散落在各處導致資料不穩定或程式碼重複出現，不然就是會被歸類到 Manager / Service / Helper / Utility 這類籠統的類別底下。現在只要是跟資料存取有關的行為 (CRUD)，一律放在 Repository 類別，開發變得輕鬆多了。</p>
+<p>Repository 是個可以輕鬆導入的作法，它不會造成程式碼太大的改動，也可以分批導入，非常鼓勵大家試試看！</p>
+]]></content>
+    </entry>
+</feed>

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>Nelson/Open-Source</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="Nelson/Open-Source - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <h1 class="current-tag">標籤: Open-Source</h1>
+          
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/koreader-patch-browser-cover/">
+            <h1 class="post-title">讓 KOReader 的資料夾顯示書籍封面</h1>
+        </a>
+        <div class="post-date">
+            2026-02-01
+        </div>
+        <div class="post-abstract">
+            
+            <p>這次要介紹的是我為 KOReader 檔案瀏覽（Mosaic）所做的另一個 userpatch：<code>2-browser-folder-cover.lua</code>。這個 patch 可以讓資料夾在 Mosaic 檢視時顯示封面圖片，支援放置自訂 <code>.cover</code> 檔案，若無自訂封面則會自動從該資料夾或其子資料夾的書籍取得封面。此外還提供兩種顯示風格：單一封面或 2×2 格狀封面。</p>
+<p>下載路徑：<a href="https://github.com/chiahsien/KOReader.Patches">https://github.com/chiahsien/KOReader.Patches</a></p>
+
+            <a href="https://chiahsien.github.io/post/koreader-patch-browser-cover/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/koreader-custom-sorting-script/">
+            <h1 class="post-title">一個自訂 KOReader 書籍排序的腳本</h1>
+        </a>
+        <div class="post-date">
+            2025-05-07
+        </div>
+        <div class="post-abstract">
+            
+            <p>我在 KOBO 電子書閱讀器上額外安裝了 <a href="https://koreader.rocks">KOReader</a> 系統，它的眾多設定讓我可以調整出自己最喜歡的樣子來觀看電子書，無論是 ePUB、PDF、CBZ 格式，高度自訂化佈局讓閱讀成為一件舒服的事。</p>
+<p>最近有一個困擾我的地方，就是它的書本排序方式雖然很多，但卻沒有我想要的排序方式，我想要讓書本「先按照作者排序，然後如果是系列套書就按照系列順序排序，最後再按照書名或是出版日期排序」，這樣才符合我整理書本的習慣。</p>
+<p>還好 KOReader 提供了讓使用者開發與安裝 <a href="https://github.com/koreader/koreader/wiki/User-patches">user patch</a> 的功能，那就自己來寫一個 patch 滿足我的需求吧！</p>
+<p>p.s.: 也有開發者搜集了很多實用的 user patch，可以<a href="https://github.com/sebdelsol/KOReader.patches">來這裡看看</a>！</p>
+
+            <a href="https://chiahsien.github.io/post/koreader-custom-sorting-script/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/ListFormatter-swift-package/">
+            <h1 class="post-title">FormattedListKit: Elegant List Displays Made Easy</h1>
+        </a>
+        <div class="post-date">
+            2025-03-25
+        </div>
+        <div class="post-abstract">
+            
+            <p>When developing iOS and macOS applications, formatting lists is a common requirement. Whether it's terms and conditions, setting options, or tutorial steps, we often need to present ordered or unordered list content. However, Apple's native frameworks have relatively limited support for list formatting, which often puts developers in a dilemma: existing solutions aren't perfect, while heavier solutions seem like overkill.</p>
+<p>To solve this problem, I developed <a href="https://github.com/chiahsien/FormattedListKit">FormattedListKit</a>, a lightweight yet fully-featured Swift Package specifically designed for creating beautifully formatted ordered and unordered lists.</p>
+
+            <a href="https://chiahsien.github.io/post/ListFormatter-swift-package/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/recommended-fonts-for-e-reader/">
+            <h1 class="post-title">電子書閱讀器推薦字體</h1>
+        </a>
+        <div class="post-date">
+            2024-04-13
+        </div>
+        <div class="post-abstract">
+            
+            <p>我是個很喜歡看電子書的人，我使用的是 <a href="../my-kobo-e-reader">Kobo 電子書閱讀器</a> 搭配 <a href="../alternative-kobo-e-reader-koreader-and-plato">KOReader</a>，電子書閱讀器提供了許多便利之處。首先，它們輕巧易攜帶，讓我可以隨身攜帶我的閱讀清單，輕鬆切換不同的書籍。我通常會交替閱讀兩三本書，這讓我的閱讀體驗更加豐富，閱讀過程也更加放鬆。此外，我也很喜歡閱讀器可以自訂文字排版的功能。</p>
+<p>對我來說，自訂文字排版是非常重要的，因為它可以大幅提升閱讀的舒適度。特別是字體的選擇，對閱讀體驗至關重要。以下是我必裝的幾款字體：</p>
+
+            <a href="https://chiahsien.github.io/post/recommended-fonts-for-e-reader/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/bitwarden-password-manager/">
+            <h1 class="post-title">Bitwarden 密碼管理工具</h1>
+        </a>
+        <div class="post-date">
+            2023-04-20
+        </div>
+        <div class="post-abstract">
+            
+            <p>現代人離不開網路，所以我們會擁有許多不同的帳號和密碼。如果使用相同的密碼，一旦其中一個帳號被盜用，所有帳號都可能受到威脅；如果使用不同的密碼，又不可能全部都記住，尤其是每個網站對密碼的強度要求都不一樣。如果你想要一個方便又安全的解決方案，那麼我會推薦 <a href="https://bitwarden.com/">Bitwarden</a>。</p>
+
+            <a href="https://chiahsien.github.io/post/bitwarden-password-manager/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/what-time-a-side-project-for-kid/">
+            <h1 class="post-title">What Time: 一個寫給孩子的小玩具</h1>
+        </a>
+        <div class="post-date">
+            2021-06-09
+        </div>
+        <div class="post-abstract">
+            
+            <p>我的小孩逐漸長大，到了需要看得懂時鐘的年紀了，但經過多次的嘗試，無論是看圖學習或是寫練習本，他就是記不住要怎麼看指針時鐘。</p>
+<p>還好，我是一個工程師，而且是一個會開發 iOS App 的工程師。</p>
+<p>既然小孩會被手機 app 吸引、研究報告又證實在遊戲中學習的效果好，那我就來開發一款 app 讓孩子可以不停的練習吧。所以趁著防疫期間，我就做了一個很簡單的 app，它會隨機顯示時間，只要正確輸入顯示的時間，就會再隨機顯示另一組時間。</p>
+<p>就是這麼簡單樸實的一個小東西，卻可以讓小孩玩得不亦樂乎，而且效果驚人，不到一個星期他已經會看時鐘了！</p>
+<p>有興趣的人可以來這裡<a href="https://github.com/chiahsien/What-Time">下載原始碼</a>，自己安裝到手機上玩。</p>
+<figure data-type="image" tabindex="1"><img src="https://github.com/chiahsien/What-Time/raw/main/Screenshot.png" alt="" loading="lazy"></figure>
+
+            
+        </div>
+    </div>
+    
+</article>
+
+
+          <div class="pagination-container">
+  
+  
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

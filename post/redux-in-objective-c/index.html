@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>用 Objective-C 實作 Redux 架構 | Nelson</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="用 Objective-C 實作 Redux 架構 | Nelson - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <div class="post-detail">
+            <h1 class="post-title">用 Objective-C 實作 Redux 架構</h1>
+            <div class="post-date">2016-08-03</div>
+            
+            <div class="post-content">
+              <p>有一定的程式設計經驗之後，會愈來愈感受到程式架構的重要性，在 iOS app 開發的世界裡，最常見的莫過於 MVC 架構，因為它夠簡單而且是蘋果推薦的架構。但當你的程式越來越龐大，流程越來越複雜的時候，就會發現 MVC 架構已經無法滿足需求了。這幾年最為人所知的就是 MVP / MVVM / VIPER / Coordinator 這幾個模式。</p>
+<p>我認為這些模式的著眼點都在於「UI」：它們假設你有一套辦法去存取或修改資料，然後它們提出的方案是關於如何處理「界面顯示 / 使用者互動 / 資料存取」之間的關係。</p>
+<!--more-->
+<p>當程式越長越大，要儲存的狀態越來越多，不同畫面之間需要同步的資料也越來越多，我們該如何管理資料的存取、確保其一致性與正確性呢？Facebook 之前提出了 Flux 架構，後來有人提出改良版的 Redux 架構，不管是 Flux 還是 Redux，其重點都是在於「<strong>資料的流動是單向的，資料只有一份，並且只有一個角色可以修改資料</strong>」。</p>
+<p>Flux / Redux 一開始提出是給網站使用的架構，後來有人把它套用到 iOS 開發，不過我查到的資料都是使用 Swift 實作。無可否認使用 Swift 來實作這套架構的確比較方便，只是我很好奇用 Objective-C 的話會有多困難，以下就是我的一些開發過程。</p>
+<h2 id="redux-的四個角色">Redux 的四個角色</h2>
+<figure data-type="image" tabindex="1"><img src="https://c5.staticflickr.com/8/7761/28119338484_33396fbf17_b.jpg" alt="" loading="lazy"></figure>
+<p>從上圖可以看到，Redux 架構很簡單，只有四個角色：</p>
+<h3 id="action">Action</h3>
+<ul>
+<li>單純的資料結構。</li>
+<li>表示它所代表的動作類型，以及附帶的資料。</li>
+</ul>
+<h3 id="store">Store</h3>
+<ul>
+<li>負責收到 Action。</li>
+<li>負責把 Action 跟最新的 State 傳給 Reducer。</li>
+<li>負責修改 State，並讓外界可以取得最新的 State。</li>
+<li>負責送出「State 已經更新」的通知給感興趣的人。</li>
+</ul>
+<h3 id="state">State</h3>
+<ul>
+<li>單純的資料結構。</li>
+<li>代表整個 app 需要的所有資料。</li>
+</ul>
+<h3 id="reducer">Reducer</h3>
+<ul>
+<li>單純的函式。</li>
+<li>輸入是「Action」跟「State」，輸出是「修改過的 State」。</li>
+</ul>
+<h2 id="例子文章列表">例子：文章列表</h2>
+<p>現在我們要來寫一個很簡單的 app，它唯一的功能就是跟伺服器要求最新的文章列表，然後一筆筆顯示處理。假設我們的網路功能跟 UI 都設計好了，那該怎麼套用 Redux 架構來處理資料的部分呢？</p>
+<h3 id="action-2">Action</h3>
+<p>我會建議一開始由 Action 先規劃。這個例子裡的 Action 很單純，就是用一個 property 來記錄 action type，再用一個 property 來記錄 payload。因為有些 type 不需要附帶資料，所以 payload 是 nullable。這裡我規劃了兩個 type，第一個是取得文章列表之後我需要 <code>SetPosts</code> 來更新 State 裡頭的文章列表，第二個是 <code>AppendPosts</code>，當我取得下一頁的文章列表之後我要把它附加到 State 原有的列表裡。</p>
+<pre><code class="language-objc">/// TLBAction.h
+typedef NS_ENUM (NSInteger, TLBActionType) {
+  TLBActionTypeSetPosts,
+  TLBActionTypeAppendPosts,
+};
+
+@interface TLBAction : NSObject
+@property (nonatomic, assign, readonly) TLBActionType type;
+@property (nonatomic, strong, readonly, nullable) id payload;
+- (instancetype)initWithActionType:(TLBActionType)type payload:(nullable id)payload;
+@end
+
+/// TLBAction.m
+@interface TLBAction ()
+@property (nonatomic, assign, readwrite) TLBActionType type;
+@property (nonatomic, strong, readwrite, nullable) id payload;
+@end
+
+@implementation TLBAction
+- (instancetype)initWithActionType:(TLBActionType)type payload:(id)payload {
+  if (self = [super init]) {
+    _type = type;
+    _payload = payload;
+  }
+  return self;
+}
+@end
+</code></pre>
+<h3 id="state-2">State</h3>
+<p>State 沒什麼好說的，就是一個單純的資料結構，用來儲存會用到的資料。值得一提的是，只要存原始資料就好，可以藉由原始資料推算出的資料不需要存起來。</p>
+<pre><code class="language-objc">/// TLBState.h
+@interface TLBState : NSObject &lt;NSCopying&gt;
+@property (nonatomic, strong) NSOrderedSet &lt;NSString *&gt; *posts;
+@end
+</code></pre>
+<h3 id="reducer-2">Reducer</h3>
+<p>Reducer 是唯一知道該怎麼修改 State 的地方，一個 Reducer 可能只會修改 State 的某一部分。當 Action 越來越多、State 越來越大的時候，也可以將多個 Reducer 合成一個更大的 Reducer。</p>
+<p>在原始的 Redux 定義裡頭，Reducer 的格式是 <code>func(state, action) -&gt; state</code>，傳舊的 state 進去會先產生一個新的 state 再來修改這個新 state，而不是直接修改舊的 state。但在 Objective-C 的世界，這代表在每個 Reducer 裡頭都得產生一個新的 state instance，Reducer 一多的情況就可能對效能造成影響。所以我在這裡把它定義成 <code>typedef void (^TLBReduceBlock)(TLBState **, TLBAction *)</code>，傳入的是 state 的記憶體位址，在 Reducer 裡頭就可以直接去修改 state，避免一直產生新的 instance 的問題。</p>
+<p>要注意的是，你不應該預期 Reducer 會以怎樣的順序被呼叫，它應該是一個 pure function。</p>
+<pre><code class="language-objc">/// TLBReducer.h
+typedef void (^TLBReduceBlock)(TLBState **, TLBAction *);
+
+@interface TLBReducer : NSObject
++ (NSArray *)availableReduceBlocks;
+@end
+
+/// TLBReducer.m
+@implementation TLBReducer
++ (NSArray *)availableReduceBlocks {
+  return @[
+    [self postActionsReducer]
+  ];
+}
+
++ (TLBReduceBlock)postActionsReducer {
+  TLBReduceBlock block = ^(TLBState **state, TLBAction *action) {
+    if (state == NULL) {
+      return;
+    }
+
+    TLBState *newState = *state;
+    switch (action.type) {
+      case TLBActionTypeSetPosts: {
+        newState.posts = [NSOrderedSet orderedSetWithArray:action.payload];
+        break;
+      }
+
+      case TLBActionTypeAppendPosts: {
+        NSMutableOrderedSet *set = [newState.posts mutableCopy];
+        [set addObjectsFromArray:action.payload];
+        newState.posts = [set copy];
+        break;
+      }
+
+      default: {
+        break;
+      }
+    }
+  };
+  return block;
+}
+@end
+</code></pre>
+<h3 id="store-2">Store</h3>
+<p>一個 app 只會有一個 Store，所以它會是一個 singleton。外界會要求它去 dispatch 一個 action，它就會讓全部的 Reducer 依序處理這個 action，並且為了確保一次只有一個 Action 被執行，所以我建立了一個 serial queue 來處理。最後把處理過的結果寫回 State，並通知感興趣的人 State 已更新。通知有很多種實作方式，在這裡我是用 <code>ReactiveCocoa</code> 的 <code>RACSignal</code> 讓別人來訂閱。</p>
+<pre><code class="language-objc">/// TLBStore.h
+@interface TLBStore : NSObject
+@property (nonatomic, strong, readonly) RACSignal *stateObserver;
+
++ (instancetype)shardInstance;
+- (void)dispatchAction:(TLBAction *)action;
+- (TLBState *)currentState;
+@end
+
+/// TLBStore.m
+@interface TLBStore ()
+@property (nonatomic, strong, readwrite) RACSignal *stateObserver;
+@property (nonatomic, strong) TLBState *state;
+@property (nonatomic, strong) NSArray &lt;TLBReduceBlock&gt; *reducers;
+@property (nonatomic, strong) dispatch_queue_t serialQueue;
+@end
+
+@implementation TLBStore
++ (instancetype)shardInstance {
+  static TLBStore *_sharedInstance = nil;
+  static dispatch_once_t onceToken;
+  dispatch_once(&amp;onceToken, ^{
+    _sharedInstance = [[TLBStore alloc] init];
+  });
+  return _sharedInstance;
+}
+
+- (instancetype)init {
+  if (self = [super init]) {
+    _serialQueue = dispatch_queue_create(&quot;Redux Store Action Queue&quot;, DISPATCH_QUEUE_SERIAL);
+  }
+  return self;
+}
+
+- (void)dispatchAction:(TLBAction *)action {
+  dispatch_async(self.serialQueue, ^{
+    TLBState *newState = [self.state copy];
+    for (TLBReduceBlock block in self.reducers) {
+      block(&amp;newState, action);
+    }
+    self.state = newState;
+  });
+}
+
+- (TLBState *)currentState {
+  return [self.state copy];
+}
+
+- (RACSignal *)stateObserver {
+  if (!_stateObserver) {
+    _stateObserver = [RACObserve(self, state) replayLast];
+  }
+  return _stateObserver;
+}
+
+- (TLBState *)state {
+  if (!_state) {
+    _state = [[TLBState alloc] init];
+  }
+  return _state;
+}
+
+- (NSArray &lt;TLBReduceBlock&gt; *)reducers {
+  if (!_reducers) {
+    _reducers = [TLBReducer availableReduceBlocks];
+  }
+  return _reducers;
+}
+@end
+</code></pre>
+<h3 id="整個串起來">整個串起來</h3>
+<p>假如現在我有一個 <code>UIViewController</code>，我要跟伺服器請求文章列表，取得列表之後就更新我的 <code>tableView</code>，那使用 <code>ReactiveCocoa</code> 程式碼長得大概像這樣。</p>
+<pre><code class="language-objc">/// TLBPostListViewController.m
+@interface TLBPostListViewController () &lt;UITableViewDataSource, UITableViewDelegate&gt;
+@property (weak, nonatomic) IBOutlet UITableView *tableView;
+@property (nonatomic, strong) NSOrderedSet &lt;NSString *&gt; *posts;
+@property (nonatomic, strong) RACDisposable *stateObserver;
+@end
+
+@implementation TLBPostListViewController
+- (void)dealloc {
+  [_stateObserver dispose];
+  _stateObserver = nil;
+}
+
+- (void)viewDidLoad {
+  [super viewDidLoad];
+  [[[TLBNetworkManager shardManager] fetchPost] subscribeNext:^(NSArray *posts) {
+    // 送出 action 之後就不理會它了，因為我們會監聽 state 的變化
+    TLBAction *action = [[TLBAction alloc] initWithActionType:TLBActionTypeSetPosts payload:posts];
+    [[TLBStore shardInstance] dispatchAction:action];
+  }];
+
+  @weakify(self);
+  // 監聽 state 的變化
+  self.stateObserver = [[TLBStore shardInstance].stateObserver subscribeNext:^(TLBState *state) {
+    @strongify(self);
+    if (![self.posts isEqualToOrderedSet:state.posts]) {
+      self.posts = [state.posts copy];
+      [self.tableView reloadData];
+    }
+  }];    
+}
+@end
+</code></pre>
+<h2 id="結論">結論</h2>
+<p>Redux 只是一個處理資料的方案，它可以跟 MVC / MVVM / VIPER / Coordinator 等架構相互配合，因為它們要處理的是不同問題。我覺得使用 Redux 有以下這些優點：</p>
+<ul>
+<li>架構清晰，每個角色該做什麼事都有明確規定。</li>
+<li>資料有統一的處理方式，而且資料來源只有一個，確保資料的一致性。</li>
+<li>團隊可以寫出統一風格的程式碼。</li>
+<li>可與其他 UI 相關的架構一同使用。</li>
+</ul>
+<p>當然它也有缺點：</p>
+<ul>
+<li>多出不少程式碼。</li>
+<li>架構變得比較複雜，簡單的小專案不適合用它。</li>
+<li>會多吃一些記憶體。</li>
+<li>速度會稍微慢一點（但對大多數人來說應該感覺不出來）。</li>
+</ul>
+<p>總結來說，每個架構有其適合的場景，你要先瞭解要解決的問題再來選擇要使用的架構，不要太早優化也不要過度設計了。</p>
+<h2 id="qa">Q&amp;A</h2>
+<p>Q: 我覺得這個例子很單純，根本不需要用到 Redux？</p>
+<p>A: 沒錯！我只是為了舉例，現實情況下如果是像這麼簡單的專案，千萬不要搞得如此複雜！</p>
+<p>Q: 現實情況下，<strong>State</strong> 會變得很大一包，可以切小一點嗎？</p>
+<p>A: 我覺得可能有兩種解法：</p>
+<ul>
+<li>針對每個 feature 或頁面，建立 <code>sub-store</code>，這個 sub-store 提供每個 feature 或頁面需要的 <code>sub-state</code>。</li>
+<li>針對每個 feature 或頁面，建立 <code>State category</code>，這個 category 提供每個 feature 或頁面需要的 <code>sub-state</code>。</li>
+</ul>
+<p>不管是哪個方法，原始的資料依然全部都存在 <strong>State</strong> 裡頭，sub-state 的資料都是從原始 State 推導而來。</p>
+<p>Q: 如果我的資料是用資料庫（或其他方式）儲存的，該怎麼辦？</p>
+<p>A: 你應該在資料持久層上面再加一層存取層，由 <strong>Store</strong> 去跟存取層溝通，由存取層決定該怎麼把資料實際存到資料庫（或其他地方）。</p>
+<h2 id="參考資料">參考資料</h2>
+<ul>
+<li><a href="https://medium.com/ios-os-x-development/ios-architecture-patterns-ecba4c38de52#.kc7yx2tkd">iOS Architecture Patterns</a></li>
+<li><a href="https://www.objc.io/issues/13-architecture/viper/">Architecting iOS Apps with VIPER</a></li>
+<li><a href="https://medium.com/brigade-engineering/brigades-experience-using-an-mvc-alternative-36ef1601a41f#.lnig69x2x">Brigade’s Experience Using an MVC Alternative</a></li>
+<li><a href="http://khanlou.com/2015/10/coordinators-redux/">Khanlou | Coordinators Redux</a></li>
+<li><a href="http://khanlou.com/2015/01/the-coordinator/">Khanlou | The Coordinator</a></li>
+<li><a href="http://merowing.info/2016/01/improve-your-ios-architecture-with-flowcontrollers/">Improve your iOS Architecture with FlowControllers</a></li>
+<li><a href="http://albertodebortoli.com/blog/2014/09/03/flow-controllers-on-ios-for-a-better-navigation-control/">Flow Controllers on iOS for a Better Navigation Control</a></li>
+<li><a href="http://redux.js.org/docs/introduction/index.html">Redux</a></li>
+<li><a href="https://github.com/ReSwift/ReSwift">ReSwift</a></li>
+<li><a href="http://blog.benjamin-encz.de/post/real-world-flux-ios/">Real World Flux Architecture on iOS</a></li>
+<li><a href="https://news.realm.io/news/slug-peter-livesey-managing-consistency-immutable-models/">Watch Managing Consistency of Immutable Models</a></li>
+<li><a href="https://medium.com/@Pinterest_Engineering/immutable-models-and-data-consistency-in-our-ios-app-d10e248bfef8">Immutable models and data consistency in our iOS App</a></li>
+</ul>
+
+              <a href="https://www.buymeacoffee.com/chiahsien" target="_blank" rel="noopener noreferrer">
+                <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=chiahsien&button_colour=44414e&font_colour=ffffff&font_family=Comic&outline_colour=ffffff&coffee_colour=FFDD00" />
+              </a>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://chiahsien.github.io/tag/objective-c/" class="tag">
+                    Objective-C
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/redux/" class="tag">
+                    Redux
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/architecture/" class="tag">
+                    Architecture
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/ios/" class="tag">
+                    iOS
+                  </a>
+                
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

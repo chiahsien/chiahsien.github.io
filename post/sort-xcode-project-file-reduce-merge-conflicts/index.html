@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>自動排序 Xcode 專案檔以減少合併衝突 | Nelson</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="自動排序 Xcode 專案檔以減少合併衝突 | Nelson - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <div class="post-detail">
+            <h1 class="post-title">自動排序 Xcode 專案檔以減少合併衝突</h1>
+            <div class="post-date">2026-02-15</div>
+            
+            <div class="post-content">
+              <p>Xcode 的 <code>project.pbxproj</code> 檔案採用文字格式儲存專案結構，但 Xcode 在新增檔案或修改設定時，不保證項目的插入順序一致。多人協作時，即使修改不同的檔案或 target，也可能因為項目順序差異而產生 merge conflict。這些衝突往往與實際變更無關，純粹是格式問題。</p>
+<h2 id="我的解決方案">我的解決方案</h2>
+<p>將 <code>project.pbxproj</code> 中的各個區塊按固定規則排序，確保相同內容產生相同的檔案結構。配合 git pre-commit hook，每次提交前自動排序，團隊成員的專案檔就能維持一致的順序，大幅降低無意義的衝突。</p>
+<p>我開發了一個腳本工具來執行這個任務，也已經在多個專案上跑了好幾年，GitHub repo 放在這裡：<a href="https://github.com/chiahsien/sort-Xcode-project-file">https://github.com/chiahsien/sort-Xcode-project-file</a></p>
+<p>雖然目前推崇使用 Swift Package Manager 進行模組化，Xcode 16 也引入了 buildable folders 功能來減少專案檔變更，甚至也有 Tuist 或 Xcode Gen 這類的工具來生成專案檔，但這些新技術主要針對新專案或願意大幅重構的專案。對於已經開發多年、結構複雜的舊專案，貿然改用 SPM 模組化或轉換成 folder references 風險過高。此時，這個排序工具仍是最務實的選擇，能以最小成本解決 merge conflict 問題。</p>
+<!-- more -->
+<h2 id="排序範圍">排序範圍</h2>
+<p>此工具排序以下 array 結構：</p>
+<ul>
+<li><code>children</code> — group 內的檔案與 subgroup（目錄排在檔案前面）</li>
+<li><code>files</code> — build phase 的檔案列表</li>
+<li><code>buildConfigurations</code> — build configuration 列表</li>
+<li><code>targets</code> — 專案 target 列表</li>
+<li><code>packageProductDependencies</code> — Swift Package product dependency</li>
+<li><code>packageReferences</code> — Swift Package reference</li>
+</ul>
+<h2 id="安全性">安全性</h2>
+<p>這些 array 是宣告性內容，Xcode 透過 24 字元的十六進位 ID 參照物件，而非依賴位置。排序不影響建置行為或專案結構，僅改變檔案內的呈現順序。</p>
+<p>不排序的區塊：<code>PBXFrameworksBuildPhase</code> section 的 framework 連結順序會影響符號解析，工具會偵測到這個區塊並完整保留原始順序。其餘不在上述排序範圍內的 array（例如 <code>buildPhases</code>）則不會被處理，同樣維持原始順序。</p>
+<p>寫入方式採用原子操作（透過暫存檔 + <code>os.replace()</code>），即使過程中發生錯誤，也不會留下損壞的 <code>.pbxproj</code> 檔案。</p>
+<p><strong>警告：</strong><br>
+雖然這個工具已經在多個不同專案執行很長一段時間了，我還是強烈建議在修改之前先做好備份，才不會出現難以挽回的錯誤！</p>
+<h2 id="與原版的差異">與原版的差異</h2>
+<p>本版本是 WebKit 專案的 fork，以 Python 3 重寫並新增以下功能：</p>
+<ul>
+<li><strong>Natural sorting</strong>：數字部分按數值比較，<code>file2.m</code> 排在 <code>file10.m</code> 前面，符合人類直覺</li>
+<li><strong>Case-insensitive 選項</strong>：提供 <code>--case-insensitive</code> 參數支援不分大小寫排序，預設仍為 case-sensitive 以保持原始行為</li>
+<li><strong>目錄優先排序</strong>：<code>children</code> array 中目錄排在檔案前面，符合檔案系統慣例</li>
+<li><strong>自動去除重複</strong>：移除重複的項目 reference</li>
+<li><strong>擴充排序範圍</strong>：包含所有 <code>children</code> array、<code>files</code> array、<code>targets</code> 列表、<code>packageProductDependencies</code> 與 <code>packageReferences</code></li>
+<li><strong>CI 檢查模式</strong>：<code>--check</code> 參數可檢查檔案是否已排序，不修改檔案，適合整合到 CI pipeline</li>
+<li><strong>遞迴搜尋</strong>：<code>-r</code> 參數可遞迴搜尋目錄下所有 <code>project.pbxproj</code> 並排序，適合 monorepo</li>
+<li><strong>Stdin/stdout 支援</strong>：使用 <code>-</code> 參數可從 stdin 讀取、寫到 stdout，方便管線操作</li>
+<li><strong>原子寫入</strong>：透過暫存檔 + <code>os.replace()</code> 確保寫入過程不會損壞原始檔案</li>
+</ul>
+<h2 id="使用方法">使用方法</h2>
+<h3 id="基本呼叫">基本呼叫</h3>
+<pre><code class="language-bash">python3 sort-Xcode-project-file.py path/to/Project.xcodeproj
+</code></pre>
+<p>腳本會自動找到 <code>project.pbxproj</code> 並就地排序。也可以直接指定 <code>project.pbxproj</code> 檔案路徑。</p>
+<h3 id="選項">選項</h3>
+<pre><code class="language-bash"># 使用 case-insensitive sorting
+python3 sort-Xcode-project-file.py --case-insensitive Project.xcodeproj
+
+# CI 檢查模式：exit 0 = 已排序，exit 1 = 未排序（不修改檔案）
+python3 sort-Xcode-project-file.py --check Project.xcodeproj
+
+# 遞迴搜尋目錄下所有 project.pbxproj 並排序
+python3 sort-Xcode-project-file.py -r .
+
+# 從 stdin 讀取，寫到 stdout
+cat project.pbxproj | python3 sort-Xcode-project-file.py - &gt; sorted.pbxproj
+
+# 抑制 warning 訊息
+python3 sort-Xcode-project-file.py -w Project.xcodeproj
+
+# 顯示版本號
+python3 sort-Xcode-project-file.py --version
+
+# 顯示說明
+python3 sort-Xcode-project-file.py --help
+</code></pre>
+<h3 id="git-pre-commit-hook-整合">Git Pre-commit Hook 整合</h3>
+<p>在專案根目錄建立 <code>Scripts</code> 目錄，將 <code>sort-Xcode-project-file.py</code> 放進去，然後建立 <code>.git/hooks/pre-commit</code>：</p>
+<pre><code class="language-bash">#!/bin/sh
+
+echo 'Sorting Xcode project files'
+
+GIT_ROOT=$(git rev-parse --show-toplevel)
+sorter=&quot;$GIT_ROOT/Scripts/sort-Xcode-project-file.py&quot;
+
+git diff --name-only --cached | grep &quot;project.pbxproj&quot; | while IFS= read -r filePath; do
+  fullFilePath=&quot;$GIT_ROOT/$filePath&quot;
+  python3 &quot;$sorter&quot; &quot;$fullFilePath&quot;
+  git add &quot;$fullFilePath&quot;
+done
+
+echo 'Done sorting Xcode project files'
+</code></pre>
+<p>記得設定執行權限：</p>
+<pre><code class="language-bash">chmod +x .git/hooks/pre-commit
+</code></pre>
+<p>另外可以在 <code>.gitattributes</code> 加上以下設定，進一步減少合併衝突：</p>
+<pre><code>*.pbxproj merge=union
+</code></pre>
+<blockquote>
+<p><strong>注意：</strong> <code>merge=union</code> 會讓 Git 自動保留衝突的雙方內容。搭配排序工具使用效果很好，但如果專案檔沒有經過排序，可能會產生無效的結果。請確保團隊成員都有使用這個排序工具。</p>
+</blockquote>
+
+              <a href="https://www.buymeacoffee.com/chiahsien" target="_blank" rel="noopener noreferrer">
+                <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=chiahsien&button_colour=44414e&font_colour=ffffff&font_family=Comic&outline_colour=ffffff&coffee_colour=FFDD00" />
+              </a>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://chiahsien.github.io/tag/development/" class="tag">
+                    Development
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/editor/" class="tag">
+                    Editor
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/ide/" class="tag">
+                    IDE
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/tips/" class="tag">
+                    Tips
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/git/" class="tag">
+                    Git
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/xcode/" class="tag">
+                    Xcode
+                  </a>
+                
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

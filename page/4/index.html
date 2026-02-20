@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>Nelson</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="Nelson - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/visual-studio-code-extensions/">
+            <h1 class="post-title">必備的 Visual Studio Code 套件</h1>
+        </a>
+        <div class="post-date">
+            2021-12-25
+        </div>
+        <div class="post-abstract">
+            
+            <p>Visual Studio Code 是我預設的文字編輯器，它跨平台、執行速度快、開啟大檔案沒問題、擴充套件眾多，是我選擇用它的主要原因。底下列出一些對我幫助很大的擴充套件：</p>
+
+            <a href="https://chiahsien.github.io/post/visual-studio-code-extensions/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/watchos-app-development-note-complications/">
+            <h1 class="post-title">watchOS app 開發筆記：Complications</h1>
+        </a>
+        <div class="post-date">
+            2021-11-14
+        </div>
+        <div class="post-abstract">
+            
+            <p>這一篇主要是要紀錄如何設定 Apple Watch 的 Complication。</p>
+<p>Complications 是錶面上可讓使用者選擇的小元件，需要使用 <a href="https://developer.apple.com/documentation/clockkit">ClockKit</a> 開發 (有些畫面可以<a href="https://developer.apple.com/documentation/clockkit/building_complications_with_swiftui">用 SwiftUI 開發</a>)，它的用途是在特定的時間，顯示相對應的資訊。</p>
+<p>Apple Watch 內建數十種錶面，每種錶面支援的 complications 數量 / 位置 / 尺寸都不盡相同，根據不同的尺寸跟風格，定義了多種不同的 families，每個 familiy 支援不同的 templates，我們使用 template 來設定要顯示的文字、圖片、或儀表圖。各種不同 families 的長相可以<a href="https://developer.apple.com/design/human-interface-guidelines/watchos/overview/complications/">參考這份文件</a>。</p>
+
+            <a href="https://chiahsien.github.io/post/watchos-app-development-note-complications/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/watchos-app-development-note-communication/">
+            <h1 class="post-title">watchOS app 開發筆記：傳遞資料</h1>
+        </a>
+        <div class="post-date">
+            2021-11-09
+        </div>
+        <div class="post-abstract">
+            
+            <p>這一篇筆記主要是要記錄如何在 iPhone app 跟 watchOS app 之間傳遞資料。</p>
+<h2 id="iphone-跟-apple-watch-的溝通方式">iPhone 跟 Apple Watch 的溝通方式</h2>
+<p>iPhone app 跟 Watch app 可以透過設定相同的 App Group 共享檔案，也可以透過 <a href="https://developer.apple.com/documentation/watchconnectivity">WatchConnectivity</a> 溝通，App Group 的方式沒什麼好說的，所以來紀錄 WatchConnectivity 的作法。它主要分為兩種方式：</p>
+
+            <a href="https://chiahsien.github.io/post/watchos-app-development-note-communication/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/unity-to-swiftui-app-integration/">
+            <h1 class="post-title">整合 Unity 到 SwiftUI App</h1>
+        </a>
+        <div class="post-date">
+            2021-08-03
+        </div>
+        <div class="post-abstract">
+            
+            <p>最近剛好有機會要整合 Unity 到 SwiftUI 開發的 app 裡頭，整個過程不算難，但是蠻繁瑣的。網路上的資料絕大部分都是跟 Objective-C / UIKit 的整合，比較少 Swift / SwiftUi 相關資料，所以趁著記憶猶新的時候把它記錄下來，希望可以幫助到其他人以及未來的自己。</p>
+<p>從 Unity 2019.4 的版本開始，它提供了 UaaL (Unity as a Library) 功能，可以把 Unity 專案匯出成 framework 讓其他程式使用，開啟了原生平台與 Unity 互動的更多可能性。你可以只用 Unity 開發遊戲或其他精美畫面的部分，剩下的則是使用原生平台（例如 iOS 或 Android）開發。</p>
+<p>我使用的開發環境是 <code>Xcode 12.5</code> + <code>Unity 2020.3.15f2 LTS</code>，預期達成以下目標：</p>
+<ol>
+<li>在 SwiftUI 顯示 Unity 的畫面</li>
+<li>iOS 跟 Unity 可以雙向傳遞訊息</li>
+</ol>
+<p>先附上 <a href="https://github.com/chiahsien/UnityInSwiftUI">sample code</a>。這篇文章會有大量程式碼，也會假設你對 Xcode 跟 Unity 的操作有基本的認知，廢話不多說，讓我們開始吧！</p>
+
+            <a href="https://chiahsien.github.io/post/unity-to-swiftui-app-integration/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/public-and-drop-box-folders-in-macos/">
+            <h1 class="post-title">macOS 的「公用」與「投遞箱」目錄的用途</h1>
+        </a>
+        <div class="post-date">
+            2021-07-10
+        </div>
+        <div class="post-abstract">
+            
+            <p>在每個 macOS 使用者的根目錄底下都有一個「公用 (Public)」目錄，而且這個目錄裡頭還有一個「投遞箱 (Drop Box)」目錄，身為 Mac 使用者這麼多年一直不知道它們的真正用途，直到最近...</p>
+<p>最近因應疫情，很多人必須使用自己的電腦在家工作，然而我家只有一台電腦，所以我就幫家人建立一個新的使用者帳號方便工作用。建立好新的使用者帳號之後，該怎麼讓不同帳號之間共享檔案呢？這時候就需要「公用」跟「投遞箱」了：</p>
+<ul>
+<li>你要給別人：你放在「公用」目錄裡頭的檔案可以讓其他帳號存取，但是其他人無法修改或刪除檔案。</li>
+<li>別人要給你：其他帳號可以把檔案拖移到你的「投遞箱」目錄，但是只有你看得到「投遞箱」的內容，其他帳號看不到。</li>
+</ul>
+<p>更詳細的說明可以參考<a href="https://support.apple.com/zh-tw/guide/mac-help/mchlp1122/11.0/mac/11.0">蘋果官方說明文件</a>。</p>
+
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/xcode-project-version-control-git-pre-commit-hook/">
+            <h1 class="post-title">讓 Xcode 專案易於版本控制的方法 - 使用 git pre-commit hook</h1>
+        </a>
+        <div class="post-date">
+            2021-06-22
+        </div>
+        <div class="post-abstract">
+            
+            <p>好幾年前我曾經寫過一篇<a href="../../post/let-xcode-project-easy-to-do-version-control/">讓 Xcode 專案易於版本控制的方法</a>，它非常的好用，我也在多個專案裡頭使用這樣的配置用了好多年，都沒有出過什麼問題。</p>
+<p>直到最近遇到了 SwiftUI 的 Preview 功能。</p>
+<p>猜測可能是因為原先的設定是在 Build phase 去執行排序的 script，導致它破壞了 SwiftUI Preview 的一些機制，我想到了幾個解法，像是</p>
+<ul>
+<li>不要放在 Build phase，放到 Run phase 去執行。</li>
+<li>改用 <a href="https://github.com/yonaskolb/XcodeGen">XcodeGen</a> 之類的工具產生 project file。</li>
+<li>使用 git hook 的 pre-commit 來執行排序。</li>
+<li>不要用，等真的遇到 merge conflict 了再說 lol</li>
+</ul>
+<p>最後我選擇了 pre-commit 的做法。</p>
+
+            <a href="https://chiahsien.github.io/post/xcode-project-version-control-git-pre-commit-hook/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+
+          <div class="pagination-container">
+  
+    <a href="https://chiahsien.github.io/page/3/" class="prev"><i class="icon-arrow-ios-back-outline"></i> 上一頁</a>
+  
+  
+    <a href="https://chiahsien.github.io/page/5/" class="next">下一頁 <i class="icon-arrow-ios-forward-outline"></i></a>
+  
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

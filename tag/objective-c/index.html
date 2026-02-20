@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>Nelson/Objective-C</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="Nelson/Objective-C - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <h1 class="current-tag">標籤: Objective-C</h1>
+          
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/uiscrollview-and-autolayout/">
+            <h1 class="post-title">UIScrollView and AutoLayout</h1>
+        </a>
+        <div class="post-date">
+            2023-01-08
+        </div>
+        <div class="post-abstract">
+            
+            <h2 id="以前的作法">以前的作法</h2>
+<p>在以前要用 <code>Auto Layout</code> 來設置 <code>UIScrollView</code> 的 sub views 並不是一件讓人愉快的事情，雖然不複雜，但步驟就是有點麻煩。因為 scroll view 自身的特性，所以必須設定它本身的位置與尺寸，然後設定 sub views 的位置與尺寸，最後算出 <code>contentSize</code> 的尺寸。總結來說大概分成以下幾步：</p>
+<ol>
+<li>設定 <code>UIScrollView</code> 本身的位置與尺寸</li>
+<li>建立一個 <code>contentView</code> 並加到 <code>UIScrollView</code> 的 sub view</li>
+<li>設定 <code>contentView</code> 的位置，通常是四邊都貼齊 <code>UIScrollView</code></li>
+<li>可以滾動的 sub views 都加到 <code>contentView</code>，然後用 auto layout 設定這些 sub views 的位置與尺寸</li>
+<li>如果設定無誤的話，<code>contentView</code> 就可算出正確的尺寸，這就是 <code>UIScrollView</code> 的 <code>contentSize</code></li>
+</ol>
+<p>最讓人困惑且忽略的就是第三點，因為它很不自然，但在 <code>UIScrollView</code> 卻又是必須的。另外就是第四點，一定要有明確的位置跟尺寸，這樣才有辦法算出 <code>contentSize</code> 給 <code>UIScrollView</code> 使用。</p>
+<h2 id="現在的作法">現在的作法</h2>
+<p>從 iOS 11 開始，<code>UIScrollView</code> 多了 <code>frameLayoutGuide</code> 跟 <code>contentLayoutGuide</code> 這兩個方便的屬性，讓我們不必再用不自然的方式去設定 content 的 auto layout。</p>
+<ol>
+<li>可以使用舊有的方式或是使用 <code>frameLayoutGuide</code> 設定 <code>UIScrollView</code> 本身的位置與尺寸</li>
+<li>不需要額外的 <code>contentView</code> 了，直接把內容加到 sub view</li>
+<li>這些 sub views 與 <code>contentLayoutGuide</code> 建立 auto layout constraints</li>
+</ol>
+<p>整個設定流程變得自然許多，也更不容易出錯。現在我們只要確定 sub views 有設好明確的位置與尺寸，讓系統能夠算出 <code>contentSize</code> 即可。</p>
+
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/common-ios-architecture-from-mvc-to-viper-with-redux/">
+            <h1 class="post-title">漫談 iOS 架構：從 MVC 到 VIPER，以及 Redux</h1>
+        </a>
+        <div class="post-date">
+            2019-09-21
+        </div>
+        <div class="post-abstract">
+            
+            <p>很榮幸我能在今年的 <a href="https://iplayground.io/2019/">iPlayground</a> 分享了過去幾年以來，我對於 iOS 架構的一些看法與心得，<a href="https://speakerdeck.com/chiahsien/common-ios-architectures-from-mvc-to-viper-with-redux">投影片由此下載</a>，本文則是比較詳細的文字稿。</p>
+<p>這幾年大家逐漸重視 iOS 的架構設計，從最基本的 MVC 到開始普及的 MVP / MVVM，到分工細膩的 VIPER，每個 pattern 都有擁護者；近期也有為了解決畫面轉換的 Router / Coordinator 以及為了解決資料一致性的 Redux。</p>
+<p>我們 app 早期的架構是 MVC，後來改成 MVVM，後來為了因應複雜的流程所以引進 Coordinator，也引進 Redux 處理資料一致性的問題。</p>
+<p>接下來會聊聊這幾種 pattern 及其演化過程。</p>
+
+            <a href="https://chiahsien.github.io/post/common-ios-architecture-from-mvc-to-viper-with-redux/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/detect-images-by-coreml/">
+            <h1 class="post-title">利用 CoreML 來判別圖片</h1>
+        </a>
+        <div class="post-date">
+            2019-04-23
+        </div>
+        <div class="post-abstract">
+            
+            <p>在 WWDC 2018 蘋果推出了 <a href="https://developer.apple.com/documentation/createml">Create ML</a> ，讓開發者可以輕鬆的建立並訓練適合自己需求的機器學習模型，它支援圖片、自然語言、表格資料的學習。最近這幾天我就想到要訓練一個自家的模型，用來檢查使用者是否打算上傳不恰當的圖片。</p>
+
+            <a href="https://chiahsien.github.io/post/detect-images-by-coreml/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/how-to-fix-nstimer-retain-cycle/">
+            <h1 class="post-title">如何解決 NSTimer 造成的 retain cycle</h1>
+        </a>
+        <div class="post-date">
+            2017-04-05
+        </div>
+        <div class="post-abstract">
+            
+            <p>最近在替公司 app 做健康檢查，找到一些 memory leaks 的問題，其中一個就是由 <code>NSTimer</code> 所引起的 retain cycle。</p>
+<p><code>NSTimer</code> 是個很容易造成 retain cycle 的物件，無論是新手或是老手都很可能一個不留意就踩到這個坑。舉個很常見的例子，這樣寫就產生 retain cycle 了：</p>
+
+            <a href="https://chiahsien.github.io/post/how-to-fix-nstimer-retain-cycle/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/retain-cycle-in-afnetworking/">
+            <h1 class="post-title">一個 AFNetworking 的 retain cycle 問題</h1>
+        </a>
+        <div class="post-date">
+            2017-03-28
+        </div>
+        <div class="post-abstract">
+            
+            <p><a href="https://github.com/AFNetworking/AFNetworking">AFNetworking</a> 封裝了網路連線的許多工作，讓 iOS/Mac 開發者可以用簡潔的寫法去處理連線，但你知道要如何正確使用，才不會出現 retain cycle 嗎？</p>
+
+            <a href="https://chiahsien.github.io/post/retain-cycle-in-afnetworking/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/why-startup-should-not-use-swift/">
+            <h1 class="post-title">為何 Startup 不該用 Swift</h1>
+        </a>
+        <div class="post-date">
+            2016-10-07
+        </div>
+        <div class="post-abstract">
+            
+            <p>最近跟朋友聊天，聊到說我不建議 startup 使用 Swift 開發 app，趁著有空紀錄一下為何我會這麼說。</p>
+<p>還是得先聲明一下，Swift 是一個很酷的語言，我沒有不喜歡它，只是站在公司的角度，我認為 startup 不應該使用 Swift 開發它們的主力產品，而是應該用 Objective-C。</p>
+<p>主要是因為以下幾點理由：</p>
+
+            <a href="https://chiahsien.github.io/post/why-startup-should-not-use-swift/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+
+          <div class="pagination-container">
+  
+  
+    <a href="https://chiahsien.github.io/tag/objective-c/page/2" class="next">下一頁 <i class="icon-arrow-ios-forward-outline"></i></a>
+  
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

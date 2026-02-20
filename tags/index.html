@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>標籤列表 | Nelson</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="標籤列表 | Nelson - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <h2 class="tag-list-title">標籤列表</h2>
+          <div class="tags-container">
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/development/">Development</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/editor/">Editor</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/ide/">IDE</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/tips/">Tips</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/git/">Git</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/xcode/">Xcode</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/open-source/">Open-Source</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/side-project/">Side-Project</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/programming/">Programming</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/koreader/">KOReader</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/kobo/">Kobo</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/dian-zi-shu/">電子書</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/dian-zi-shu-yue-du-qi/">電子書閱讀器</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/swift-package/">Swift-Package</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/swift/">Swift</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/ios/">iOS</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/productivity/">Productivity</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/tools/">Tools</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/macos/">macOS</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/work-flow/">WorkFlow</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/google-chrome/">Google-Chrome</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/browser/">Browser</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/extension/">Extension</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/library/">Library</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/zhi-pai/">直排</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/zhong-wen-pai-ban/">中文排版</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/zi-ti/">字體</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/mobile/">Mobile</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/design-pattern/">Design-Pattern</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/clean-code/">Clean-Code</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/architecture/">Architecture</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/photokit/">PhotoKit</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/best-buy/">Best-Buy</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/password-management/">Password-Management</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/security/">Security</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/arc/">Arc</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/auto-layout/">Auto-Layout</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/objective-c/">Objective-C</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/ssh/">SSH</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/github/">GitHub</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/javascript/">JavaScript</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/web/">Web</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/vscode/">VSCode</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/watchos/">watchOS</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/swiftui/">SwiftUI</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/unity/">Unity</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/android/">Android</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/uart/">UART</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/li-cai/">理財</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/ji-zhang/">記帳</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/etf/">ETF</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/tou-zi/">投資</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/ibeacon/">iBeacon</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/redux/">Redux</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/coreml/">CoreML</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/testing/">Testing</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/rtl/">RTL</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/cocoapods/">CocoaPods</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/memory-leak/">MemoryLeak</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/retain-cycle/">RetainCycle</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/network/">Network</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/product/">Product</a>
+            
+              <a class="tag" href="https://chiahsien.github.io/tag/startup/">Startup</a>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>
