@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>Nelson</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="Nelson - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/macos-capslock-no-delay/">
+            <h1 class="post-title">macOS Caps Lock 零延遲設定教學</h1>
+        </a>
+        <div class="post-date">
+            2026-05-04
+        </div>
+        <div class="post-abstract">
+            
+            <p>在 macOS 底下我們可以按 Caps Lock 鍵切換輸入法，但每次按的時候都會覺得有一點頓頓的，無法立即切換過去，這不是你的錯覺！</p>
+<p>本文分享兩個重點：</p>
+<ol>
+<li>讓 Caps Lock 切換輸入法「立刻生效、沒有延遲」</li>
+<li>讓這個設定「開機自動套用」，不用每次重開機都重打指令</li>
+</ol>
+
+            <a href="https://chiahsien.github.io/post/macos-capslock-no-delay/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/calibre-tw-ebook-matadata/">
+            <h1 class="post-title">讓 Calibre 找到繁中書籍的元資料</h1>
+        </a>
+        <div class="post-date">
+            2026-05-02
+        </div>
+        <div class="post-abstract">
+            
+            <h2 id="calibre-什麼都好就是中文書的元資料讓人崩潰">Calibre 什麼都好，就是中文書的元資料讓人崩潰</h2>
+<p>用 Calibre 管理電子書庫的人大概都經歷過這個流程：匯入一本書，點「下載元資料與封面」，然後看著搜尋結果轉圈圈，最後跳出來的不是空白就是一堆不相關的英文書。</p>
+<p>這不是 Calibre 的問題。Calibre 的元資料架構設計得很好，它支援多個來源同時搜尋，讓你挑最完整的那筆。問題在於，內建的來源幾乎都是英文世界的資料庫，找不到繁體中文書。</p>
+<h2 id="現有方案為什麼不夠用">現有方案為什麼不夠用</h2>
+<p>目前 Calibre 內建能用的來源大概就這些：</p>
+<ul>
+<li>
+<p><strong>Google Books</strong> — 偶爾能找到中文書，但資料經常殘缺。簡介只有一兩句、標籤沒有、封面模糊，有時候連作者名字都是拼音。</p>
+</li>
+<li>
+<p><strong>Goodreads</strong> — 繁中書目少得可憐，大部分台灣出版的書根本搜不到。</p>
+</li>
+<li>
+<p><strong>Kobo Metadata Plugin</strong> — 社群有人開發了一個從 Kobo 抓資料的外掛，設定台灣區之後確實能用。不過它不是每次都能找到資料，覆蓋率有限。</p>
+</li>
+</ul>
+<p>有更多適合台灣讀者的來源，總是一件好事。所以我決定自己動手。</p>
+
+            <a href="https://chiahsien.github.io/post/calibre-tw-ebook-matadata/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/kohi-koreader-highlights-to-obsidian/">
+            <h1 class="post-title">KOHi — 把 KOReader 的閱讀標註匯入 Obsidian</h1>
+        </a>
+        <div class="post-date">
+            2026-05-01
+        </div>
+        <div class="post-abstract">
+            
+            <p>用 KOReader 看書的人大概都有同樣的經驗：讀到好段落就順手畫個重點、寫個筆記，但讀完之後呢？這些標註就一直留在閱讀器裡，再也沒打開過。</p>
+<p>我自己用 Obsidian 管理所有筆記，一直想把 KOReader 的 highlight 也整合進來，卻找不到現成的工具。手動複製貼上太慢，寫腳本又要處理 KOReader 那套 Lua 格式的 metadata。</p>
+<p>所以我寫了 <strong>KOHi</strong>，一個 Obsidian plugin，專門解決這件事。</p>
+<h2 id="kohi-做什麼">KOHi 做什麼</h2>
+<p>USB 接上閱讀器，在 Obsidian 裡執行一個指令，就能把 KOReader 的 highlight 和筆記匯入 vault。每本書產生一份 Markdown 筆記，包含書籍資訊和所有標註。</p>
+<p>核心功能：</p>
+<ul>
+<li><strong>自動偵測儲存模式</strong> — KOReader 有三種存放 metadata 的方式（book folder / <code>koreader/docsettings</code> / <code>koreader/hashdocsettings</code>），KOHi 全部支援，不用自己去找檔案在哪裡。</li>
+<li><strong>模板自訂</strong> — 產生的筆記格式完全可控。用 Nunjucks 模板語法，可以自訂 frontmatter、章節分組、頁碼、highlight 顏色等所有欄位。也提供預設模板，不想自己寫也能直接用。</li>
+<li><strong>選擇性匯入</strong> — 可以一次匯入全部，也可以用模糊搜尋挑特定幾本書。</li>
+<li><strong>重複匯入覆蓋</strong> — 重新匯入同一本書時，可以選擇是否要自動覆蓋舊筆記，不會產生重複檔案。</li>
+</ul>
+
+            <a href="https://chiahsien.github.io/post/kohi-koreader-highlights-to-obsidian/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/swift-package-localization-guide/">
+            <h1 class="post-title">Swift Package 多語言支援</h1>
+        </a>
+        <div class="post-date">
+            2026-03-29
+        </div>
+        <div class="post-abstract">
+            
+            <p>在開發 iOS 應用程式時，使用 Swift Package Manager (SPM) 來模組化程式碼已經成為主流做法。然而，當你在 Swift Package 中實作多國語言支援時，可能會遇到一個令人困惑的問題：Package 內的本地化在測試時運作正常，但整合到主專案後卻失效了。本文將深入探討這個問題的根源，以及如何透過 <code>CFBundleLocalizations</code> 和 <code>CFBundleAllowMixedLocalizations</code> 這兩個 Info.plist 設定來解決。</p>
+
+            <a href="https://chiahsien.github.io/post/swift-package-localization-guide/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/coordinator-pattern/">
+            <h1 class="post-title">我偏好的 Coordinator Pattern</h1>
+        </a>
+        <div class="post-date">
+            2026-03-28
+        </div>
+        <div class="post-abstract">
+            
+            <h2 id="前言">前言</h2>
+<p>當我實作畫面流程時，我會為一組「流程」建立一個 Coordinator。如果這組流程很複雜，它可以拆分成多個「子流程」，那每一個子流程也會有對應的 Sub-Coordinator。主流程的 Coordinator 可以管理子流程的 Sub-Coordinator。</p>
+<p>Coordinator 用來管理流程的畫面，它負責建立畫面、傳遞資料給畫面、回應畫面的請求、移除畫面等等。如果用 <strong>tree</strong> 來理解畫面流程的話，Coordinator 就是 <strong>root</strong>，各個畫面就是 <strong>leaf</strong>。換個角度看，Coordinator 像一個<strong>容器</strong> — 它自己不產出畫面內容，而是決定裡面放哪些畫面、什麼時候切換。</p>
+
+            <a href="https://chiahsien.github.io/post/coordinator-pattern/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/sort-xcode-project-file-reduce-merge-conflicts/">
+            <h1 class="post-title">自動排序 Xcode 專案檔以減少合併衝突</h1>
+        </a>
+        <div class="post-date">
+            2026-02-15
+        </div>
+        <div class="post-abstract">
+            
+            <p>Xcode 的 <code>project.pbxproj</code> 檔案採用文字格式儲存專案結構，但 Xcode 在新增檔案或修改設定時，不保證項目的插入順序一致。多人協作時，即使修改不同的檔案或 target，也可能因為項目順序差異而產生 merge conflict。這些衝突往往與實際變更無關，純粹是格式問題。</p>
+<h2 id="我的解決方案">我的解決方案</h2>
+<p>將 <code>project.pbxproj</code> 中的各個區塊按固定規則排序，確保相同內容產生相同的檔案結構。配合 git pre-commit hook，每次提交前自動排序，團隊成員的專案檔就能維持一致的順序，大幅降低無意義的衝突。</p>
+<p>我開發了一個腳本工具來執行這個任務，也已經在多個專案上跑了好幾年，GitHub repo 放在這裡：<a href="https://github.com/chiahsien/sort-Xcode-project-file">https://github.com/chiahsien/sort-Xcode-project-file</a></p>
+<p>雖然目前推崇使用 Swift Package Manager 進行模組化，Xcode 16 也引入了 buildable folders 功能來減少專案檔變更，甚至也有 Tuist 或 Xcode Gen 這類的工具來生成專案檔，但這些新技術主要針對新專案或願意大幅重構的專案。對於已經開發多年、結構複雜的舊專案，貿然改用 SPM 模組化或轉換成 folder references 風險過高。此時，這個排序工具仍是最務實的選擇，能以最小成本解決 merge conflict 問題。</p>
+
+            <a href="https://chiahsien.github.io/post/sort-xcode-project-file-reduce-merge-conflicts/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+
+          <div class="pagination-container">
+  
+  
+    <a href="https://chiahsien.github.io/page/2" class="next">下一頁 <i class="icon-arrow-ios-forward-outline"></i></a>
+  
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

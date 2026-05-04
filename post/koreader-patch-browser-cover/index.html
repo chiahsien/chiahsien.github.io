@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>讓 KOReader 的資料夾顯示書籍封面 | Nelson</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="讓 KOReader 的資料夾顯示書籍封面 | Nelson - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <div class="post-detail">
+            <h1 class="post-title">讓 KOReader 的資料夾顯示書籍封面</h1>
+            <div class="post-date">2026-02-01</div>
+            
+            <div class="post-content">
+              <p>這次要介紹的是我為 KOReader 檔案瀏覽（Mosaic）所做的另一個 userpatch：<code>2-browser-folder-cover.lua</code>。這個 patch 可以讓資料夾在 Mosaic 檢視時顯示封面圖片，支援放置自訂 <code>.cover</code> 檔案，若無自訂封面則會自動從該資料夾或其子資料夾的書籍取得封面。此外還提供兩種顯示風格：單一封面或 2×2 格狀封面。</p>
+<p>下載路徑：<a href="https://github.com/chiahsien/KOReader.Patches">https://github.com/chiahsien/KOReader.Patches</a></p>
+<!-- more -->
+<p><strong>重點摘要</strong></p>
+<ul>
+<li>功能：資料夾顯示自訂或來源於書籍的封面；支援單一封面與 2×2 格狀兩種風格；遞迴搜尋子資料夾。</li>
+<li>來源：修改自 <code>sebdelsol/KOReader.patches</code> 的 <code>2-browser-folder-cover.lua</code>，新增格狀封面、遞迴搜尋、<code>.cover</code> 支援、非同步載入、e-ink 閃爍消除、LRU 快取與 UI 選項。</li>
+</ul>
+<h2 id="為什麼會需要這個-patch">為什麼會需要這個 patch</h2>
+<p>KOReader 的 Mosaic 檢視本身會以書籍封面作為格子顯示；但資料夾通常只會顯示資料夾名稱或預設圖示。這個 patch 補強了資料夾的視覺表現，讓資料夾也能像書籍一樣顯示代表性的封面，改進瀏覽體驗，特別適合把資料夾當作書櫃或系列集合來管理的使用者。</p>
+<h2 id="主要功能">主要功能</h2>
+<ul>
+<li>支援自訂封面檔案：將自訂圖片放在資料夾內，檔名前綴為 <code>.cover</code> 並附上副檔名（範例：<code>.cover.jpg</code>、<code>.cover.png</code>、<code>.cover.webp</code>）。</li>
+<li>兩種封面風格：
+<ul>
+<li><strong>Single cover</strong>（單一封面）：每個資料夾顯示一張書籍封面，底部對齊。</li>
+<li><strong>Grid (2×2)</strong>（格狀封面）：最多顯示四張書籍封面以 2×2 格狀排列，每格使用 aspect fill（裁切溢出以填滿格子）。支援不完整的格狀排列：2 張填滿上排、3 張多填左下角。只找到 1 張時自動退回單一封面顯示。</li>
+</ul>
+</li>
+<li>自動從書籍封面取代：若沒有 <code>.cover</code>，會在資料夾內尋找有效的書籍封面並使用。</li>
+<li>遞迴搜尋子資料夾：若資料夾本身沒有可用封面，會往下搜尋子資料夾（預設深度 3）以找到合適的書籍封面。</li>
+<li>非同步封面載入：當書籍封面尚未被 KOReader 擷取時，資料夾格子會在封面就緒後自動重新整理，不需手動操作。</li>
+<li>e-ink 閃爍消除：資料夾跳過預設的 <code>original_update()</code> 流程，避免先畫預設圖示再替換封面所產生的 e-ink 閃爍。</li>
+<li>性能優化：Per-directory LRU widget 快取（最多保留 10 個目錄）與封面來源快取，避免重複掃描目錄；settings version 追蹤機制，只在設定變更時才清除快取。</li>
+</ul>
+<h2 id="封面搜尋順序">封面搜尋順序</h2>
+<p>Patch 依以下優先順序決定資料夾封面：</p>
+<ol>
+<li><strong>自訂 <code>.cover</code> 檔案</strong>：檢查資料夾內是否有 <code>.cover.{jpg,jpeg,png,webp,gif}</code>。找到即直接使用，不論目前選擇的封面風格為何，自訂封面一律以單一封面方式顯示。</li>
+<li><strong>封面來源快取</strong>：若該資料夾先前已解析過書籍封面路徑，直接重用，跳過目錄掃描。</li>
+<li><strong>掃描資料夾內的書籍</strong>：呼叫 <code>BookInfoManager:getBookInfo()</code> 逐一檢查檔案，收集有效封面（grid 模式最多 4 張、single 模式 1 張）。</li>
+<li><strong>遞迴搜尋子資料夾</strong>：若仍需更多封面，往下遞迴搜尋子資料夾（最多深度 3）以尋找額外的書籍封面。</li>
+</ol>
+<p>若封面仍在背景擷取中，資料夾格子會註冊到 CoverBrowser 的 polling 機制，待封面就緒後自動重試。</p>
+<h2 id="與上游原作者差異">與上游（原作者）差異</h2>
+<p>此版本基於 <code>sebdelsol/KOReader.patches</code> 的實作，但做了下列主要改動：</p>
+<ul>
+<li>新增 2×2 格狀封面模式（Grid mode），支援不完整排列。</li>
+<li>新增對自訂 <code>.cover</code> 檔案的偵測與使用。</li>
+<li>新增遞迴搜尋子資料夾以尋找書籍封面（避免空資料夾顯示預設圖示）。</li>
+<li>新增非同步封面載入，封面未就緒時自動重試。</li>
+<li>消除 e-ink 閃爍：資料夾直接設定封面，不再先畫預設圖示。</li>
+<li>改用 Per-directory LRU widget 快取（最多 10 個目錄）與封面來源快取，大幅降低 UI 建構成本。</li>
+<li>尊重 KOReader 既有的封面快取有效性檢查，避免使用過期封面。</li>
+</ul>
+<h2 id="安裝與使用">安裝與使用</h2>
+<ol>
+<li>
+<p>將 <code>2-browser-folder-cover.lua</code> 複製到 KOReader 的 <code>patches</code> 資料夾（通常位於 <code>&lt;koreader_data_dir&gt;/patches/</code>）。常見路徑：</p>
+<ul>
+<li>Kobo: <code>/mnt/onboard/.adds/koreader/patches/</code></li>
+<li>Kindle: <code>/mnt/us/documents/koreader/patches/</code></li>
+<li>Android: <code>/sdcard/koreader/patches/</code></li>
+<li>Desktop: <code>~/.koreader/patches/</code></li>
+</ul>
+</li>
+<li>
+<p>重新啟動 KOReader，patch 會在啟動時自動載入。</p>
+</li>
+<li>
+<p>使用方法：</p>
+<ul>
+<li>若要使用自訂封面，於資料夾放入檔名為 <code>.cover</code> 並含有副檔名的圖片檔（例如 <code>.cover.jpg</code>）。</li>
+<li>若未放 <code>.cover</code>，patch 會先檢查該資料夾內的書籍封面，找不到時再往子資料夾遞迴搜尋（最多 3 層）。</li>
+<li>可於 KOReader 設定中找到新增的選項（File browser settings → Mosaic and detailed list settings）：
+<ul>
+<li><strong>Folder cover style</strong>：子選單，可選擇 &quot;Single cover&quot;（預設）或 &quot;Grid (2×2)&quot;。</li>
+<li>Crop folder custom image（裁切自訂封面，預設啟用）</li>
+<li>Show folder name（顯示資料夾名稱，預設啟用）</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<h2 id="注意事項與建議">注意事項與建議</h2>
+<ul>
+<li><code>.cover</code> 的優先度高於書籍封面：一旦發現 <code>.cover</code>，patch 會直接使用該圖片並略過書籍封面搜尋。自訂封面一律以單一封面顯示，不受封面風格設定影響。</li>
+<li>若資料夾或子資料夾包含大量檔案或深度很深，遞迴搜尋可能帶來額外的檔案系統存取成本，建議將預設深度（目前程式內使用 3）視情況調整或僅在目標目錄使用 <code>.cover</code>。</li>
+<li>若發現封面顯示不正常，請先檢查 <code>BookInfoManager</code> 是否已正確擷取並快取了該書的封面，或在 KOReader 中重建封面快取。</li>
+</ul>
+<h2 id="授權與來源">授權與來源</h2>
+<p>此 patch 為我自行維護的衍生版本，原始實作與靈感來自：</p>
+<ul>
+<li><a href="https://github.com/sebdelsol/KOReader.patches">sebdelsol/KOReader.patches</a></li>
+</ul>
+<p>若想回到上游版本或查看原始程式碼，可參考上面連結。</p>
+
+              <a href="https://www.buymeacoffee.com/chiahsien" target="_blank" rel="noopener noreferrer">
+                <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=chiahsien&button_colour=44414e&font_colour=ffffff&font_family=Comic&outline_colour=ffffff&coffee_colour=FFDD00" />
+              </a>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://chiahsien.github.io/tag/open-source/" class="tag">
+                    Open-Source
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/side-project/" class="tag">
+                    Side-Project
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/programming/" class="tag">
+                    Programming
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/koreader/" class="tag">
+                    KOReader
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/kobo/" class="tag">
+                    Kobo
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/dian-zi-shu/" class="tag">
+                    電子書
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/dian-zi-shu-yue-du-qi/" class="tag">
+                    電子書閱讀器
+                  </a>
+                
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

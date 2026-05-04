@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>如何為單一 Feature 建立 Swift Package | Nelson</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="如何為單一 Feature 建立 Swift Package | Nelson - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <div class="post-detail">
+            <h1 class="post-title">如何為單一 Feature 建立 Swift Package</h1>
+            <div class="post-date">2025-11-03</div>
+            
+            <div class="post-content">
+              <p>在專案開發到一定規模後，你可能會發現某些 feature 其實相對獨立：它們有自己的流程、畫面、資源檔，甚至可以被其他專案重用。這時候，最乾淨、最有彈性的做法，就是把它抽成 <strong>Swift Package</strong>。</p>
+<p>以我最近在做的功能為例，它是一個完整的獨立模組 - 有多個頁面、支援多國語言、使用圖片與動畫資源。為了避免日後整合時出現命名衝突、相依過重或編譯過慢的問題，我選擇把它獨立成一個 Swift Package。在將 feature 抽出到 Package 的過程我也踩到了一些坑，趁著這個機會記錄下來，以免日後忘記。</p>
+<h2 id="為什麼要把-feature-打包成-swift-package">為什麼要把 Feature 打包成 Swift Package？</h2>
+<p>建立專屬的 Swift Package 有幾個明顯的好處：</p>
+<ul>
+<li>✅ <strong>可獨立開發與測試</strong>：模組化後不必依賴主專案，可單獨編譯與驗證。</li>
+<li>⚙️ <strong>降低相依與衝突</strong>：減少命名重複、依賴鏈過長等問題。</li>
+<li>🚀 <strong>加快編譯速度</strong>：主專案不需每次都重新編譯整個功能。</li>
+<li>🔄 <strong>方便整合與重用</strong>：未來可以直接被其他 app 或團隊使用。</li>
+</ul>
+<!-- more -->
+<hr>
+<h2 id="問題一如何支援多國語言">問題一：如何支援多國語言？</h2>
+<p>若要在 Package 內使用多國語言，有兩件事情一定要搞清楚：</p>
+<ol>
+<li><strong>檔案結構要正確放置。</strong></li>
+<li><strong>讀取時要明確指定 <code>.module</code>。</strong></li>
+</ol>
+<h3 id="正確的資料夾結構">正確的資料夾結構</h3>
+<p>根據 Apple 官方文件，多國語言檔（<code>.lproj</code>）必須直接放在 <code>Resources</code> 資料夾底下，<strong>不能再有子目錄</strong>。正確的結構如下：</p>
+<pre><code>MyPackage/
+├─ Sources/
+│  └─ MyLibrary/
+│     └─ Resources/
+│        ├─ en.lproj/
+│        │  └─ Localizable.strings
+│        ├─ zh-Hant.lproj/
+│        │  └─ Localizable.strings
+│        └─ Strings.dict
+</code></pre>
+<p>這樣做可以確保 <code>.lproj</code> 檔會被正確地讀取與載入。若放錯層級，Xcode 雖然不會報錯，但翻譯字串就是不會出現。</p>
+<h3 id="正確的呼叫方式">正確的呼叫方式</h3>
+<p>在 Package 內呼叫多國語言字串時，別忘了指定 <code>bundle: .module</code>。否則 Swift 會自動去主專案尋找對應字串，導致載不到 Package 內的翻譯。</p>
+<pre><code class="language-swift">extension String {
+    var localized: String {
+        NSLocalizedString(
+            self,
+            tableName: &quot;Localizable&quot;,
+            bundle: .module,    // 關鍵：指定為 package 的 bundle
+            value: self,
+            comment: &quot;&quot;
+        )
+    }
+}
+</code></pre>
+<p>使用時只要 <code>&quot;Some.Localized.String.Key&quot;.localized</code> 就能正確取回包內的翻譯字串。這樣做讓 package 在任何專案中都能獨立運作，無需依賴主專案的語言設定。</p>
+<hr>
+<h2 id="問題二如何使用圖片與動畫資源">問題二：如何使用圖片與動畫資源？</h2>
+<p>圖片與多國語言的處理方式類似，同樣要注意<strong>資料夾結構</strong>與<strong>載入方式</strong>。</p>
+<h3 id="圖片資源結構">圖片資源結構</h3>
+<p>官方建議將圖片檔（<code>.xcassets</code>）放在 <code>Resources</code> 目錄底下。若你使用像 Lottie 這類第三方函式庫，也可以把相關 JSON 資源放在同個目錄。</p>
+<pre><code>MyPackage/
+├─ Sources/
+│  └─ MyLibrary/
+│     └─ Resources/
+│        ├─ Images.xcassets/
+│        │  ├─ Avatar.imageset/
+│        │  ├─ Error.imageset/
+│        │  └─ ...
+│        └─ Lottie/
+│           ├─ greeting.json
+│           └─ ...
+</code></pre>
+<h3 id="呼叫圖片的方式">呼叫圖片的方式</h3>
+<p>有兩種常見方式可以載入圖片：</p>
+<ol>
+<li><code>UIImage(resource: .xxx)</code></li>
+<li><code>UIImage(named: &quot;xxx&quot;, in: .module, with: nil)</code></li>
+</ol>
+<p>而如果你使用 Lottie 動畫，則要記得加上 <code>bundle</code>：</p>
+<p><code>LottieAnimationView(name: &quot;greeting&quot;, bundle: .module)</code></p>
+<p>這樣才能確保動畫資源來自 package，而不是主專案。</p>
+<hr>
+<h2 id="問題三packageswift-要怎麼設定">問題三：Package.swift 要怎麼設定？</h2>
+<p>最後一步，就是在 <code>Package.swift</code> 中設定好本地化與資源處理。這一步如果漏掉，前面做的一切可能都不會生效。</p>
+<pre><code class="language-swift">let package = Package(
+    name: &quot;MyLibrary&quot;,
+    defaultLocalization: &quot;en&quot;,  // 一定要設定預設語言
+    platforms: [
+        .iOS(.v16)
+    ],
+    products: [
+        .library(
+            name: &quot;MyLibrary&quot;,
+            targets: [&quot;MyLibrary&quot;]
+        ),
+    ],
+    dependencies: [
+        .package(url: &quot;https://github.com/airbnb/lottie-spm.git&quot;, from: &quot;4.5.2&quot;),
+    ],
+    targets: [
+        .target(
+            name: &quot;MyLibrary&quot;,
+            dependencies: [
+                .product(name: &quot;Lottie&quot;, package: &quot;lottie-spm&quot;),
+            ],
+            resources: [
+                .process(&quot;Resources&quot;)  // 使用 .process 讓 Xcode 處理資源檔
+            ]
+        ),
+    ]
+)
+</code></pre>
+<p>這裡的兩個重點是：</p>
+<ul>
+<li><code>defaultLocalization</code>：沒有這行，多國語言會無法自動套用。</li>
+<li><code>.process(&quot;Resources&quot;)</code>：讓 Xcode 知道要把資源包含進 target。</li>
+</ul>
+<hr>
+<h2 id="結語讓-feature-真正成為可重用的模組">結語：讓 Feature 真正成為可重用的模組</h2>
+<p>當一個功能變得越來越複雜時，把它獨立成 Swift Package 不只是整潔問題，更是 <strong>架構與維護性的升級</strong>。</p>
+<p>模組化能讓你：</p>
+<ul>
+<li>更容易進行單元測試；</li>
+<li>快速重用或移植到新專案；</li>
+<li>明確定義每個功能的邊界與責任。</li>
+</ul>
+<p>只要依照上面的步驟設定語言與資源，就能建立一個乾淨、可移植、可重用的 Feature Package。當你下一次打開 Xcode 時，或許就會開始想：「這個功能，其實也該是一個獨立的 package 吧？」</p>
+
+              <a href="https://www.buymeacoffee.com/chiahsien" target="_blank" rel="noopener noreferrer">
+                <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=chiahsien&button_colour=44414e&font_colour=ffffff&font_family=Comic&outline_colour=ffffff&coffee_colour=FFDD00" />
+              </a>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://chiahsien.github.io/tag/swift-package/" class="tag">
+                    Swift-Package
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/development/" class="tag">
+                    Development
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/xcode/" class="tag">
+                    Xcode
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/swift/" class="tag">
+                    Swift
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/ios/" class="tag">
+                    iOS
+                  </a>
+                
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

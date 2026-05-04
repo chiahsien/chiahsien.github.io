@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>Swift Package 多語言支援 | Nelson</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="Swift Package 多語言支援 | Nelson - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <div class="post-detail">
+            <h1 class="post-title">Swift Package 多語言支援</h1>
+            <div class="post-date">2026-03-29</div>
+            
+            <div class="post-content">
+              <p>在開發 iOS 應用程式時，使用 Swift Package Manager (SPM) 來模組化程式碼已經成為主流做法。然而，當你在 Swift Package 中實作多國語言支援時，可能會遇到一個令人困惑的問題：Package 內的本地化在測試時運作正常，但整合到主專案後卻失效了。本文將深入探討這個問題的根源，以及如何透過 <code>CFBundleLocalizations</code> 和 <code>CFBundleAllowMixedLocalizations</code> 這兩個 Info.plist 設定來解決。</p>
+<!-- more -->
+<h2 id="swift-package-在多國語言會遇到什麼問題">Swift Package 在多國語言會遇到什麼問題</h2>
+<h3 id="問題現象">問題現象</h3>
+<p>假設你正在開發一個 Swift Package，並且已經正確配置了多語言支援：</p>
+<pre><code class="language-swift">let package = Package(
+    name: &quot;MyFeatureKit&quot;,
+    defaultLocalization: &quot;en&quot;,
+    targets: [
+        .target(
+            name: &quot;MyFeatureKit&quot;,
+            resources: [.process(&quot;Resources&quot;)]
+        )
+    ]
+)
+</code></pre>
+<p>Package 的資料夾結構如下：</p>
+<pre><code>MyFeatureKit/
+└── Sources/
+    └── MyFeatureKit/
+        └── Resources/
+            ├── en.lproj/Localizable.strings
+            ├── es.lproj/Localizable.strings
+            ├── ja.lproj/Localizable.strings
+            └── de.lproj/Localizable.strings
+</code></pre>
+<p>在 Package 內部測試時，你使用 <code>Bundle.module</code> 來載入本地化字串：</p>
+<pre><code class="language-swift">Text(&quot;welcome_message&quot;, bundle: .module)
+</code></pre>
+<p>一切運作正常。但當你將這個 Package 整合到主 App 中時，日文和德文的本地化突然失效了，系統只會回退到預設的英文。</p>
+<h3 id="問題根源">問題根源</h3>
+<p>這個問題的核心在於 iOS 系統的本地化載入機制：<strong>系統預設只允許 Swift Package 使用主 App Bundle 中明確支援的語言</strong>。</p>
+<p>換句話說：</p>
+<ul>
+<li>主 App 透過 <code>.lproj</code> 資料夾或 <code>CFBundleLocalizations</code> 宣告它支援哪些語言</li>
+<li>Swift Package 雖然有自己的 Bundle (<code>Bundle.module</code>) 和本地化資源</li>
+<li>但在執行時，系統會檢查主 App 支援的語言清單</li>
+<li>如果 Package 嘗試使用主 App 未宣告支援的語言，該語言會被忽略</li>
+</ul>
+<p>這個設計的原意是確保整個應用程式的本地化體驗一致，避免出現部分介面是語言 A，部分介面是語言 B 的混亂情況。然而，這也造成了 Swift Package 無法獨立提供更多語言支援的限制。</p>
+<h2 id="cfbundlelocalizations明確宣告支援的語言">CFBundleLocalizations：明確宣告支援的語言</h2>
+<h3 id="什麼是-cfbundlelocalizations">什麼是 CFBundleLocalizations</h3>
+<p><code>CFBundleLocalizations</code> 是 Info.plist 中的一個鍵值，用於明確告訴系統你的應用程式支援哪些語言。它的資料型態是字串陣列，每個元素代表一種語言代碼。</p>
+<h3 id="解決-swift-package-本地化問題">解決 Swift Package 本地化問題</h3>
+<p>假設你的主 App 只有英文和西班牙文的本地化檔案（只有 <code>en.lproj</code> 和 <code>es.lproj</code>），但你的 Swift Package 支援英文、西班牙文、日文和德文。</p>
+<p><strong>不加 CFBundleLocalizations 的情況：</strong></p>
+<ul>
+<li>英文使用者：看到英文（正常）</li>
+<li>西班牙文使用者：看到西班牙文（正常）</li>
+<li>日文使用者：看到英文（Package 的日文被忽略）</li>
+<li>德文使用者：看到英文（Package 的德文被忽略）</li>
+</ul>
+<p><strong>加入 CFBundleLocalizations 後：</strong></p>
+<pre><code class="language-xml">&lt;key&gt;CFBundleLocalizations&lt;/key&gt;
+&lt;array&gt;
+    &lt;string&gt;en&lt;/string&gt;
+    &lt;string&gt;es&lt;/string&gt;
+    &lt;string&gt;ja&lt;/string&gt;
+    &lt;string&gt;de&lt;/string&gt;
+&lt;/array&gt;
+</code></pre>
+<p>現在的結果：</p>
+<ul>
+<li>英文使用者：看到英文</li>
+<li>西班牙文使用者：看到西班牙文</li>
+<li>日文使用者：看到日文（Package 的日文正常載入）</li>
+<li>德文使用者：看到德文（Package 的德文正常載入）</li>
+</ul>
+<h3 id="重要特性與限制">重要特性與限制</h3>
+<p><strong>優點：</strong></p>
+<ul>
+<li>即使主 App 沒有對應的 <code>.lproj</code> 資料夾，只要在 <code>CFBundleLocalizations</code> 中宣告，Swift Package 就能使用該語言</li>
+<li>實作簡單，只需修改 Info.plist</li>
+</ul>
+<p><strong>限制：</strong></p>
+<ul>
+<li>App Store 會顯示你宣告的所有語言為「支援語言」</li>
+<li>使用者可能會期待整個 App 都支援該語言，但實際上只有 Package 部分支援</li>
+<li>容易造成使用者體驗不一致：主 App 介面是英文，但 Package 提供的功能是日文</li>
+</ul>
+<p><strong>適用情境：</strong></p>
+<ul>
+<li>你計劃在主 App 中也加入這些語言的支援，只是還沒完成</li>
+<li>你的 App 結構簡單，大部分內容都在 Package 中</li>
+<li>你願意接受 App Store 顯示更多支援語言</li>
+</ul>
+<h2 id="cfbundleallowmixedlocalizations允許混合本地化">CFBundleAllowMixedLocalizations：允許混合本地化</h2>
+<h3 id="什麼是-cfbundleallowmixedlocalizations">什麼是 CFBundleAllowMixedLocalizations</h3>
+<p><code>CFBundleAllowMixedLocalizations</code> 是一個布林值設定，用於明確告訴系統：「允許我的依賴項（包括 Swift Package、Framework 等）使用它們自己支援的任何語言，不受主 App 宣告語言的限制。」</p>
+<h3 id="解決-swift-package-本地化問題-2">解決 Swift Package 本地化問題</h3>
+<p>使用相同的情境：主 App 只有英文和西班牙文，Swift Package 支援英文、西班牙文、日文和德文。</p>
+<p><strong>加入 CFBundleAllowMixedLocalizations 後：</strong></p>
+<pre><code class="language-xml">&lt;key&gt;CFBundleAllowMixedLocalizations&lt;/key&gt;
+&lt;true/&gt;
+</code></pre>
+<p>結果：</p>
+<ul>
+<li>英文使用者：主 App 顯示英文，Package 顯示英文</li>
+<li>西班牙文使用者：主 App 顯示西班牙文，Package 顯示西班牙文</li>
+<li>日文使用者：主 App 顯示英文（或回退到基礎語言），Package 顯示日文</li>
+<li>德文使用者：主 App 顯示英文（或回退到基礎語言），Package 顯示德文</li>
+</ul>
+<h3 id="重要特性與優勢">重要特性與優勢</h3>
+<p><strong>優點：</strong></p>
+<ul>
+<li>App Store 只顯示主 App 實際支援的語言（英文、西班牙文）</li>
+<li>Swift Package 可以獨立提供更多語言支援</li>
+<li>使用者不會對整體語言支援有錯誤期待</li>
+<li>對於只使用特定 Package 功能的使用者，可以獲得更好的本地化體驗</li>
+</ul>
+<p><strong>限制：</strong></p>
+<ul>
+<li>可能造成介面語言不一致（主 App 和 Package 顯示不同語言）</li>
+<li>需要確保這種混合語言的體驗在 UI/UX 上是可接受的</li>
+</ul>
+<p><strong>適用情境：</strong></p>
+<ul>
+<li>主 App 只支援少數語言，但整合的 Swift Package 提供更豐富的多語言支援</li>
+<li>Package 是功能型模組（如支付、地圖、社交分享），語言不一致不影響整體體驗</li>
+<li>希望 App Store 只顯示主 App 實際完整支援的語言數量</li>
+</ul>
+<h2 id="實際案例不同語言配置的影響">實際案例：不同語言配置的影響</h2>
+<p>讓我們用一個具體的案例來說明這兩個設定的實際差異。</p>
+<h3 id="案例設定">案例設定</h3>
+<p><strong>主 App (Main Bundle)：</strong></p>
+<ul>
+<li>實際本地化檔案：英文 (en)、西班牙文 (es)、繁體中文 (zh-Hant)</li>
+<li>有完整的 UI 翻譯、App 名稱本地化等</li>
+</ul>
+<p><strong>Swift Package (第三方支付 SDK)：</strong></p>
+<ul>
+<li>本地化檔案：英文 (en)、西班牙文 (es)、繁體中文 (zh-Hant)、日文 (ja)、德文 (de)</li>
+<li>包含支付流程的 UI 和訊息</li>
+</ul>
+<h3 id="方案一不做任何設定">方案一：不做任何設定</h3>
+<p><strong>Info.plist：</strong></p>
+<pre><code class="language-xml">&lt;!-- 空白，不加任何設定 --&gt;
+</code></pre>
+<p><strong>各語言使用者的體驗：</strong></p>
+<table>
+<thead>
+<tr>
+<th>使用者語言</th>
+<th>主 App 顯示</th>
+<th>Package 顯示</th>
+<th>整體體驗</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>英文</td>
+<td>英文</td>
+<td>英文</td>
+<td>完美一致</td>
+</tr>
+<tr>
+<td>西班牙文</td>
+<td>西班牙文</td>
+<td>西班牙文</td>
+<td>完美一致</td>
+</tr>
+<tr>
+<td>繁體中文</td>
+<td>繁體中文</td>
+<td>繁體中文</td>
+<td>完美一致</td>
+</tr>
+<tr>
+<td>日文</td>
+<td>英文（回退）</td>
+<td>英文（被限制）</td>
+<td>一致但未本地化</td>
+</tr>
+<tr>
+<td>德文</td>
+<td>英文（回退）</td>
+<td>英文（被限制）</td>
+<td>一致但未本地化</td>
+</tr>
+</tbody>
+</table>
+<p><strong>App Store 顯示：</strong> 支援 3 種語言</p>
+<p><strong>問題：</strong> 日文和德文使用者無法使用 Package 內建的本地化，即使 Package 已經準備好這些語言。</p>
+<h3 id="方案二使用-cfbundlelocalizations">方案二：使用 CFBundleLocalizations</h3>
+<p><strong>Info.plist：</strong></p>
+<pre><code class="language-xml">&lt;key&gt;CFBundleLocalizations&lt;/key&gt;
+&lt;array&gt;
+    &lt;string&gt;en&lt;/string&gt;
+    &lt;string&gt;es&lt;/string&gt;
+    &lt;string&gt;zh-Hant&lt;/string&gt;
+    &lt;string&gt;ja&lt;/string&gt;
+    &lt;string&gt;de&lt;/string&gt;
+&lt;/array&gt;
+</code></pre>
+<p><strong>各語言使用者的體驗：</strong></p>
+<table>
+<thead>
+<tr>
+<th>使用者語言</th>
+<th>主 App 顯示</th>
+<th>Package 顯示</th>
+<th>整體體驗</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>英文</td>
+<td>英文</td>
+<td>英文</td>
+<td>完美一致</td>
+</tr>
+<tr>
+<td>西班牙文</td>
+<td>西班牙文</td>
+<td>西班牙文</td>
+<td>完美一致</td>
+</tr>
+<tr>
+<td>繁體中文</td>
+<td>繁體中文</td>
+<td>繁體中文</td>
+<td>完美一致</td>
+</tr>
+<tr>
+<td>日文</td>
+<td>英文（回退）</td>
+<td>日文</td>
+<td>不一致但部分本地化</td>
+</tr>
+<tr>
+<td>德文</td>
+<td>英文（回退）</td>
+<td>德文</td>
+<td>不一致但部分本地化</td>
+</tr>
+</tbody>
+</table>
+<p><strong>App Store 顯示：</strong> 支援 5 種語言</p>
+<p><strong>問題：</strong></p>
+<ul>
+<li>日文和德文使用者在 App Store 看到「支援日文/德文」</li>
+<li>下載後發現只有支付流程是日文/德文，主 App 介面仍是英文</li>
+<li>可能造成使用者困惑或負評</li>
+</ul>
+<h3 id="方案三使用-cfbundleallowmixedlocalizations">方案三：使用 CFBundleAllowMixedLocalizations</h3>
+<p><strong>Info.plist：</strong></p>
+<pre><code class="language-xml">&lt;key&gt;CFBundleAllowMixedLocalizations&lt;/key&gt;
+&lt;true/&gt;
+</code></pre>
+<p><strong>各語言使用者的體驗：</strong></p>
+<table>
+<thead>
+<tr>
+<th>使用者語言</th>
+<th>主 App 顯示</th>
+<th>Package 顯示</th>
+<th>整體體驗</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>英文</td>
+<td>英文</td>
+<td>英文</td>
+<td>完美一致</td>
+</tr>
+<tr>
+<td>西班牙文</td>
+<td>西班牙文</td>
+<td>西班牙文</td>
+<td>完美一致</td>
+</tr>
+<tr>
+<td>繁體中文</td>
+<td>繁體中文</td>
+<td>繁體中文</td>
+<td>完美一致</td>
+</tr>
+<tr>
+<td>日文</td>
+<td>英文（回退）</td>
+<td>日文</td>
+<td>不一致但部分本地化</td>
+</tr>
+<tr>
+<td>德文</td>
+<td>英文（回退）</td>
+<td>德文</td>
+<td>不一致但部分本地化</td>
+</tr>
+</tbody>
+</table>
+<p><strong>App Store 顯示：</strong> 支援 3 種語言</p>
+<p><strong>優勢：</strong></p>
+<ul>
+<li>日文和德文使用者在 App Store 知道 App 主要支援 3 種語言</li>
+<li>下載後發現支付流程有日文/德文支援，這是額外的驚喜</li>
+<li>使用者期待管理更合理</li>
+</ul>
+<h2 id="決策指南何時使用哪一種設定">決策指南：何時使用哪一種設定</h2>
+<p>根據不同的開發情境，選擇合適的設定策略：</p>
+<table>
+<thead>
+<tr>
+<th>情境</th>
+<th>推薦方案</th>
+<th>理由</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Swift Package 語言 ⊆ 主 App 語言</td>
+<td>不需要任何設定</td>
+<td>系統預設行為已足夠</td>
+</tr>
+<tr>
+<td>短期內會為主 App 加入 Package 支援的所有語言</td>
+<td>CFBundleLocalizations</td>
+<td>提前宣告，為完整本地化做準備</td>
+</tr>
+<tr>
+<td>Package 支援的額外語言是長期規劃，近期不會在主 App 實作</td>
+<td>CFBundleAllowMixedLocalizations</td>
+<td>避免誤導使用者，同時提供更好的 Package 體驗</td>
+</tr>
+<tr>
+<td>Package 是核心功能，語言支援是主要賣點</td>
+<td>CFBundleLocalizations + 盡快完成主 App 本地化</td>
+<td>確保整體體驗一致性</td>
+</tr>
+<tr>
+<td>Package 是輔助功能（如第三方 SDK、工具庫）</td>
+<td>CFBundleAllowMixedLocalizations</td>
+<td>Package 語言不一致影響較小</td>
+</tr>
+<tr>
+<td>有多個 Package，各自支援不同語言集合</td>
+<td>CFBundleAllowMixedLocalizations</td>
+<td>統一管理，避免 Info.plist 過於複雜</td>
+</tr>
+<tr>
+<td>企業內部 App，使用者明確知道語言支援範圍</td>
+<td>CFBundleLocalizations</td>
+<td>可以接受混合語言體驗</td>
+</tr>
+<tr>
+<td>面向大眾市場的 App</td>
+<td>CFBundleAllowMixedLocalizations</td>
+<td>使用者體驗和期待管理更重要</td>
+</tr>
+</tbody>
+</table>
+<h3 id="特殊情境處理">特殊情境處理</h3>
+<p><strong>情境 A：同時使用兩個設定</strong></p>
+<pre><code class="language-xml">&lt;key&gt;CFBundleLocalizations&lt;/key&gt;
+&lt;array&gt;
+    &lt;string&gt;en&lt;/string&gt;
+    &lt;string&gt;es&lt;/string&gt;
+&lt;/array&gt;
+&lt;key&gt;CFBundleAllowMixedLocalizations&lt;/key&gt;
+&lt;true/&gt;
+</code></pre>
+<p><strong>結果：</strong> <code>CFBundleAllowMixedLocalizations</code> 會覆蓋 <code>CFBundleLocalizations</code> 的限制，Package 可以使用任何它支援的語言。此設定組合通常沒有必要。</p>
+<p><strong>情境 B：Package 的 defaultLocalization 與主 App 不同</strong></p>
+<pre><code class="language-swift">// Package.swift
+let package = Package(
+    defaultLocalization: &quot;ja&quot;  // 主 App 的基礎語言是 &quot;en&quot;
+)
+</code></pre>
+<p><strong>問題：</strong> 當系統找不到合適的語言時，Package 會回退到日文，而主 App 會回退到英文，造成體驗不一致。</p>
+<p><strong>解決方案：</strong> 確保 Package 的 <code>defaultLocalization</code> 與主 App 的基礎語言（<code>CFBundleDevelopmentRegion</code>）一致。</p>
+<h2 id="實作檢查清單">實作檢查清單</h2>
+<p>在實作 Swift Package 多語言支援時，使用此檢查清單確保一切配置正確：</p>
+<h3 id="swift-package-端">Swift Package 端</h3>
+<ul class="contains-task-list">
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-1848864"> Package.swift 中設定了 <label class="task-list-item-label" for="task-item-1848864"> Package.swift 中設定了 `defaultLocalization`</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-6549468"> 所有語言的資料夾使用正確的命名格式（如 <code>en.lproj</code>、<code>zh-Hans.lproj</code><label class="task-list-item-label" for="task-item-6549468"> 所有語言的資料夾使用正確的命名格式（如 `en.lproj`、`zh-Hans.lproj`）</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-7993816"> <code>Localizable.strings</code><label class="task-list-item-label" for="task-item-7993816"> `Localizable.strings` 檔案使用 UTF-16 編碼</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-3893798"> 在程式碼中使用 <code>Bundle.module</code> 而非 <label class="task-list-item-label" for="task-item-3893798"> 在程式碼中使用 `Bundle.module` 而非 `Bundle.main`</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-5724162"><label class="task-list-item-label" for="task-item-5724162"> 在 Package 內部測試過所有語言的載入</label></li>
+</ul>
+<h3 id="主-app-端">主 App 端</h3>
+<ul class="contains-task-list">
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-395152"> 決定使用 <code>CFBundleLocalizations</code> 或 <label class="task-list-item-label" for="task-item-395152"> 決定使用 `CFBundleLocalizations` 或 `CFBundleAllowMixedLocalizations`</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-5676057"><label class="task-list-item-label" for="task-item-5676057"> 在 Info.plist 中正確加入選擇的設定</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-4657666"> 如果使用 <code>CFBundleLocalizations</code><label class="task-list-item-label" for="task-item-4657666"> 如果使用 `CFBundleLocalizations`，確認所有語言代碼正確</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-4283730"> Package 的 <code>defaultLocalization</code><label class="task-list-item-label" for="task-item-4283730"> Package 的 `defaultLocalization` 與主 App 的基礎語言一致</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-2132086"><label class="task-list-item-label" for="task-item-2132086"> 在實際裝置上測試各種語言環境</label></li>
+</ul>
+<h3 id="測試驗證">測試驗證</h3>
+<ul class="contains-task-list">
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-6222301"><label class="task-list-item-label" for="task-item-6222301"> 切換系統語言，確認 Package 內容正確本地化</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-4388108"><label class="task-list-item-label" for="task-item-4388108"> 測試 Package 支援但主 App 不支援的語言</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-8210257"><label class="task-list-item-label" for="task-item-8210257"> 檢查 App Store Connect 顯示的支援語言清單是否符合預期</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-9399291"><label class="task-list-item-label" for="task-item-9399291"> 確認沒有使用到不存在的語言代碼（會導致回退）</label></li>
+</ul>
+<h2 id="總結">總結</h2>
+<p>Swift Package 的多語言支援問題源自於 iOS 系統對本地化資源載入的限制機制。理解 <code>CFBundleLocalizations</code> 和 <code>CFBundleAllowMixedLocalizations</code> 的差異，能幫助你根據專案需求做出正確的技術決策：</p>
+<ul>
+<li><strong>CFBundleLocalizations</strong>：明確宣告支援的語言，適合計劃完整本地化的情境</li>
+<li><strong>CFBundleAllowMixedLocalizations</strong>：允許 Package 獨立提供額外語言，適合大多數整合第三方 Package 的情境</li>
+</ul>
+<p>對於多數開發者而言，<code>CFBundleAllowMixedLocalizations</code> 提供了更靈活且使用者友善的解決方案。它讓你能夠誠實地向使用者呈現 App 的實際語言支援情況，同時允許整合的 Swift Package 提供更豐富的多語言體驗。</p>
+<h2 id="參考資料">參考資料</h2>
+<ul>
+<li><a href="https://developer.apple.com/documentation/bundleresources/information_property_list/cfbundlelocalizations">Apple Developer Documentation - CFBundleLocalizations</a></li>
+<li><a href="https://developer.apple.com/documentation/bundleresources/information_property_list/cfbundleallowmixedlocalizations">Apple Developer Documentation - CFBundleAllowMixedLocalizations</a></li>
+<li><a href="https://developer.apple.com/documentation/xcode/localizing-package-resources">Apple Developer Documentation - Localizing Package Resources</a></li>
+</ul>
+
+              <a href="https://www.buymeacoffee.com/chiahsien" target="_blank" rel="noopener noreferrer">
+                <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=chiahsien&button_colour=44414e&font_colour=ffffff&font_family=Comic&outline_colour=ffffff&coffee_colour=FFDD00" />
+              </a>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://chiahsien.github.io/tag/swift-package/" class="tag">
+                    Swift-Package
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/development/" class="tag">
+                    Development
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/xcode/" class="tag">
+                    Xcode
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/swift/" class="tag">
+                    Swift
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/ios/" class="tag">
+                    iOS
+                  </a>
+                
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

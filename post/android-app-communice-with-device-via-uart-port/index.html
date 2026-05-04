@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>如何讓 Android App 透過 UART Port 跟機器通訊 | Nelson</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="如何讓 Android App 透過 UART Port 跟機器通訊 | Nelson - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <div class="post-detail">
+            <h1 class="post-title">如何讓 Android App 透過 UART Port 跟機器通訊</h1>
+            <div class="post-date">2021-03-26</div>
+            
+            <div class="post-content">
+              <p>最近公司內部有個需求，需要開發一個 Android app 裝在我們的機器上，讓它可以透過 UART port 跟機器溝通。過程基本上不難，但還挺繁雜的，乾脆做個紀錄以便日後查詢。</p>
+<p>我的開發環境是 Windows 10 搭配 Android Studio 4.1.2</p>
+<!-- more -->
+<h2 id="照著做">照著做</h2>
+<p>去 <code>Settings</code> 裡頭，確認 <code>NDK</code> 跟 <code>CMake</code> 都有安裝了。</p>
+<figure data-type="image" tabindex="1"><img src="https://chiahsien.github.io/post-images/1616599505770.png" alt="" loading="lazy"></figure>
+<p>建立一個新專案，然後選擇 <code>New -&gt; Folder -&gt; JNI Folder</code>，我們要透過 JNI 的方式調用 C 程式碼跟 UART 溝通。</p>
+<figure data-type="image" tabindex="2"><img src="https://chiahsien.github.io/post-images/1616599870212.png" alt="" loading="lazy"></figure>
+<p>下載這個<a href="../../post-attachments/JNI.zip">壓縮檔</a>，解開之後有五個檔案，把它們放到剛剛建立的 JNI 目錄裡頭。</p>
+<figure data-type="image" tabindex="3"><img src="https://chiahsien.github.io/post-images/1616599985206.png" alt="" loading="lazy"></figure>
+<p>在 <code>java</code> 目錄按右鍵，選擇 <code>New -&gt; Package</code>，建立一個名叫 <code>android_serialport_api</code> 的 package。注意：一定要叫這個名字。</p>
+<figure data-type="image" tabindex="4"><img src="https://chiahsien.github.io/post-images/1616601712096.png" alt="" loading="lazy"></figure>
+<p>在剛剛建立的 package 裡頭建立一個 <code>Java Class</code>，名字要叫做 <code>SerialPort</code>。</p>
+<figure data-type="image" tabindex="5"><img src="https://chiahsien.github.io/post-images/1616601785378.png" alt="" loading="lazy"></figure>
+<p>這時候應該產生一個 <code>SerialPort.java</code> 了，用<a href="../../post-attachments/SerialPort.java">這個檔案</a>替換它的內容。</p>
+<p>在 <code>app</code> 目錄按右鍵，選擇 <code>Link C++ Project with Gradle</code>。</p>
+<figure data-type="image" tabindex="6"><img src="https://chiahsien.github.io/post-images/1616601959920.png" alt="" loading="lazy"></figure>
+<p>此時會跳出一個對話框，<code>Build System</code> 選擇 <code>ndk-build</code>，<code>Project Path</code> 選擇剛剛放到 JNI 目錄的 <code>Android.mk</code>。</p>
+<figure data-type="image" tabindex="7"><img src="https://chiahsien.github.io/post-images/1616602073216.png" alt="" loading="lazy"></figure>
+<p>選好之後就可以 <code>Build -&gt; Make Project</code>，一切順利的話會產出 <code>libserial_port.so</code>。</p>
+<p>做為測試用的 app，我們的 <code>MainActivity.java</code> 可以這樣寫，記得把 UART port 的路徑以及 baud rate 改成你的環境：</p>
+<pre><code class="language-java">import android_serialport_api.SerialPort;
+
+public class MainActivity extends AppCompatActivity {
+    private static final String TAG = &quot;MainActivity&quot;;
+
+    protected SerialPort mSerialPort;
+    protected InputStream mInputStream;
+    protected OutputStream mOutputStream;
+    private ReadThread mReadThread;
+
+    private class ReadThread extends Thread {
+        @Override
+        public void run() {
+            super.run();
+
+            Log.e(TAG, &quot;Read thread is open.&quot;);
+            while (!isInterrupted()) {
+                if (mInputStream == null)
+                    return;
+
+                try {
+                    byte[] buffer = new byte[64];
+                    int size = mInputStream.read(buffer);
+                    if (size &gt; 0) {
+                        onDataReceived(buffer, size);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return;
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        try {
+            Log.e(TAG, &quot;Try to open serial port&quot;);
+            mSerialPort = new SerialPort(new File(&quot;/dev/ttyXXX&quot;), 115200, 0);
+            mInputStream = mSerialPort.getInputStream();
+            mOutputStream = mSerialPort.getOutputStream();
+            Log.e(TAG, &quot;Serial port opened!&quot;);
+
+            mReadThread = new ReadThread();
+            mReadThread.start();
+        } catch (SecurityException e) {
+            Log.e(TAG, &quot;Security Exception&quot;);
+            e.printStackTrace();
+        } catch (IOException e) {
+            Log.e(TAG, &quot;Fail to open serial port&quot;);
+            e.printStackTrace();
+        }
+
+        try {
+            mOutputStream.write(&quot;help&quot;.getBytes());
+            mOutputStream.write('\n');
+        } catch (IOException e) {
+            Log.e(TAG, &quot;Fail to send out message&quot;);
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.d(TAG, &quot;in onDestroy()&quot;);
+        if (mReadThread != null) {
+            mReadThread.interrupt();
+        }
+
+        if (mSerialPort != null) {
+            mSerialPort.close();
+            mSerialPort = null;
+
+            try {
+                mOutputStream.close();
+                mOutputStream = null;
+                mInputStream.close();
+                mInputStream = null;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        super.onDestroy();
+    }
+
+    protected void onDataReceived(final byte[] buffer, final int size) {
+        runOnUiThread(() -&gt; {
+            String receivedMessage = new String(buffer, 0, size);
+            Log.d(TAG, &quot;Received message: &quot; + receivedMessage);
+        });
+    }
+}
+</code></pre>
+<p>我們可以試試看 <code>Build -&gt; Clean Project</code> 然後 <code>Build -&gt; Rebuild Project</code>，確認一切都正常，沒事的話就可以跑在機器上了。</p>
+<h2 id="問題排解">問題排解</h2>
+<p>Q：Compile 失敗了</p>
+<p>A：確認剛剛建立的 packange 名稱是 <code>android_serialport_api</code>，以及建立的 class 名稱是 <code>SerialPort.java</code>。</p>
+<p>Q：照做了還是無法通訊？</p>
+<p>A：確認 Android 跟 port 是可以通的，有可能根本不能存取那個 port。</p>
+<p>Q：確認過了還是無法通訊？</p>
+<p>A：確認路徑跟 baud rate 是對的。</p>
+<p>Q：確認過路徑跟 baud rate 了，還是無法通訊？</p>
+<p>A：可能是權限問題，執行以下命令再試試看。</p>
+<pre><code>adb shell
+su
+chmod 777 /dev/ttyXXX
+setenforce 0
+</code></pre>
+<p>Q：如果還是不行呢？</p>
+<p>A：換一台硬體試試看。</p>
+<h2 id="參考資料">參考資料</h2>
+<ul>
+<li><a href="https://codertw.com/%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80/608813/">Android Studio jni開發 串列埠通訊</a></li>
+<li><a href="https://www.itread01.com/content/1548427166.html">Android：java.io.IOException: Cannot run program “/system/xbin/su”: error=13, Permission denied</a></li>
+<li><a href="https://www.logcg.com/zh-tw/archives/2831.html">Android 安卓開發板 讀取串口</a></li>
+<li><a href="https://code.google.com/archive/p/android-serialport-api/source/default/source">Google Code Archive</a></li>
+<li><a href="https://github.com/braincs/AndroidSerialLibrary">braincs/AndroidSerialLibrary</a></li>
+</ul>
+
+              <a href="https://www.buymeacoffee.com/chiahsien" target="_blank" rel="noopener noreferrer">
+                <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=chiahsien&button_colour=44414e&font_colour=ffffff&font_family=Comic&outline_colour=ffffff&coffee_colour=FFDD00" />
+              </a>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://chiahsien.github.io/tag/development/" class="tag">
+                    Development
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/programming/" class="tag">
+                    Programming
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/mobile/" class="tag">
+                    Mobile
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/android/" class="tag">
+                    Android
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/uart/" class="tag">
+                    UART
+                  </a>
+                
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

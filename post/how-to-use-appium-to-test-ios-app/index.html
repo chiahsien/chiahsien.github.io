@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>如何用 Appium 測試 iOS App | Nelson</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="如何用 Appium 測試 iOS App | Nelson - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <div class="post-detail">
+            <h1 class="post-title">如何用 Appium 測試 iOS App</h1>
+            <div class="post-date">2019-04-09</div>
+            
+            <div class="post-content">
+              <p>前一陣子我們開始嘗試 UI 自動化測試，我們首先嘗試 Appium，藉此機會幫安裝過程做個記錄。</p>
+<!-- more -->
+<h2 id="appium-簡介">Appium 簡介</h2>
+<p><a href="http://appium.io">Appium</a> 是一套開放原始碼的自動化測試框架，它支援 native / hybrid / mobile web apps。它走的是 <code>Client-Server</code> 架構，透過 <code>REST API</code> 與特定的 JSON protocol 進行溝通。</p>
+<h3 id="server">Server</h3>
+<p>Appium 說穿了就是個 HTTP Server，它使用 Node.js 開發，可以運行在本機端或遠端。它透過個別的 <code>driver</code> 跟不同的平台互動（iOS / Android / Windows / Mobile web / etc）。當它收到 client 請求，便會啟動 driver 跟模擬器或實機上的 app 溝通，取得特定資訊之後回傳給 client。</p>
+<h3 id="client">Client</h3>
+<p>Client 指的是 web drivers，目前官方提供 <code>Ruby / Python / Java / JavaScript (Node.js) / PHP / C# (.Net) / RobotFramework</code> 等程式語言開發的 web drivers。除此之外你可以選擇其他熟悉的語言開發，只要開發出來的東西符合 <code>Selenium WebDriver(JSON Wire) Protocol + Mobile JSON Wire Protocol</code> 即可。你高興的話，要使用 <code>cURL</code> 也可以。</p>
+<h3 id="常見測試流程">常見測試流程</h3>
+<ol>
+<li>啟動 Server</li>
+<li>建立 Client</li>
+<li>Client 跟 Server 要求建立特定的模擬器或實機的 session</li>
+<li>Client 送出指令（滑動 / 點擊 / 鍵盤輸入等等）</li>
+<li>Client 預期在一段時間內，app UI 會有預期的變化</li>
+</ol>
+<h2 id="如何安裝">如何安裝</h2>
+<p>以在 macOS Mojave 測試 iOS app 為例，說明如何安裝 Appium Client + Server。</p>
+<h3 id="server-2">Server</h3>
+<p>最簡單的方法就是下載 <a href="https://github.com/appium/appium-desktop/releases/latest">Appium Desktop</a>，它裡頭包含了 Server 跟各種 Drivers。如果你有特殊需求，可以使用 <a href="http://appium.io/docs/en/about-appium/getting-started/?lang=zh#installation-via-npm">npm 手動安裝</a>。</p>
+<h3 id="client-2">Client</h3>
+<p>我們會透過 <a href="https://brew.sh">Homebrew</a> 安裝需要的工具，如果還沒有安裝 Homebrew 的話，可以在 Terminal 輸入以下指令安裝。</p>
+<pre><code class="language-bash">/usr/bin/ruby -e &quot;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)&quot;
+</code></pre>
+<p>你可以選擇喜歡的程式語言開發測試程式，這裡我使用 Python。以下指令會同時安裝 <code>Python 3</code> 跟 <code>pip3</code>。</p>
+<pre><code class="language-bash">brew install python3
+</code></pre>
+<p>使用以下指令安裝 Appium Python Client 跟相關檔案。</p>
+<pre><code class="language-bash">pip3 install Appium-Python-Client
+pip3 install -U pytest
+</code></pre>
+<p>測試 iOS app 還需要 <a href="https://github.com/Carthage/Carthage">Carthage</a>，才能執行 <code>WebDriverAgent</code>。</p>
+<pre><code class="language-bash">brew install carthage
+</code></pre>
+<p>最後，為了設定模擬器的各種 permissions，不讓它跳出確認對話框來煩我們，我們還需要安裝 <a href="https://github.com/wix/AppleSimulatorUtils">AppleSimulatorUtils</a>。</p>
+<pre><code class="language-bash">brew tap wix/brew
+brew install wix/brew/applesimutils
+</code></pre>
+<h2 id="如何打包測試-app">如何打包測試 APP</h2>
+<p>這裡是以模擬器為例，如果要在實機測試，可以參考<a href="http://appium.io/docs/en/drivers/ios-xcuitest-real-devices/">這個連結</a>，如果要包其他平台，可以參考<a href="http://appium.io/docs/en/writing-running-appium/running-tests/">這個連結</a>。首先我們要用模擬器的 SDK build 一個可以在模擬器運行的 app。</p>
+<pre><code class="language-bash">xcodebuild -showsdks
+</code></pre>
+<p>這個指令會列出所有安裝的 SDK，看起來像這樣，你的畫面可能跟我的會不太一樣。</p>
+<pre><code>➜  ~ xcodebuild -showsdks
+iOS SDKs:
+	iOS 12.1                      	-sdk iphoneos12.1
+
+iOS Simulator SDKs:
+	Simulator - iOS 12.1          	-sdk iphonesimulator12.1
+
+macOS SDKs:
+	macOS 10.14                   	-sdk macosx10.14
+
+tvOS SDKs:
+	tvOS 12.1                     	-sdk appletvos12.1
+
+tvOS Simulator SDKs:
+	Simulator - tvOS 12.1         	-sdk appletvsimulator12.1
+
+watchOS SDKs:
+	watchOS 5.1                   	-sdk watchos5.1
+
+watchOS Simulator SDKs:
+	Simulator - watchOS 5.1       	-sdk watchsimulator5.1
+
+➜  ~
+</code></pre>
+<p>把模擬器的 SDK 記下來（這裡是 <code>iphonesimulator12.1</code>），接下來切換到 app source code 的根目錄，執行以下指令包出 app。</p>
+<pre><code class="language-bash">xcodebuild -sdk iphonesimulator12.1 -workspace &lt;Workspace File&gt;.xcworkspace -scheme &lt;Scheme Name&gt; -derivedDataPath ~/Documents/DerivedData COMPILER_INDEX_STORE_ENABLE=NO | xcpretty
+</code></pre>
+<p>這裡有幾個要注意的參數：</p>
+<ul>
+<li><code>-sdk</code> 後面的參數就是剛才記下來的模擬器 SDK。</li>
+<li><code>-workspace</code> 後面的參數要包含 <code>.xcworkspace</code> 副檔名。</li>
+<li><code>-scheme</code> 指定我們要的 scheme 設定。</li>
+<li><code>-derivedDataPaht</code> 指定編譯過程產生的檔案要放在哪裡，為了比較好找到我們包出來的 <code>.app</code> 檔，所以我指定到我的 Documents 底下。這樣 <code>.app</code> 檔就會存在 <code>~/Documents/DerivedData/Build/Products/Debug-iphonesimulator/</code> 底下。</li>
+<li><code>COMPILER_INDEX_STORE_ENABLE=NO</code> 避免在 compile 的時候做 indexing，可縮短 build time。</li>
+<li><code>| xcpretty</code> 是把產生的 log 導到 <a href="https://github.com/xcpretty/xcpretty">xcpretty</a>，讓 log 以比較好讀的格式呈現。可以透過 <code>gen install xcpretty</code> 安裝這個工具，這個設定不是必要的。</li>
+</ul>
+<h2 id="撰寫第一個測試">撰寫第一個測試</h2>
+<p>首先建立一個 <code>app_config.py</code>，輸入以下內容，這個檔案指定了接下來會用到的一些設定。注意裡頭有些地方要改成你自己的設定（例如 <code>app_path</code> 的值）。</p>
+<pre><code class="language-python">command_executor = &quot;http://127.0.0.1:4723/wd/hub&quot;
+app_path = &quot;/path/to/your/app/name.app&quot;
+
+simulator_caps_iphone_se = {
+    &quot;platformVersion&quot;: &quot;12.1&quot;,
+    &quot;deviceName&quot;: &quot;iPhone SE&quot;
+}
+
+desired_capabilities = {
+    **simulator_caps_iphone_se,
+    &quot;app&quot;: app_path,
+    &quot;platformName&quot;: &quot;iOS&quot;,
+    &quot;automationName&quot;: &quot;XCUITest&quot;,
+    &quot;autoAcceptAlerts&quot;: False,
+    &quot;sendKeyStrategy&quot;: &quot;grouped&quot;,
+    &quot;permissions&quot;: &quot;{\&quot;your.app.bundle.id\&quot;:{\&quot;camera\&quot;:\&quot;YES\&quot;,\&quot;medialibrary\&quot;:\&quot;YES\&quot;,\&quot;microphone\&quot;:\&quot;YES\&quot;,\&quot;notifications\&quot;:\&quot;YES\&quot;,\&quot;photos\&quot;:\&quot;YES\&quot;}}&quot;
+}
+</code></pre>
+<p>我們建立一個 <code>ui_testing.py</code> 來撰寫測試程式碼。這裡要注意的是，我們使用 <code>setUpClass()</code> 跟 <code>tearDownClass()</code> 而不是一般 tutorial 用到的 <code>setUp()</code> 跟 <code>tearDown()</code>，原因在於如果使用後者，每一個 test case 都會重新安裝 app 從頭來過。</p>
+<p>還有一點要注意的是，每個 test case function 都是以 <code>test</code> 命名開頭，它會自動把這些 test case function 依名稱排序執行。但因為我們是 UI Test，每個測試之間有很強的順序性，所以我們在命名加上了序號，讓它依照我們想要的順序執行。</p>
+<pre><code class="language-python">import unittest
+from appium import webdriver
+from time import sleep
+from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as ec
+from selenium.webdriver.support.ui import WebDriverWait
+
+from app_config import *
+
+class MyTests(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.driver = webdriver.Remote(command_executor, desired_capabilities)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.driver.quit()
+
+    def test_1_FirstTest(self):
+        result = True
+        self.assertTrue(result)
+
+    def test_2_Second(self):
+        result = True
+        self.assertTrue(result)
+
+if __name__ == '__main__':
+    suite = unittest.TestLoader().loadTestsFromTestCase(MyTests)
+    unittest.TextTestRunner(verbosity=2).run(suite)
+</code></pre>
+<p>最後記得啟動你的 Appium Server，然後在 Terminal 輸入以下指令就可以開始我們的第一個測試了。</p>
+<pre><code class="language-bash">pytest ui_testing.py
+</code></pre>
+
+              <a href="https://www.buymeacoffee.com/chiahsien" target="_blank" rel="noopener noreferrer">
+                <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=chiahsien&button_colour=44414e&font_colour=ffffff&font_family=Comic&outline_colour=ffffff&coffee_colour=FFDD00" />
+              </a>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://chiahsien.github.io/tag/mobile/" class="tag">
+                    Mobile
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/testing/" class="tag">
+                    Testing
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/ios/" class="tag">
+                    iOS
+                  </a>
+                
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

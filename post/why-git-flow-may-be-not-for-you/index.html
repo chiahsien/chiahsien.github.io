@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>為何 Git-Flow 可能不適合你 | Nelson</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="為何 Git-Flow 可能不適合你 | Nelson - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <div class="post-detail">
+            <h1 class="post-title">為何 Git-Flow 可能不適合你</h1>
+            <div class="post-date">2017-12-29</div>
+            
+            <div class="post-content">
+              <p><a href="http://nvie.com/posts/a-successful-git-branching-model/">Git-Flow</a> 是 <a href="http://nvie.com/about/">Vincent Driessen</a> 在 2010 年提出的一套 Git 分支模型，簡單的說，它有 <code>master</code> 跟 <code>develop</code> 這兩個主要的分支，以及 <code>feature</code> / <code>release</code> / <code>hotfix</code> 這三個支援型分支，至於各個分支的用途看圖片應該就懂了，或是看<a href="http://nvie.com/posts/a-successful-git-branching-model/">原文</a>有更詳細的說明。</p>
+<p>由於當時大家對如何使用 Git 還處於摸索的階段，所以當這套規範被提出並且大家發現真的滿好用的之後，它很快就被廣泛的接受。</p>
+<!--more-->
+<figure data-type="image" tabindex="1"><img src="http://nvie.com/img/git-model@2x.png" alt="" loading="lazy"></figure>
+<h2 id="git-flow-適合什麼團隊或專案">Git-Flow 適合什麼團隊或專案</h2>
+<p>沒有萬用解法是適合所有團隊的，你應該根據實際情況做出適當調整，況且 Git-Flow 是在 2010 年提出的，經過這麼多年的時空背景早就不一樣了。專案類型、成員對 Git 的熟悉度、產品釋出頻率、成員人數多寡等等因素都會影響到要使用怎樣的開發流程。</p>
+<p>那麼誰適合使用 Git-Flow 呢？</p>
+<ul>
+<li>它的分支以及操作那麼多，所以我覺得團隊裡至少要有一兩位對 Git 有一定的熟悉度，這樣才清楚要怎麼操作並能夠指導其他成員。</li>
+<li>它有多條 <code>feature</code> 分支，代表這個專案會有多人同時開發 feature 或解 bug。</li>
+<li>它有一個 <code>hotfix</code> 分支，代表這個專案釋出新版本的速度應該不快，所以在下個版本釋出之前需要透過 hotfix 的做法修補錯誤。</li>
+</ul>
+<p>如果你也覺得 Git-Flow 似乎不怎麼適合你們團隊卻又說不出個所以然來，看到這裡心裡應該有一些想法了。可能你們團員都不是很熟悉 Git，或是開發者只有一兩個人，或是專案釋出的速度很快或版本號對你們沒有意義（例如 web 或 backend 開發），那 <a href="https://guides.github.com/introduction/flow/">GitHub Flow</a> 應該會更適合你們。或者你們團隊已經大到一個程度了，也可以考慮看看 Google 跟 Facebook 採用的 <a href="https://trunkbaseddevelopment.com/">Trunk Model</a>。</p>
+<h2 id="我們的做法">我們的做法</h2>
+<p>首先要介紹一下我們的背景資料：</p>
+<ul>
+<li>團隊成員對 Git 的操作都有一定的熟悉度</li>
+<li>我們開發 iOS app</li>
+<li>我們提供 template app 給客戶，有些客戶需要做客製化</li>
+<li>我們有在跑 Scrum，大約每六週就會開發並驗收完一個新版本</li>
+<li>由於 iOS 需要送審，加上我們客戶很多，所以從內部驗收完到所有客戶上架新版本，大約還要 2-4 週</li>
+</ul>
+<p>我們參考了 Git-Flow 並加以調整，最後我們有以下四種分支：<code>master</code> / <code>develop</code> / <code>task</code> / <code>release</code>。</p>
+<h3 id="master">master</h3>
+<p><code>master</code> 上的每個 commit 都是正式發行的版本，所以每個 commit 都會打上一個 tag，例如 <code>v1.2.3</code> 或是 <code>v1.2.3-客戶Ａ</code> ，我們把 master 分支當作版本倉庫，需要哪個版本就去 master 或是 tag 找。</p>
+<h3 id="develop">develop</h3>
+<p><code>develop</code> 上的就是最新的程式碼，每個 commit 都要能夠編譯成功，我們的 nightly-build 就是抓 develop 分支。</p>
+<h3 id="task">task</h3>
+<p>不管是要做新的 feature 或是要解 issue，對開發者來說都是一種 task，這就是該分支的命名由來。<code>task</code> 分支總是從 <code>develop</code> 長出來，當某個 task 分支通過測試及 code review 之後，它會先 rebase 到最新的 develop，再 <code>--no-ff</code> 的 merge 回 develop，然後這個 task 就可以砍掉了。</p>
+<h3 id="release">release</h3>
+<p>當該次開發週期要做的任務都告一段落了，我們就會從 <code>develop</code> 開出一條 <code>release</code> 分支，讓其他同仁做測試與驗收，如果測試驗收過程中有找到任何問題，就修在這條 release 分支上；如果很不幸的該次測試驗收的過程特別久，久到我們都開始開新的 <code>task</code> 分支了，那我們就會定期地把最新的 release merge 回 develop，免得累積多了不好合回來。</p>
+<p>最後測試驗收都通過，也成功上架 app store 了，我們就會做以下這些事：</p>
+<ol>
+<li>把該 release 分支 merge 回 develop。</li>
+<li>把該 release 分支的所有檔案（除了 <code>.git</code> 資料夾）複製一份出來，切到 <code>master</code> 分支然後把所有檔案（除了 <code>.git</code> 資料夾）都刪除，然後把剛剛複製的檔案搬過來。你沒看錯，我們用直接覆蓋檔案的方式，而不是用 merge 指令，這樣會省掉很多麻煩。</li>
+<li>在 <code>master</code> 分支打上新的 tag。</li>
+<li>把該 release 分支砍掉。</li>
+</ol>
+<p>感謝版友補充，第二步也可以用以下指令達成：</p>
+<pre><code>git checkout release
+git checkout --detach
+git reset --soft master
+git checkout master
+git commit -m &quot;commit message&quot;
+</code></pre>
+<p>或許你會好奇為何沒有 <code>hotfix</code> 分支，這是因為我們新版本釋出週期夠短，與其額外開一個 hotfix，倒不如直接修正在下一版一起送審就好。以上就是我們 iOS 團隊所採用的流程，如果你也喜歡這樣的開發流程，歡迎<a href="https://www.yourator.co/companies/escapex/jobs/3116">成為我們的一員</a>！</p>
+
+              <a href="https://www.buymeacoffee.com/chiahsien" target="_blank" rel="noopener noreferrer">
+                <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=chiahsien&button_colour=44414e&font_colour=ffffff&font_family=Comic&outline_colour=ffffff&coffee_colour=FFDD00" />
+              </a>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://chiahsien.github.io/tag/development/" class="tag">
+                    Development
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/git/" class="tag">
+                    Git
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/work-flow/" class="tag">
+                    WorkFlow
+                  </a>
+                
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

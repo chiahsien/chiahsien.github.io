@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>我的 Mac 設定 | Nelson</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="我的 Mac 設定 | Nelson - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <div class="post-detail">
+            <h1 class="post-title">我的 Mac 設定</h1>
+            <div class="post-date">2025-07-26</div>
+            
+            <div class="post-content">
+              <p>工程師都會有自己習慣的電腦設定，我自然也不例外。本文記錄了我自己的環境建置，方便以後換電腦或換工作時可以快速 setup。</p>
+<!-- more -->
+<hr>
+<h2 id="01-系統地基-system-foundation">01. 系統地基 (System Foundation)</h2>
+<p>拿到新電腦的第一步，先把終端機與套件管理搞定，這是所有開發工作的基礎。</p>
+<h3 id="套件管理homebrew">套件管理：Homebrew</h3>
+<p><a href="https://brew.sh/">Homebrew</a> 是 macOS 必備的套件管理工具。</p>
+<pre><code class="language-shell">/bin/bash -c &quot;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)&quot;
+</code></pre>
+<p><strong>Apple Silicon (M1/M2/M3...) 設定注意：</strong></p>
+<p>安裝完成後，為了讓系統能正確找到 <code>brew</code> 指令，建議將環境變數設定寫入 <code>~/.zprofile</code>（而非 <code>.zshrc</code>），這樣能避免每次開新分頁都重複執行，提升效能：</p>
+<pre><code class="language-shell">echo 'eval &quot;$(/opt/homebrew/bin/brew shellenv)&quot;' &gt;&gt; ~/.zprofile
+eval &quot;$(/opt/homebrew/bin/brew shellenv)&quot;
+</code></pre>
+<h3 id="終端機與-shell">終端機與 Shell</h3>
+<ul>
+<li><strong>Terminal App</strong>
+<ul>
+<li>我改用 <a href="https://ghostty.org/">Ghostty</a>（推薦，已推出正式版）或 <a href="https://iterm2.com/">iTerm2</a> 取代內建終端機。</li>
+<li>如果需要更強大的功能，可以試試 <a href="https://tabby.sh/">Tabby</a>，它跨平台且支援 SSH / Serial / Telnet 連線。</li>
+<li><em>Tip: Ghostty 雖然強調開箱即用，還是可以透過修改設定檔自訂。有人建立了 <a href="https://spectre-ghostty-config.vercel.app/">這個網站</a> 方便使用者調整設定。</em></li>
+</ul>
+</li>
+<li><strong>Shell</strong>
+<ul>
+<li><a href="https://ohmyz.sh/">Oh My Zsh</a>：讓 Zsh 更好用、更漂亮的必裝框架。</li>
+</ul>
+</li>
+</ul>
+<pre><code class="language-shell">sh -c &quot;$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)&quot;
+</code></pre>
+<p>如果安裝了 Oh My Zsh 又想要自動補完 brew 的指令，記得在 <code>~/.zprofile</code> 加入：</p>
+<pre><code class="language-shell">FPATH=&quot;$(brew --prefix)/share/zsh/site-functions:${FPATH}&quot;
+</code></pre>
+<h3 id="版本控制核心git">版本控制核心：Git</h3>
+<p><a href="https://git-scm.com/">Git</a> 是版本控制的靈魂。</p>
+<pre><code class="language-shell">brew install git
+brew install git-lfs
+</code></pre>
+<hr>
+<h2 id="02-開發與語言環境-coding-environment">02. 開發與語言環境 (Coding Environment)</h2>
+<h3 id="編輯器與-ide">編輯器與 IDE</h3>
+<ul>
+<li><strong><a href="https://code.visualstudio.com/">Visual Studio Code</a></strong>：我的首選編輯器，理由是「速度快」、「界面友好」、「套件生態系豐富」。必備套件可參考 <a href="https://chiahsien.github.io/post/visual-studio-code-extensions/">這篇文章</a>。</li>
+<li><strong><a href="https://developer.apple.com/xcode/">Xcode</a></strong>：iOS/macOS 開發必備。
+<ul>
+<li>推薦使用 <a href="https://github.com/RobotsAndPencils/XcodesApp">Xcodes</a> 來管理多版本 Xcode，詳情參考 <a href="https://chiahsien.github.io/post/xcode-the-right-way/">這篇文章</a>。</li>
+<li>定期使用 <a href="https://github.com/vashpan/xcode-dev-cleaner">DevCleaner</a> 清理肥大的暫存檔。</li>
+<li>搭配 <a href="https://github.com/github/CopilotForXcode">Github Copilot for Xcode</a> 輔助開發。</li>
+</ul>
+</li>
+<li><strong><a href="https://zed.dev/">Zed</a></strong>：使用 Rust 開發的高效能編輯器，速度極快且內建 AI 支援，適合追求極致效能或需要開啟大檔案的人。</li>
+<li><strong><a href="https://www.sublimetext.com/">Sublime Text</a></strong>：以前用過，真的很快，但因介面不夠友善懶得折騰而放棄。</li>
+<li><strong><a href="https://typora.io/">Typora</a></strong>：Markdown 編輯器首選，<strong>所見即所得</strong>的體驗與佈景主題讓我離不開它。
+<ul>
+<li><em>輕量替代品：<a href="https://miaoyan.app/">妙言</a>，簡單輕巧是它的特色。</em></li>
+</ul>
+</li>
+</ul>
+<h3 id="語言執行環境-runtimes">語言執行環境 (Runtimes)</h3>
+<p>以 Ruby 為例，我使用 <code>rbenv</code> 來管理版本：</p>
+<pre><code class="language-shell">brew install rbenv ruby-build
+</code></pre>
+<p>接著安裝常用的 Ruby 版本並設為全域預設：</p>
+<pre><code class="language-shell">rbenv install 3.2.2 # 請依當下最新穩定版調整
+rbenv rehash
+rbenv global 3.2.2
+</code></pre>
+<p>最後記得在 <code>~/.zshrc</code> 加入初始化設定：</p>
+<pre><code class="language-shell">eval &quot;$(rbenv init - zsh)&quot;
+</code></pre>
+<p><em>(如果安裝過程遇到 permission denied，可嘗試 <code>sudo chown -R &quot;$(whoami)&quot;:admin /usr/local/var</code> 修復)</em></p>
+<hr>
+<h2 id="03-開發輔助工具-development-tools">03. 開發輔助工具 (Development Tools)</h2>
+<h3 id="git-gui-客戶端">Git GUI 客戶端</h3>
+<p>Git 指令雖然強大，但在檢視複雜的線圖或做部分 commit 時，GUI 工具還是比較直覺。</p>
+<ul>
+<li><strong><a href="https://git-fork.com/">Fork</a></strong>：目前的主力，介面非常友善且操作流暢。</li>
+<li><strong>其他選擇</strong>：
+<ul>
+<li><a href="https://www.sourcetreeapp.com/">SourceTree</a></li>
+<li><a href="https://www.git-tower.com/mac/">Tower</a></li>
+<li><a href="http://www.syntevo.com/smartgit/">SmartGit</a></li>
+<li><a href="https://www.gitkraken.com/git-client">GitKraken</a></li>
+</ul>
+</li>
+</ul>
+<h3 id="api-與網路除錯">API 與網路除錯</h3>
+<ul>
+<li><strong><a href="https://www.usebruno.com/">Bruno</a></strong>：管理與呼叫 API 的工具。</li>
+<li><strong><a href="https://kapeli.com/dash">Dash</a></strong>：強大的離線 API 文件瀏覽器與程式碼片段管理工具。</li>
+<li><strong><a href="https://proxyman.com/">Proxyman</a></strong>：介面漂亮的抓包工具，用來檢查與修改 HTTP/HTTPS 請求。</li>
+</ul>
+<h3 id="ui-檢測">UI 檢測</h3>
+<ul>
+<li><strong><a href="https://lookin.work/">Lookin</a></strong> (免費)：若 Xcode 內建工具不夠用時的進階選擇。</li>
+<li><strong>其他付費選擇</strong>：<a href="https://revealapp.com/">Reveal</a> 或 <a href="https://sherlock.inspiredcode.io/">Sherlock</a>。</li>
+</ul>
+<hr>
+<h2 id="04-生產力與系統增強-productivity-utilities">04. 生產力與系統增強 (Productivity &amp; Utilities)</h2>
+<p>這區塊收錄了讓 Mac 更順手的小工具，依照功能分類：</p>
+<h3 id="滑鼠增強">滑鼠增強</h3>
+<ul>
+<li><strong><a href="https://better-mouse.com/">Better Mouse</a></strong>：我不喜歡安裝肥大的驅動程式，這是更流暢、功能強大的輕量化替代品。</li>
+<li><strong><a href="https://github.com/tjsky/logi-options-plus-mini">logi-options-plus-mini</a></strong>：如果你依然必須使用羅技官方驅動 (Logi Options+)，建議使用這個工具進行最小化安裝，去除不必要的臃腫功能。</li>
+</ul>
+<h3 id="視窗與檔案管理">視窗與檔案管理</h3>
+<ul>
+<li><strong>視窗管理</strong>：
+<ul>
+<li>用 <a href="https://itunes.apple.com/tw/app/magnet/id441258766?mt=12">Magnet</a> 或 <a href="https://github.com/rxhanson/Rectangle">Rectangle</a> (免費) 進行視窗分割。</li>
+<li>用 <a href="https://alt-tab-macos.netlify.app/">AltTab</a> 或 <a href="https://bahoom.com/hyperswitch">HyperSwitch</a> 將 Windows 的視窗切換邏輯帶回 Mac。</li>
+<li><em>Tip: 如果你有安裝 <a href="https://www.raycast.com/">Raycast</a>，它的 Window Management extension 也能完美處理視窗分割的需求。</em></li>
+</ul>
+</li>
+<li><strong>Finder 增強</strong>：
+<ul>
+<li><a href="https://github.com/Ji4n1ng/OpenInTerminal">Open In Terminal</a>：在 Finder 快速開啟終端機。</li>
+<li><a href="https://github.com/sbarex/QLMarkdown">QLMarkdown</a>：按空白鍵預覽 Markdown 文件。</li>
+<li><a href="https://github.com/sbarex/SourceCodeSyntaxHighlight">Syntax Highlight</a>：按空白鍵預覽帶有高亮色彩的原始碼。</li>
+<li><a href="https://www.binarynights.com/forklift/">ForkLift 3</a>：雙視窗檔案管理 + FTP 傳輸工具。</li>
+<li><a href="https://apps.apple.com/tw/app/qspace/id1469774098?mt=12">QSpace</a>：功能單純的多面板 Finder。</li>
+</ul>
+</li>
+<li><strong>解壓縮</strong>：
+<ul>
+<li><a href="https://theunarchiver.com/">The Unarchiver</a> 或 <a href="https://www.keka.io/">Keka</a>。</li>
+<li>如果不介意 command line，也可考慮 <a href="https://rar.tw/download.html">WinRAR for Mac</a>。</li>
+</ul>
+</li>
+</ul>
+<h3 id="知識管理-pkm">知識管理 (PKM)</h3>
+<ul>
+<li><strong>筆記軟體</strong>：<a href="https://logseq.com/">Logseq</a> 與 <a href="https://obsidian.md/">Obsidian</a>，無論在家或公司都用它們整理思緒。</li>
+<li><strong>心智圖</strong>：<a href="https://www.xmind.net/">XMind</a>，用於紀錄發散性或階層性的想法（雖然稍嫌笨重）。</li>
+</ul>
+<h3 id="系統優化與小工具">系統優化與小工具</h3>
+<ul>
+<li><strong>啟動器</strong>：
+<ul>
+<li><a href="https://www.raycast.com/">Raycast</a>：我的首選，自訂性高。</li>
+<li><a href="https://www.alfredapp.com/">Alfred</a>：也是很棒的替代品。</li>
+</ul>
+</li>
+<li><strong>防休眠</strong>：
+<ul>
+<li><a href="https://apps.apple.com/tw/app/amphetamine/id937984704?mt=12">Amphetamine</a>：長時間跑程式或下載時防止電腦休眠。</li>
+<li><em>Tip: Raycast 也有 Coffee / Anti-sleep 相關的 extension 可以達到一樣的效果，不一定要裝獨立 App。</em></li>
+</ul>
+</li>
+<li><strong>軟體更新檢查</strong>：<a href="https://github.com/mangerlahn/Latest">Latest</a> 或 <a href="https://aerolite.dev/applite">Applite</a>，檢查新版本非常方便。</li>
+<li><strong>截圖工具</strong>：<a href="https://shottr.cc/">Shottr</a>。</li>
+</ul>
+<hr>
+<h2 id="05-日常應用-daily-essentials">05. 日常應用 (Daily Essentials)</h2>
+<h3 id="瀏覽器">瀏覽器</h3>
+<p>我目前的需求是「多組帳號切換」、「設定可同步」與「套件多」。</p>
+<ul>
+<li><strong>主力使用</strong>：<a href="https://vivaldi.com/?lang=zh_TW">Vivaldi</a>。</li>
+<li><strong>其他 Chromium 選擇</strong>：<a href="https://www.google.com.tw/chrome/browser/desktop/index.html">Google Chrome</a> (以前常用)、<a href="https://www.microsoft.com/zh-tw/edge">Microsoft Edge</a>、<a href="https://brave.com/zh/">Brave</a>、<a href="https://arc.net/">Arc</a>。
+<ul>
+<li><em>必備 Extension 記錄在 <a href="https://chiahsien.github.io/post/essential-google-chrome-extension/">這篇文章</a>。</em></li>
+</ul>
+</li>
+<li><strong>WebKit 選擇</strong>：<a href="https://browser.kagi.com/">Orion</a> (重視隱私且支援 Chrome 套件)。</li>
+<li><strong>AI 瀏覽器 (新趨勢)</strong>：
+<ul>
+<li><a href="https://www.diabrowser.com">Dia</a></li>
+<li><a href="https://chatgpt.com/zh-Hant/atlas/">ChatGPT Atlas</a></li>
+<li><a href="https://www.perplexity.ai/comet">Perplexity Comet</a></li>
+</ul>
+</li>
+<li><strong>Firefox</strong>：<a href="https://www.mozilla.org/zh-TW/firefox/new/">Firefox</a> (因帳號切換功能不符需求而未採用)。</li>
+</ul>
+<h3 id="通訊軟體">通訊軟體</h3>
+<p>為了避免開一大堆視窗，我通常使用整合型工具：</p>
+<ul>
+<li><strong>整合工具</strong>：<a href="https://ferdium.org/">Ferdium</a> (主力)，其他類似選擇還有 <a href="https://meetfranz.com/">Franz</a> 與 <a href="https://getstation.com/">Station</a>。</li>
+<li><strong>常用服務</strong>：<a href="https://apps.apple.com/tw/app/line/id539883307?mt=12">LINE</a>、<a href="https://slack.com/downloads/osx">Slack</a>、<a href="https://telegram.org/">Telegram</a>、<a href="https://www.messenger.com/">Facebook Messenger</a>。</li>
+</ul>
+<hr>
+<h2 id="06-線上工具-online-tools">06. 線上工具 (Online Tools)</h2>
+<p>偶爾才用一次的需求，可以使用一些免費的線上工具解決。</p>
+<ul>
+<li><strong><a href="https://jsoneditoronline.org/">JSON Editor Online</a></strong>：檢視與編輯 JSON 的工具。</li>
+<li><strong>圖表繪製</strong>：
+<ul>
+<li><a href="https://www.draw.io/">draw.io</a>、<a href="https://excalidraw.com/">Excalidraw</a>、<a href="https://www.tldraw.com/">tldraw</a>、<a href="https://www.zenflowchart.com/">Zen Flowchart</a>、<a href="https://www.yworks.com/yed-live/">yEd live</a>。</li>
+<li><a href="http://asciiflow.com/">ASCIIFlow Infinity</a>：輕鬆畫出 ASCII 圖，適合放在程式碼註解裡說明架構。</li>
+</ul>
+</li>
+<li><strong>圖片工具</strong>：
+<ul>
+<li><a href="https://collagemaker.tools/photo/">Collage Maker</a>：圖片拼貼工具，通常送 PR 給同事 review UI 修改時，用來製作前後對照圖。</li>
+</ul>
+</li>
+</ul>
+
+              <a href="https://www.buymeacoffee.com/chiahsien" target="_blank" rel="noopener noreferrer">
+                <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=chiahsien&button_colour=44414e&font_colour=ffffff&font_family=Comic&outline_colour=ffffff&coffee_colour=FFDD00" />
+              </a>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://chiahsien.github.io/tag/development/" class="tag">
+                    Development
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/productivity/" class="tag">
+                    Productivity
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/tools/" class="tag">
+                    Tools
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/macos/" class="tag">
+                    macOS
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/work-flow/" class="tag">
+                    WorkFlow
+                  </a>
+                
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

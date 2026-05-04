@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>解決地圖上 Annotation View 偏移的問題 | Nelson</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="解決地圖上 Annotation View 偏移的問題 | Nelson - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <div class="post-detail">
+            <h1 class="post-title">解決地圖上 Annotation View 偏移的問題</h1>
+            <div class="post-date">2015-01-25</div>
+            
+            <div class="post-content">
+              <p>最近在開發 iOS APP 時，有用到地圖的功能，我需要把自訂的大頭針擺放到特定的位置，並且要顯示自訂的圖片。這並不是什麼困難的要求，只是我發現自訂的大頭針圖片（<code>MKAnnotationView</code>）總是有所偏移，不會正好釘在我要的位置，還好最後找到解決辦法。</p>
+<p>需求：</p>
+<p>有自訂的大頭針圖片，「針頭」的位置就是圖片底部中央的位置，要讓「針頭」正好顯示於地圖上的特定座標，不會有所偏移。</p>
+<!-- more -->
+<p>解法：</p>
+<pre><code class="language-objc">- (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id &lt;MKAnnotation&gt; )annotation {
+  if ([annotation isKindOfClass:[MyAnnotation class]]) {
+    MKAnnotationView *aView = [mapView dequeueReusableAnnotationViewWithIdentifier:@&quot;identifier&quot;];
+    if (!aView) {
+      aView = [[MKAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:@&quot;identifier&quot;];
+      aView.image = [UIImage imageNamed:@&quot;pin-image&quot;];
+      aView.layer.anchorPoint = CGPointMake(0.5, 1);
+    }
+    return aView;
+  }
+  return nil;
+}
+</code></pre>
+<p>重點在那一行 <code>aView.layer.anchorPoint = CGPointMake(0.5, 1)</code>，如果「針頭」不是正好在圖片底部中央的話，就得再調整 <a href="http://stackoverflow.com/a/23138211">anchorPoint</a>。</p>
+
+              <a href="https://www.buymeacoffee.com/chiahsien" target="_blank" rel="noopener noreferrer">
+                <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=chiahsien&button_colour=44414e&font_colour=ffffff&font_family=Comic&outline_colour=ffffff&coffee_colour=FFDD00" />
+              </a>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://chiahsien.github.io/tag/tips/" class="tag">
+                    Tips
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/objective-c/" class="tag">
+                    Objective-C
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/swift/" class="tag">
+                    Swift
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/ios/" class="tag">
+                    iOS
+                  </a>
+                
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>KOHi — 把 KOReader 的閱讀標註匯入 Obsidian | Nelson</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="KOHi — 把 KOReader 的閱讀標註匯入 Obsidian | Nelson - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <div class="post-detail">
+            <h1 class="post-title">KOHi — 把 KOReader 的閱讀標註匯入 Obsidian</h1>
+            <div class="post-date">2026-05-01</div>
+            
+            <div class="post-content">
+              <p>用 KOReader 看書的人大概都有同樣的經驗：讀到好段落就順手畫個重點、寫個筆記，但讀完之後呢？這些標註就一直留在閱讀器裡，再也沒打開過。</p>
+<p>我自己用 Obsidian 管理所有筆記，一直想把 KOReader 的 highlight 也整合進來，卻找不到現成的工具。手動複製貼上太慢，寫腳本又要處理 KOReader 那套 Lua 格式的 metadata。</p>
+<p>所以我寫了 <strong>KOHi</strong>，一個 Obsidian plugin，專門解決這件事。</p>
+<h2 id="kohi-做什麼">KOHi 做什麼</h2>
+<p>USB 接上閱讀器，在 Obsidian 裡執行一個指令，就能把 KOReader 的 highlight 和筆記匯入 vault。每本書產生一份 Markdown 筆記，包含書籍資訊和所有標註。</p>
+<p>核心功能：</p>
+<ul>
+<li><strong>自動偵測儲存模式</strong> — KOReader 有三種存放 metadata 的方式（book folder / <code>koreader/docsettings</code> / <code>koreader/hashdocsettings</code>），KOHi 全部支援，不用自己去找檔案在哪裡。</li>
+<li><strong>模板自訂</strong> — 產生的筆記格式完全可控。用 Nunjucks 模板語法，可以自訂 frontmatter、章節分組、頁碼、highlight 顏色等所有欄位。也提供預設模板，不想自己寫也能直接用。</li>
+<li><strong>選擇性匯入</strong> — 可以一次匯入全部，也可以用模糊搜尋挑特定幾本書。</li>
+<li><strong>重複匯入覆蓋</strong> — 重新匯入同一本書時，可以選擇是否要自動覆蓋舊筆記，不會產生重複檔案。</li>
+</ul>
+<!-- more -->
+<h2 id="匯入後的筆記長什麼樣">匯入後的筆記長什麼樣</h2>
+<p>假設你讀了一本書，畫了一些重點，匯入後會產生這樣的 Markdown 筆記：</p>
+<pre><code class="language-markdown">---
+title: &quot;原子習慣&quot;
+author: &quot;James Clear&quot;
+language: zh
+pages: 320
+imported: 2026-05-01
+---
+
+## 第一章 原子習慣的驚人力量
+
+&gt; 習慣是自我改善的複利。
+&gt;
+&gt; — p.16
+
+&gt; 如果你每天都能進步百分之一，一年後你會進步三十七倍。
+&gt;
+&gt; — p.18
+
+&gt; [!note]
+&gt; 這跟投資的複利概念一樣，重點不是單次的幅度，而是持續性。
+</code></pre>
+<p>標註按章節分組，包含頁碼，你寫的筆記會以 callout 形式呈現。所有格式都可以透過模板調整。</p>
+<h2 id="安裝方式">安裝方式</h2>
+<p>KOHi 目前還在 Obsidian Community Plugins 的審核中，暫時可以用以下方式安裝。</p>
+<h3 id="透過-brat推薦">透過 BRAT（推薦）</h3>
+<p><a href="https://github.com/TfTHacker/obsidian42-brat">BRAT</a> 是一個專門用來安裝尚未上架的 Obsidian plugin 的工具。</p>
+<ol>
+<li>在 Obsidian 的 Community Plugins 裡搜尋並安裝 <strong>BRAT</strong></li>
+<li>進入 BRAT 設定 → <strong>Add Beta Plugin</strong> → 貼上 <code>chiahsien/obsidian-kohi</code></li>
+<li>回到 Community Plugins 列表，啟用 <strong>KOHi</strong></li>
+</ol>
+<h3 id="手動安裝">手動安裝</h3>
+<ol>
+<li>從 <a href="https://github.com/chiahsien/obsidian-kohi/releases">GitHub Releases</a> 下載 <code>main.js</code>、<code>manifest.json</code>、<code>styles.css</code></li>
+<li>在 vault 裡建立 <code>.obsidian/plugins/kohi/</code> 資料夾</li>
+<li>把下載的檔案放進去</li>
+<li>重啟 Obsidian，在 Community Plugins 裡啟用 <strong>KOHi</strong></li>
+</ol>
+<h2 id="設定與使用">設定與使用</h2>
+<ul class="contains-task-list">
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-70585"><label class="task-list-item-label" for="task-item-70585"> 安裝後到 Settings → KOHi，設定幾個必要欄位：</label></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>設定</th>
+<th>說明</th>
+<th>預設值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mount path</td>
+<td>閱讀器的掛載路徑</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Output folder</td>
+<td>筆記輸出到 vault 的哪個資料夾</td>
+<td><code>KOReader Highlights</code></td>
+</tr>
+<tr>
+<td>Filename template</td>
+<td>檔名格式，支援 <code>{{title}}</code>、<code>{{author}}</code> 等變數</td>
+<td><code>{{title}}</code></td>
+</tr>
+<tr>
+<td>Overwrite existing</td>
+<td>重複匯入時是否覆蓋</td>
+<td>開啟</td>
+</tr>
+</tbody>
+</table>
+<p>設定完成後，打開 Command Palette，執行：</p>
+<ul>
+<li><strong>KOHi: Import all highlights</strong> — 匯入所有書籍的標註</li>
+<li><strong>KOHi: Import selected highlights</strong> — 用模糊搜尋選擇特定書籍</li>
+</ul>
+<p>筆記會出現在你設定的 output folder 裡。</p>
+<h2 id="連結">連結</h2>
+<ul>
+<li>GitHub：<a href="https://github.com/chiahsien/obsidian-kohi">chiahsien/obsidian-kohi</a></li>
+</ul>
+<p>歡迎試用。有問題或建議可以直接到 GitHub 開 issue，或是在這裡留言。</p>
+
+              <a href="https://www.buymeacoffee.com/chiahsien" target="_blank" rel="noopener noreferrer">
+                <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=chiahsien&button_colour=44414e&font_colour=ffffff&font_family=Comic&outline_colour=ffffff&coffee_colour=FFDD00" />
+              </a>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://chiahsien.github.io/tag/obsidian/" class="tag">
+                    Obsidian
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/plugin/" class="tag">
+                    Plugin
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/open-source/" class="tag">
+                    Open-Source
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/side-project/" class="tag">
+                    Side-Project
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/productivity/" class="tag">
+                    Productivity
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/tools/" class="tag">
+                    Tools
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/koreader/" class="tag">
+                    KOReader
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/dian-zi-shu/" class="tag">
+                    電子書
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/dian-zi-shu-yue-du-qi/" class="tag">
+                    電子書閱讀器
+                  </a>
+                
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>
