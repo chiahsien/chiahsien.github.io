@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>Nelson/Calibre</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="Nelson/Calibre - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <h1 class="current-tag">標籤: Calibre</h1>
+          
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/calibre-tw-ebook-matadata/">
+            <h1 class="post-title">讓 Calibre 找到繁中書籍的元資料</h1>
+        </a>
+        <div class="post-date">
+            2026-05-02
+        </div>
+        <div class="post-abstract">
+            
+            <h2 id="calibre-什麼都好就是中文書的元資料讓人崩潰">Calibre 什麼都好，就是中文書的元資料讓人崩潰</h2>
+<p>用 Calibre 管理電子書庫的人大概都經歷過這個流程：匯入一本書，點「下載元資料與封面」，然後看著搜尋結果轉圈圈，最後跳出來的不是空白就是一堆不相關的英文書。</p>
+<p>這不是 Calibre 的問題。Calibre 的元資料架構設計得很好，它支援多個來源同時搜尋，讓你挑最完整的那筆。問題在於，內建的來源幾乎都是英文世界的資料庫，找不到繁體中文書。</p>
+<h2 id="現有方案為什麼不夠用">現有方案為什麼不夠用</h2>
+<p>目前 Calibre 內建能用的來源大概就這些：</p>
+<ul>
+<li>
+<p><strong>Google Books</strong> — 偶爾能找到中文書，但資料經常殘缺。簡介只有一兩句、標籤沒有、封面模糊，有時候連作者名字都是拼音。</p>
+</li>
+<li>
+<p><strong>Goodreads</strong> — 繁中書目少得可憐，大部分台灣出版的書根本搜不到。</p>
+</li>
+<li>
+<p><strong>Kobo Metadata Plugin</strong> — 社群有人開發了一個從 Kobo 抓資料的外掛，設定台灣區之後確實能用。不過它不是每次都能找到資料，覆蓋率有限。</p>
+</li>
+</ul>
+<p>有更多適合台灣讀者的來源，總是一件好事。所以我決定自己動手。</p>
+
+            <a href="https://chiahsien.github.io/post/calibre-tw-ebook-matadata/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+
+          <div class="pagination-container">
+  
+  
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

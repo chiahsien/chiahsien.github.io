@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>Repository Design Pattern | Nelson</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="Repository Design Pattern | Nelson - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <div class="post-detail">
+            <h1 class="post-title">Repository Design Pattern</h1>
+            <div class="post-date">2024-04-27</div>
+            
+            <div class="post-content">
+              <h2 id="為何需要-repository-design-pattern">為何需要 Repository Design Pattern</h2>
+<p>在最近參與的專案當中，我們開始導入了 <a href="https://www.geeksforgeeks.org/repository-design-pattern/">Repository Design Pattern</a>，一句話總結它的用途就是「負責處理資料的新增、讀取、更新、刪除 (CRUD) 的角色」，建立這樣一個角色來負責處理資料能帶來什麼好處呢？</p>
+<!-- more -->
+<p>我認為有以下幾點：</p>
+<ul>
+<li>
+<p><strong>隱藏資料存取的細節</strong><br>
+呼叫 Repository 的使用者不需要知道底層是如何存取資料的，可能是透過網路、可能是存在資料庫或是存在檔案系統、可能有加密也可能沒有。這些細節都被 Repository 包起來，未來如果需要調整底層資料的存取方式只要動 Repository 即可，不會影響到使用者。</p>
+</li>
+<li>
+<p><strong>隱藏資料轉換的細節</strong><br>
+有的時候上層使用的資料模型跟底層存取的資料模型可能長得完全不一樣，Repository 可以隱藏這些資料轉換的業務邏輯，讓使用者專心使用資料，不需要費心去處理轉換，如果有很多地方都會用到這些資料，好處會更明顯。哪些情境會遇到資料轉換呢？舉例來說：一個新聞聚合器會有許多不同的新聞來源，它需要將不同來源的新聞轉成一致的新聞格式；做監控軟體的可能會支援多種不同廠牌的鏡頭，它需要將不同廠牌的鏡頭資料轉成一致的鏡頭格式；原始資料來源可能是很底層的硬體資料，需要轉成符合應用層使用的格式。</p>
+</li>
+<li>
+<p><strong>確保單一資料來源</strong><br>
+單一資料來源 (Single source of truth) 在軟體開發領域一再的被提醒，而 Repository 正好能夠套用這句話。套用 Repository Pattern 之後，我們就能要求所有資料存取一律都要透過 Repository，可以避免資料被不預期的修改或是使用不一致的資料。</p>
+</li>
+<li>
+<p><strong>簡化開發心智模型</strong><br>
+導入 Repository Pattern 之後，存取資料相關的程式碼一律都放在 Repository 裡頭，再也不用煩惱要放在哪裡，對開發或維護來說都是一大幫助。</p>
+</li>
+</ul>
+<h2 id="repository-實際應用場景">Repository 實際應用場景</h2>
+<p>在這裡列出幾個常見的應用場景，這些都有實際用於我參與過的專案。</p>
+<ul>
+<li>
+<p><strong>打 API</strong><br>
+Repository 用來存取資料，而資料可以來自網路，所以用來打 API 是很自然的一件事。現在 RESTful API 被很多專案採用，RESTful 的 R 就是 Resource，通常我們可以根據 Resource 建立不同的 Repository。舉例來說，如果是一款天氣預報的應用，就可以建立一個 <code>WeatherRepository</code> 負責打 API 取得天氣資訊並轉成需要的 <code>Weather</code> 資料模型，給應用層使用。</p>
+</li>
+<li>
+<p><strong>存取應用程式的各項設定</strong><br>
+開發過 app 就會知道一款 app 會有許許多多不同的設定：舉例來說，我們可能需要切換到不同的環境 (Production / Staging / Development)，不同的環境就會有不同的設定值（例如不同的網址、不同的 key 等等）。此外，使用者也會有許多的設定需要儲存，像是針對 app 的偏好設置、是否看過某些教學或對話框，如果有支援切換不同使用者，那就會更麻煩。</p>
+</li>
+<li>
+<p><strong>存取硬體相關的功能</strong><br>
+例如存取 NFC、地理位置、相機、藍芽等等硬體相關的功能，為了存取這些硬體功能，除了呼叫相關的系統 API 之外通常還需要處理權限的請求，將它包在 Repository 裡頭會讓使用更方便。</p>
+</li>
+<li>
+<p><strong>一般資料的存取</strong><br>
+如同一開始提到的，使用 Repository 隱藏資料實際的存取方式，使用者不必關心資料是存在資料庫還是存在本地檔案、是明碼還是加密。舉個常見的例子：假設有一款 iOS app 使用 <code>JWT</code> 做為 access token，所以它建立一個 <code>UserTokenRepository</code> 來存取 JWT。開發初期它將 JWT 存到 <code>UserDefaults</code>，後來它發現這樣很危險所以改成存到 <code>Keychain</code>。雖然底下存取的實作改變了，可是外部使用者的存取方式並不會受到影響。</p>
+</li>
+</ul>
+<h2 id="總結">總結</h2>
+<p>以前還沒有導入 Repository Design Pattern 的時候，這些資料存取的行為不是散落在各處導致資料不穩定或程式碼重複出現，不然就是會被歸類到 Manager / Service / Helper / Utility 這類籠統的類別底下。現在只要是跟資料存取有關的行為 (CRUD)，一律放在 Repository 類別，開發變得輕鬆多了。</p>
+<p>Repository 是個可以輕鬆導入的作法，它不會造成程式碼太大的改動，也可以分批導入，非常鼓勵大家試試看！</p>
+
+              <a href="https://www.buymeacoffee.com/chiahsien" target="_blank" rel="noopener noreferrer">
+                <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=chiahsien&button_colour=44414e&font_colour=ffffff&font_family=Comic&outline_colour=ffffff&coffee_colour=FFDD00" />
+              </a>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://chiahsien.github.io/tag/design-pattern/" class="tag">
+                    Design-Pattern
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/clean-code/" class="tag">
+                    Clean-Code
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/architecture/" class="tag">
+                    Architecture
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/swift/" class="tag">
+                    Swift
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/ios/" class="tag">
+                    iOS
+                  </a>
+                
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

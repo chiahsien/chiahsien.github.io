@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>我如何與 AI Agent 協作開發 | Nelson</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="我如何與 AI Agent 協作開發 | Nelson - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <div class="post-detail">
+            <h1 class="post-title">我如何與 AI Agent 協作開發</h1>
+            <div class="post-date">2026-07-29</div>
+            
+            <div class="post-content">
+              <p>我主要工作是 iOS app 開發，現在工作有很大一部分是在終端機裡與 AI agent 協作：研究方案、規劃功能、修改程式碼、分析 crash，最後再由人進行審查與驗收。</p>
+<p>現在的 model 都很強大，真正影響成果的已經不是 prompt 寫得多漂亮，而是能否提供完整 context、把重要知識外部化，並將重複流程工具化。這篇文章會整理我日常工作流程，以及幾個已經實際使用的案例，希望能跟各位交流分享，聽到更多人的使用案例。</p>
+<!-- more -->
+<h2 id="我的主要使用工具">我的主要使用工具</h2>
+<ul>
+<li><a href="https://ghostty.org/download">Ghostty</a>：所有與 agent 的互動都在這裡完成，同時也是日常使用的終端機。</li>
+<li><a href="https://zed.dev/">Zed</a>：單純用來快速瀏覽與修改文件，以及偶爾用來看 diff，我沒有使用它的 AI 功能。</li>
+<li><a href="https://obsidian.md/">Obsidian</a>：保存長期知識、研究報告、執行計畫與工作進度，讓 context 可以跨任務延續。</li>
+<li><a href="https://fork.dev/">Fork</a>：處理 branch 操作、整理 commits，以及檢查 agent 產生的 diff。</li>
+<li>Xcode：負責快速跳轉程式碼、編譯、測試、除錯、效能分析，以及最後跑模擬器人工驗收。</li>
+</ul>
+<h2 id="context-就是一切">Context 就是一切</h2>
+<p>Agent 的能力再強，也只能根據當下拿到的資訊做判斷。Context window 有限，對話也不應該成為知識唯一的存放地。因此，重要的決策、研究結果與執行進度，都需要離開對話視窗，成為可以長期查閱的文件。</p>
+<p>我使用 Obsidian 管理這些資料，主要分成兩類。</p>
+<p>第一類是以 LLM Wiki 概念整理的長期知識，例如架構選型、常用 design pattern 與團隊已經做過的技術決策。Agent 執行任務前可以先讀取相關內容，不必每次重新解釋背景，也比較不容易做出違背既有共識的修改。</p>
+<p>第二類是 agent 在工作過程中產生的報告、計畫與研究資料。我會按照「報告、計畫、執行中、已完成」等狀態管理，並隨進度手動移動文件。這些記錄不只保存結論，也讓中斷的任務可以快速恢復。</p>
+<p>資料外部化的價值，不只是節省下一次對話的 token。它把零散的協作過程變成可累積、可審查，也能持續修正的團隊知識。</p>
+<h2 id="可重複的功能開發流程">可重複的功能開發流程</h2>
+<p>我在處理一項開發任務的時候，大致會經過以下流程：</p>
+<ol>
+<li>提供 context</li>
+<li>說明 spec</li>
+<li>定義 goal</li>
+<li>逐題釐清問題</li>
+<li>制定計畫並拆分階段</li>
+<li>實作與驗證</li>
+<li>人工審查與驗收</li>
+</ol>
+<h3 id="1-提供-context">1. 提供 context</h3>
+<p>先說明目前的狀況，以及接下來打算做什麼。必要時會要求 agent 讀取 Wiki、過去的研究報告與相關程式碼。越早補齊真正影響判斷的背景，後面就越少來回修正。</p>
+<p>Context 不是把所有資料一次丟進對話，而是提供完成眼前決策所需的資訊。其他內容只要保持可查詢即可，讓 agent 在需要時再取得。</p>
+<h3 id="2-說明-spec">2. 說明 spec</h3>
+<p>接著列出已知限制與具體需求，例如需要串接哪些 API、畫面對應的 Figma URL、預計修改哪些檔案，以及可以使用哪些工具。</p>
+<p>這一步的目的，是縮小解法空間。Agent 如果不知道邊界，就容易花時間探索不相關的方向，甚至做出看似合理、實際上不符合專案條件的實作。</p>
+<h3 id="3-定義-goal">3. 定義 goal</h3>
+<p>Goal 要描述最後必須交付什麼，以及什麼狀態才算完成。除了功能本身，也可以要求先提供執行計畫或 commit 順序，讓工作範圍與驗收方式在動手前就清楚。</p>
+<h3 id="4-一次只釐清一個問題">4. 一次只釐清一個問題</h3>
+<p>我通常會加上一句 <code>clarify all questions one at a time</code>，要求 agent 每次只問一題。</p>
+<p>一次列出十個問題看似有效率，但後面的問題經常建立在尚未確認的假設上。第一個答案可能就會改變後續方向，讓剩下的問題失去意義。</p>
+<p>逐題回答也方便隨時修正先前的說法。這讓釐清需求更像共同推進的訪談，而不是一次填完一份可能問錯方向的問卷。</p>
+<h3 id="5-把大工作拆小">5. 把大工作拆小</h3>
+<p>需求確認後，再將大工作拆成容易處理的小工作或小階段。每一段的範圍要足以獨立理解與驗收，避免 agent 長時間執行後，才發現整體方向已經偏離。</p>
+<p>拆分方式沒有唯一答案。依賴順序、是否能獨立交付、風險高低、能否快速達成，以及工作量是否容易控制，都可能是考量因素。</p>
+<p>Agent 可以提出幾種拆法並比較優缺點，人再根據實際限制做最後決定。這個討論本身，通常比直接接受第一份計畫更有價值。</p>
+<h3 id="6-實作與驗證">6. 實作與驗證</h3>
+<p>每個小工作完成後，agent 必須確保 build 與 unit test 通過。</p>
+<h3 id="7-人工完成最後驗收">7. 人工完成最後驗收</h3>
+<p>自動驗證通過不代表工作已經完成。我仍會檢查 diff、實際操作功能，再決定是否接受結果。Agent 負責加速執行，人則負責判斷修改是否符合需求，以及整體體驗是否合理。</p>
+<h2 id="節省-token但不犧牲品質">節省 token，但不犧牲品質</h2>
+<p>節省 token 的重點不是單純要求 agent 少說話，而是減少不必要的輸入、輸出與重複探索。</p>
+<ul>
+<li><a href="https://github.com/colbymchenry/codegraph">codegraph</a> 預先分析程式碼關係，agent 可以快速查詢，不必每次從大量檔案中慢慢尋找。</li>
+<li><a href="https://github.com/rtk-ai/rtk">rtk</a> 精簡常用指令的輸出，只保留 agent 真正需要處理的資訊。</li>
+<li><a href="https://github.com/juliusbrussee/caveman">caveman</a> 或 <a href="https://github.com/ayghri/i-have-adhd">i-have-adhd</a> skill 減少回應中的贅詞，讓對話聚焦在決策與下一步。</li>
+<li><a href="https://github.com/ldomaradzki/xcsift">xcsift</a> 大幅精簡 <code>swift</code> 與 <code>xcodebuild</code> 的輸出，避免大量低價值 log 佔用 context。</li>
+</ul>
+<p>我也習慣用英文與 agent 對談，但不花時間追求文法完美。agent 的語言容錯率很高，明確的目標、限制與驗收條件，比文法是否更重要。</p>
+<p>另一個更重要的原則是：可以用工具穩定處理的事情，就不要每次都交給 agent 臨場完成。</p>
+<p>例如使用 parser 處理特定資料、使用 codegen 產生程式碼，這不但節省 token，也比反覆要求 agent 轉換大量內容更穩定、更容易驗證。Agent 最有價值的地方是處理需要理解與判斷的工作；固定且可重現的轉換，應該交給程式。</p>
+<h2 id="善用-skills但不要盲目新增">善用 Skills，但不要盲目新增</h2>
+<p>Skill 的價值，是把反覆使用而且需要判斷的工作流程保存下來。只要某項工作會一再出現，而且每次都有相似的步驟、輸入與驗收方式，就值得考慮整理成 skill。</p>
+<p>但 skill 貴精不貴多。內容過多、彼此重疊或缺少明確用途，只會讓 agent 更難判斷該遵循哪一套流程。每個 skill 都應該有清楚的觸發條件、工作步驟與完成標準。</p>
+<p>反過來說，如果流程是「固定輸入 → 固定輸出」，通常應該寫成 script，而不是 markdown。Parser、formatter 與 code generator 都屬於這一類。Script 可以重複執行與測試，也不必每次重新消耗模型推理。</p>
+<p>如果想進一步了解 skill 的設計方式，非常推薦閱讀 <a href="https://blog.aihao.tw/2026/07/25/mattpocock-skills-design-philosophy/">Matt Pocock 的 Agent Skill 設計哲學</a>。</p>
+<h2 id="實際使用案例">實際使用案例</h2>
+<p>前面的原則不只用在寫程式。只要工作包含大量資訊、重複步驟或需要比較多種可能性，都可能適合讓 agent 參與。底下列出幾個我運用 AI agent 的實際案例：</p>
+<h3 id="各種功能開發">各種功能開發</h3>
+<p>功能開發最適合套用完整流程：先提供 context、spec 與 goal，再讓 agent 逐題釐清，接著共同拆分工作、逐段實作與驗證。</p>
+<p>其中最重要的不是讓 agent 一次完成整個功能，而是建立足夠短的回饋循環。小階段容易發現方向錯誤，也能讓每次 diff、build、unit test 與人工操作都維持在可掌握的範圍。</p>
+<p>Agent 完成實作和自動驗證後，人仍要閱讀修改內容並操作功能。這個流程不是追求無人開發，而是把人的時間從重複執行移到需求判斷、風險取捨與品質驗收。</p>
+<h3 id="新點子的前期研究">新點子的前期研究</h3>
+<p>開始一項較大的技術工作前，我會讓 agent 大量收集官方文件、開源專案、技術文章，以及 issue 與討論區中的經驗。</p>
+<p>蒐集只是第一步。Agent 還需要附上來源、交叉比對不同說法，並把事實與推論整理成可審查的結論。人再檢查來源與判斷是否適用於目前的程式碼和限制。</p>
+<p>接著，可以讓 agent 根據研究結果比對現有程式碼，一起腦力激盪，列出幾個可行方案、各自的前置準備與取捨。最後將結果寫成報告，存回 Obsidian，成為後續規劃的 context。</p>
+<p>這種做法特別適合資訊散落在不同來源的問題。Agent 能擴大搜尋範圍，人類負責最終的決策。</p>
+<h3 id="半自動化-design-system-color-token">半自動化 Design System Color Token</h3>
+<p>這個案例原本的痛點，是設計師在 Figma 定義的顏色變數與各平台程式碼不同步，這個問題困擾好長一段時間了。雖然 Figma 有支援 MCP，工程師可以叫 agent 去讀取然後再轉成程式碼，但過程耗時、消耗 token，而且不保證每次都產生完全相同的結果。</p>
+<p>後來我找到一個流程：</p>
+<ol>
+<li>先從 Figma 匯出 JSON。</li>
+<li>讓 AI 協助撰寫 parser，將充滿雜訊的 JSON 轉成乾淨的 YAML。</li>
+<li>各平台根據同一份 YAML，使用平台個別的 codegen 產生程式碼。</li>
+</ol>
+<p>AI 在這裡負責建立工具，而不是每次親自轉換資料。完成後，color token 與平台程式碼能維持一致；需要大量修正時也可以一次產生，不容易遺漏。各平台仍能依自己的程式碼需求實作 generator，同時共享同一份來源。</p>
+<h3 id="app-crash-分析">App Crash 分析</h3>
+<p>Crash 分析流程會先讀取從 Crashlytics 下載的 stack trace logs，再列出各種可能成因與解法，並依信心程度排序。</p>
+<p>排序很重要，因為一份 stack trace 往往不足以直接證明唯一原因。Agent 的任務不是武斷地給出答案，而是擴大假設範圍、整理證據，並指出應該先驗證哪一條路徑。</p>
+<p>分析結果會寫成固定格式的報告並存入 Obsidian，我也將這個流程寫成 skill 供後續重複使用。這讓團隊能更快定位原因、降低遺漏可能性、加速重現與修正，同時維持一致的報告品質。</p>
+<h3 id="建立-working-log">建立 Working Log</h3>
+<p>當一天大部分時間都在與 agent 協作，對話紀錄本身就包含許多工作軌跡。Agent 可以讀取當天所有對話，提煉出完成事項、決策與後續工作，形成每日工作日誌。</p>
+<p>工作日誌可以繼續整理成雙週報、季報、績效報告，甚至轉化為履歷素材。不過對話不一定包含完整背景，agent 也可能錯誤理解工作的價值，因此每天的結果仍需要人工檢查與調整。</p>
+<p>這套流程同樣適合寫成 skill，讓整理格式與步驟保持一致。它讓回顧與彙整散落紀錄的成本低到可以忽略，讓人願意每次都執行。</p>
+<h3 id="中長期進度規劃">中長期進度規劃</h3>
+<p>通常我會選定一個目標或題目，讓 agent 蒐集目前網路上的最佳實踐與踩坑紀錄，再與現有程式碼比對，一起討論做與不做的優缺點。</p>
+<p>接著根據實際條件拆分階段。依賴順序、獨立交付能力、風險、quick win 與工作量，都可能影響優先順序。</p>
+<p>Agent 可以提出不同方案並協助展開後果，但最後仍由人判斷取捨。確認後，再把各階段目標與待辦事項寫成報告存到 Obsidian，作為後續執行與調整的依據。</p>
+<h2 id="human-in-the-loop">Human in the loop</h2>
+<p>在這套工作方式裡，人並不是等 agent 做完所有事情後才出現。從補充 context、回答釐清問題、選擇計畫，到檢查 diff 與操作驗收，人一直都在回饋循環裡。</p>
+<p>Agent 擅長快速讀取資料、探索可能性、執行明確任務與維持重複流程；人則掌握沒有完整寫進文件的限制，也必須為優先順序、風險與最終品質負責。</p>
+<p>Human in the loop 的價值，不只是防止 agent 犯錯。更重要的是，許多開發決策沒有唯一正解。Agent 可以把選項與代價攤開，但什麼最適合當下，仍需要人根據目標做判斷。</p>
+<h2 id="建立自己的協作系統">建立自己的協作系統</h2>
+<p>有效的 AI 協作，不是找到一句萬用 prompt，也不是把所有工作都交給 agent。更可靠的做法，是持續改善三件事：提供足夠的 context、把重要知識外部化，以及將重複流程交給 skill 或工具。</p>
+<p>每個人的專案、工具與限制都不同，不需要完整複製另一套工作流。希望這些實際案例能提供一些組合方式，讓你建立適合自己的 AI 協作系統。</p>
+
+              <a href="https://www.buymeacoffee.com/chiahsien" target="_blank" rel="noopener noreferrer">
+                <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=chiahsien&button_colour=44414e&font_colour=ffffff&font_family=Comic&outline_colour=ffffff&coffee_colour=FFDD00" />
+              </a>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://chiahsien.github.io/tag/ai/" class="tag">
+                    AI
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/obsidian/" class="tag">
+                    Obsidian
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/development/" class="tag">
+                    Development
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/ios/" class="tag">
+                    iOS
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/work-flow/" class="tag">
+                    WorkFlow
+                  </a>
+                
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

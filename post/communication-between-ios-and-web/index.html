@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>簡介 iOS Native 與 Web 的互動方式 | Nelson</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="簡介 iOS Native 與 Web 的互動方式 | Nelson - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <div class="post-detail">
+            <h1 class="post-title">簡介 iOS Native 與 Web 的互動方式</h1>
+            <div class="post-date">2022-04-03</div>
+            
+            <div class="post-content">
+              <p>有的時候一些跨平台共用的頁面會使用網頁的方式打造，在 iOS 的世界裡我們可以使用 <code>WKWebView</code> 呈現網頁內容，除了單純的呈現之外，彼此的互動也是不可或缺的一環。這篇文章將會簡單介紹該如何達成網頁與 iOS 原生程式碼之間的雙向溝通。</p>
+<!-- more -->
+<h2 id="如何從-web-呼叫-native-的函式">如何從 Web 呼叫 Native 的函式</h2>
+<p>我們事先要約定好可被呼叫的函式名稱，以及可接受的參數格式，然後在 Web 呼叫 Javascript 程式如下：</p>
+<pre><code class="language-swift">window.webkit.messageHandlers.myAwesomeHandler.postMessage({
+    param1: &quot;value1&quot;,
+    param2: &quot;value2&quot;
+})
+</code></pre>
+<p>根據蘋果官方文件的說明，可被呼叫的函式都要放在 <code>window.webkit.messageHandlers</code> 物件底下，其中 <code>myAwesomeHandler</code> 是雙方約定好的函式名稱，<code>postMessage</code> 要傳的則是約定好的參數格式，最常見的格式就是 <code>JSON Object</code> 跟 <code>String</code>。</p>
+<h2 id="如何在-native-回應-web-的呼叫">如何在 Native 回應 Web 的呼叫</h2>
+<p>上一段提到 Web 要呼叫的 handler 是雙方約定好的函式名稱，我們可以像這樣列舉所有支援的 handlers：</p>
+<pre><code class="language-swift">private enum WebMessageHandler: String, CaseIterable {
+    case myAwesomeHandler
+    case iapHandler
+    case closeHandler
+}
+</code></pre>
+<p>假設我們自訂一個 <code>UIViewController</code> 來顯示 <code>WKWebView</code>，在 <code>viewDidLoad()</code> 裡頭可用以下做法告訴 webView 有哪些 message handlers 能夠被呼叫：</p>
+<pre><code class="language-swift">let configuration = WKWebViewConfiguration()
+for handler in WebMessageHandler.allCases {
+    configuration.userContentController.add(self, name: handler.rawValue)
+}
+webView = WKWebView(frame: .zero, configuration: configuration)
+view.addSubview(webView)
+</code></pre>
+<p>另外要注意的是，因為 <code>userContentController</code> 會持有 message handler，所以要記得在適當時機呼叫 <code>removeScriptMessageHandler(forName name: String)</code>，這樣才不會產生 retain-cycle 造成 memory leak。或者也可以參考<a href="https://stackoverflow.com/questions/26383031/wkwebview-causes-my-view-controller-to-leak">這個 stack overflow 的討論</a>使用其他方法解決。</p>
+<blockquote>
+<p>Note:</p>
+<p>除了列出所有會用到的函式之外，還有另一種作法是只約定一個函式，再根據傳過來的參數判斷要作什麼事情。</p>
+</blockquote>
+<p>別忘了在我們自訂的 <code>UIViewController</code> 要遵守 <code>WKScriptMessageHandler</code> 協定，這樣才能回應 Web 的請求：</p>
+<pre><code class="language-swift">extension MyUIViewController: WKScriptMessageHandler {
+    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+        guard let handler = WebMessageHandler(rawValue: message.name) else { return }
+        switch handler {
+        case .myAwesomeHandler:
+            guard let dict = message.body as? [String: Any],
+                let param1 = dict[&quot;param1&quot;] as? String,
+                let param2 = dict[&quot;param2&quot;] as? String else {
+                    return
+                }
+            // Do some awesome stuff.
+        case .iapHandler:
+            // Open IAP page.
+        case .closeHandler:
+            // Close the web view.
+        }
+    }
+}
+</code></pre>
+<h2 id="如何從-native-呼叫-web-的函式">如何從 Native 呼叫 Web 的函式</h2>
+<p>當我們處理完畢 Web 的請求之後，要如何把結果傳回去呢？一個很常見的作法是透過 JSON String，它的程式碼大致上像這樣：</p>
+<pre><code class="language-swift">let data: [String: Any] = [
+    &quot;type&quot;: &quot;userInfo&quot;,
+    &quot;value&quot;: [
+        &quot;name&quot;: &quot;John Appleseed&quot;,
+        &quot;id&quot;: &quot;johnappleseed12345678&quot;
+    ]
+]
+
+guard let json = try? JSONSerialization.data(withJSONObject: data, options: [.withoutEscapingSlashes]),
+      let jsonString = String(data: json, encoding: .utf8)
+else {
+    return
+}
+
+let javascript = &quot;window.actions.MessageFromNative('\(jsonString)')&quot;
+webView.evaluateJavaScript(javascript, completionHandler: nil)
+</code></pre>
+<p>其中 <code>window.actions.MessageFromNative()</code> 是雙方事先約定好在 Web 端要實作的 Javascript 函式，如此一來 Native 只要把資料轉成 JSON String 再傳過去即可，當然 JSON 的格式也是事先約定好的。</p>
+<blockquote>
+<p>Note:</p>
+<p>如果是傳 JSON String 的話，很有可能需要開啟 <code>.withoutEscapingSlashes</code> 設定，這樣對方才不會收到反斜線跳脫字元。</p>
+<p>除了 <code>JSONSerialization</code> 也可以用 <code>JSONEncoder</code>，挑適合自己情境的來使用即可。</p>
+</blockquote>
+<p>以上簡單的說明了 Native Code 跟 Web 之間的交互過程，以此為基礎再加上一些創造力，就可以玩出很多花樣了！</p>
+
+              <a href="https://www.buymeacoffee.com/chiahsien" target="_blank" rel="noopener noreferrer">
+                <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=chiahsien&button_colour=44414e&font_colour=ffffff&font_family=Comic&outline_colour=ffffff&coffee_colour=FFDD00" />
+              </a>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://chiahsien.github.io/tag/mobile/" class="tag">
+                    Mobile
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/javascript/" class="tag">
+                    JavaScript
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/web/" class="tag">
+                    Web
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/swift/" class="tag">
+                    Swift
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/ios/" class="tag">
+                    iOS
+                  </a>
+                
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

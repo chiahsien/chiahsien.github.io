@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>為何 Startup 不該用 Swift | Nelson</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="為何 Startup 不該用 Swift | Nelson - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <div class="post-detail">
+            <h1 class="post-title">為何 Startup 不該用 Swift</h1>
+            <div class="post-date">2016-10-07</div>
+            
+            <div class="post-content">
+              <p>最近跟朋友聊天，聊到說我不建議 startup 使用 Swift 開發 app，趁著有空紀錄一下為何我會這麼說。</p>
+<p>還是得先聲明一下，Swift 是一個很酷的語言，我沒有不喜歡它，只是站在公司的角度，我認為 startup 不應該使用 Swift 開發它們的主力產品，而是應該用 Objective-C。</p>
+<p>主要是因為以下幾點理由：</p>
+<!-- more -->
+<h2 id="swift-還不穩定">Swift 還不穩定</h2>
+<p>Swift 是一個很新的語言，大家都還在摸索怎樣才是 best practice，但它同時也是一個快速成長與變化的語言，可能去年的 best practice 今年就不適用了。此外它也是一個尚未穩定的語言，在 ABI 穩定之前還有很多變數，更別說它還有不少事情辦不到，需要跟 Objective-C 一起混用才能完成。</p>
+<p>身為 iOS 開發者，每年都要為了升級 iOS 跟 Xcode 花一番心力。如果選擇用 Swift，那就得多花時間來處理 Swift 版本升級，甚至還要處理第三方套件因為升級而無法使用的問題。這是可以避免的，你只要一開始使用 Objective-C 開發即可。</p>
+<p>對 startup 來說時間特別寶貴，我認為把時間花在升級 Swift 並不值得，更別說還得承擔升級之後 app 壞掉的風險。</p>
+<h2 id="將有經驗的工程師拒於門外">將有經驗的工程師拒於門外</h2>
+<p>如果工程師只會 Swift 不會 Objecitve-C，代表他的 iOS 開發資歷可能不是很久，如果使用 Objecitve-C 開發，至少可以確保找來的工程師經驗會多一點，對 startup 來說找到有經驗的人是很重要的事（雖然通常很難...）</p>
+<p>也有一些有經驗的工程師因為種種原因還沒深入學習 Swift，如果哪天公司跟這樣的工程師搭上線，卻因為對方不熟 Swift 所以無法提供更多有用的建議給你，這樣不是很可惜嗎？</p>
+<h2 id="objective-c-沒有不好">Objective-C 沒有不好</h2>
+<p>如果你的公司裡頭有工程師提議要用 Swift 開發，理由是因為「Swift 很潮、想玩玩看」，那你們公司可能找了一位只想追求新技術的人。</p>
+<p>使用新技術沒有不好，但要有充分的理由，你開公司找人來上班不是為了實驗新技術的。Objective-C 很成熟，無論是 best practice 或是資源都很完整，沒有什麼理由不用它。</p>
+<hr>
+<p>以上都是站在 startup 的角度來說明為何不要用 Swift 開發主力產品，如果你們是一個大公司，或者工程團隊有強者坐鎮，或者你只是想寫個 side project 玩玩看，當然就無所謂。</p>
+
+              <a href="https://www.buymeacoffee.com/chiahsien" target="_blank" rel="noopener noreferrer">
+                <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=chiahsien&button_colour=44414e&font_colour=ffffff&font_family=Comic&outline_colour=ffffff&coffee_colour=FFDD00" />
+              </a>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://chiahsien.github.io/tag/product/" class="tag">
+                    Product
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/startup/" class="tag">
+                    Startup
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/objective-c/" class="tag">
+                    Objective-C
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/swift/" class="tag">
+                    Swift
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/ios/" class="tag">
+                    iOS
+                  </a>
+                
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

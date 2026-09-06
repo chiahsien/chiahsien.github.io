@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>整合 Unity 到 SwiftUI App | Nelson</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="整合 Unity 到 SwiftUI App | Nelson - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <div class="post-detail">
+            <h1 class="post-title">整合 Unity 到 SwiftUI App</h1>
+            <div class="post-date">2021-08-03</div>
+            
+            <div class="post-content">
+              <p>最近剛好有機會要整合 Unity 到 SwiftUI 開發的 app 裡頭，整個過程不算難，但是蠻繁瑣的。網路上的資料絕大部分都是跟 Objective-C / UIKit 的整合，比較少 Swift / SwiftUi 相關資料，所以趁著記憶猶新的時候把它記錄下來，希望可以幫助到其他人以及未來的自己。</p>
+<p>從 Unity 2019.4 的版本開始，它提供了 UaaL (Unity as a Library) 功能，可以把 Unity 專案匯出成 framework 讓其他程式使用，開啟了原生平台與 Unity 互動的更多可能性。你可以只用 Unity 開發遊戲或其他精美畫面的部分，剩下的則是使用原生平台（例如 iOS 或 Android）開發。</p>
+<p>我使用的開發環境是 <code>Xcode 12.5</code> + <code>Unity 2020.3.15f2 LTS</code>，預期達成以下目標：</p>
+<ol>
+<li>在 SwiftUI 顯示 Unity 的畫面</li>
+<li>iOS 跟 Unity 可以雙向傳遞訊息</li>
+</ol>
+<p>先附上 <a href="https://github.com/chiahsien/UnityInSwiftUI">sample code</a>。這篇文章會有大量程式碼，也會假設你對 Xcode 跟 Unity 的操作有基本的認知，廢話不多說，讓我們開始吧！</p>
+<!-- more -->
+<h2 id="基本的整合">基本的整合</h2>
+<p>首先，利用 Xcode 建立一個 SwiftUI App，然後透過 <code>File -&gt; Save as Workspace</code> 把他轉成 workspace，這樣才方便之後將 Unity project 整合進來。</p>
+<p>然後用 Unity Hub 建立一個 Unity 專案，並透過 <code>File -&gt; Build Settings</code> 把專案導出成 Xcode project，為了方便起見，我把導出的結果放在 SwiftUI App 專案根目錄底下的 UnityExport 目錄。</p>
+<figure data-type="image" tabindex="1"><img src="https://chiahsien.github.io/post-images/1627970394569.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="2"><img src="https://chiahsien.github.io/post-images/1627970424993.png" alt="" loading="lazy"></figure>
+<p>導出成功之後，把 Unity-iPhone.xcodeproj 拉到剛才建立的 workspace 裡頭，並把 Location 設為 Relative to Workspace。</p>
+<figure data-type="image" tabindex="3"><img src="https://chiahsien.github.io/post-images/1627970555924.png" alt="" loading="lazy"></figure>
+<p>然後選擇 Unity-iPhone project 底下的 Data 目錄，在 Target Membership 的地方勾選 UnityFramework。</p>
+<figure data-type="image" tabindex="4"><img src="https://chiahsien.github.io/post-images/1627970649184.png" alt="" loading="lazy"></figure>
+<p>接下來回到我們的 SwiftUI project 並選擇我們的 target，在 <code>General -&gt; Frameworks, Libraries, and Embedded Content</code> 加入 <code>UnityFramework.framework</code>。</p>
+<figure data-type="image" tabindex="5"><img src="https://chiahsien.github.io/post-images/1627970767818.png" alt="" loading="lazy"></figure>
+<p>然後去 <code>Build Phases -&gt; Link Binary With Libraries</code> 把 <code>UnityFramework.framework</code> 移除。</p>
+<figure data-type="image" tabindex="6"><img src="https://chiahsien.github.io/post-images/1627970926301.png" alt="" loading="lazy"></figure>
+<p>這樣子基本的專案設定就完成了，接下來我們建立一個 <code>UnityManager.swift</code> 來管理 Unity，這裡沒有什麼特別的，就是啟動 Unity 而已。</p>
+<pre><code class="language-swift">import Foundation
+import UnityFramework
+
+final class UnityManager: UIResponder, UIApplicationDelegate {
+    static let shared = UnityManager()
+
+    /// UnityFramework instance
+    private var unityFramework: UnityFramework?
+
+    var unityView: UIView? {
+        return unityFramework?.appController().rootView
+    }
+
+    /// Loads the Unity framework
+    func load() {
+        let ufw = loadUnityFramework()
+        ufw.setDataBundleId(&quot;com.unity3d.framework&quot;)
+        ufw.register(self)
+        ufw.runEmbedded(withArgc: CommandLine.argc, argv: CommandLine.unsafeArgv, appLaunchOpts: nil)
+        unityFramework = ufw
+    }
+
+    /// Unloads the Unity framework
+    ///
+    /// ## Notes
+    /// - Unloading isn't synchronous, and this object will be notified in the `unityDidUnload` method
+    func unload() {
+        unityFramework?.unloadApplication()
+    }
+}
+
+extension UnityManager: UnityFrameworkListener {
+    /// Triggered by Unity via `UnityFrameworkListener` when the framework unloaded
+    func unityDidUnload(_: Notification!) {
+        unityFramework?.unregisterFrameworkListener(self)
+        unityFramework = nil
+    }
+}
+
+private extension UnityManager {
+    /// Loads the UnityFramework from the bundle path
+    ///
+    /// - Returns: The UnityFramework instance
+    func loadUnityFramework() -&gt; UnityFramework {
+        let bundlePath: String = Bundle.main.bundlePath + &quot;/Frameworks/UnityFramework.framework&quot;
+        guard let bundle = Bundle(path: bundlePath) else {
+            fatalError(&quot;Fail to find UnityFramework.framework bundle.&quot;)
+        }
+
+        if !bundle.isLoaded {
+            bundle.load()
+        }
+
+        guard let ufw = bundle.principalClass?.getInstance() else {
+            fatalError(&quot;Fail to load UnityFramework.&quot;)
+        }
+
+        if ufw.appController() == nil {
+            let machineHeader = UnsafeMutablePointer&lt;MachHeader&gt;.allocate(capacity: 1)
+            machineHeader.pointee = _mh_execute_header
+            ufw.setExecuteHeader(machineHeader)
+        }
+        return ufw
+    }
+}
+</code></pre>
+<p>我們可以建立一個 <code>UnityView.swift</code> 來啟動 Unity project，並且可以在 SwiftUI 裡頭顯示。</p>
+<pre><code class="language-swift">import SwiftUI
+
+struct UnityView: UIViewRepresentable {
+    typealias UIViewType = UIView
+
+    func makeUIView(context: Context) -&gt; UIView {
+        let rootView = UIView()
+        UnityManager.shared.load()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            guard let unityView = UnityManager.shared.unityView else {
+                fatalError(&quot;Unity rootView is not ready.&quot;)
+            }
+            rootView.addSubview(unityView)
+        }
+        return rootView
+    }
+
+    func updateUIView(_ uiView: UIView, context: Context) {
+        // Do nothing.
+    }
+}
+</code></pre>
+<p>現在我們就可以在實機執行看看了，實際跑起來的時候，會發現以下的錯誤：</p>
+<p><code>Assertion failed: (launchScreen != nil &amp;&amp; @&quot;UILaunchStoryboardName key is missing from info.plist&quot;) ...</code></p>
+<p>這是因為 Unity 會去找 Launch Screen 的關係，而新版的 Xcode 專案已經不會自動產生 Launch Screen 了，我們只要手動新增一個 Launch Screen 檔就可以解決這個錯誤。</p>
+<p>在上頭的 <code>UnityView</code> 你會發現有一個 <code>asyncAfter()</code>，這是因為要等待 Unity 建立畫面所以刻意的一個 delay。可是這樣並不是一個好的作法，如果可以讓 Unity 在建立好畫面之後主動通知我們就好了。</p>
+<p>為了完成這樣的溝通，我們需要在 Unity 建立給 iOS 用的 Plugin。</p>
+<h2 id="雙向的溝通">雙向的溝通</h2>
+<h3 id="unity-端">Unity 端</h3>
+<p>Plugin 是 Unity 跟 Native iOS 溝通的橋樑，Unity 透過 C# Script 跟 Plugin 溝通，iOS 當然是用 Swift 跟 Plugin 溝通。</p>
+<p>首先在 Unity Project 底下建立 <code>Assets/Plugins/iOS</code> 的目錄結構，並新增 <code>NativeCallProxy.h</code> 跟 <code>NativeCallProxy.mm</code> 兩個檔案，它的用途是要建立兩支 API，分別可以收送字串訊息。檔案內容如下：</p>
+<pre><code class="language-objc">//
+// NativeCallProxy.h
+//
+#import &lt;Foundation/Foundation.h&gt;
+
+typedef void (*StringCallback)(const char* value);
+
+@protocol NativeCallsProtocol
+@required
+#pragma mark - Unity to App Callbacks
+- (void)unitySendStringToHost:(NSString *)string;
+
+#pragma mark - App to Unity Callbacks
+- (void)unitySetStringCallback:(StringCallback)callback;
+@end
+
+__attribute__ ((visibility(&quot;default&quot;)))
+@interface FrameworkLibAPI : NSObject
+// Call it any time after `UnityFrameworkLoad` to set object implementing NativeCallsProtocol methods.
++ (void)registerAPIforNativeCalls:(id&lt;NativeCallsProtocol&gt;)aApi;
+@end
+
+//
+// NativeCallProxy.mm
+//
+
+#import &lt;Foundation/Foundation.h&gt;
+#import &quot;NativeCallProxy.h&quot;
+
+@implementation FrameworkLibAPI
+
+id&lt;NativeCallsProtocol&gt; api = NULL;
++ (void)registerAPIforNativeCalls:(id&lt;NativeCallsProtocol&gt;)aApi
+{
+    api = aApi;
+}
+
+@end
+
+extern &quot;C&quot;
+{
+    /// Functions listed here are available to Unity. When called,
+    /// they forward the call to the `api` delegate.
+    ///
+    /// We should also perform data transformation here, from
+    /// C data struct to Objective-C **if needed**.
+
+    void sendStringToHost(const char* string)
+    {
+        return [api unitySendStringToHost:@(string)];
+    }
+
+    void setStringCallback(StringCallback callback)
+    {
+        return [api unitySetStringCallback:callback];
+    }
+}
+</code></pre>
+<p>然後在 <code>Assets/Scripts</code> 底下建立一個 <code>BridgingAPI.cs</code> 檔案，它的目的是作為 Unity 端統一收送訊息的角色，其他物件可以透過它送訊息出去，它也要負責將收到的訊息分派給負責的物件。內容如下：</p>
+<pre><code class="language-csharp">using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using UnityEngine.UI;
+using UnityEngine;
+using AOT;
+
+/// &lt;summary&gt;
+/// C-API exposed by the Host, i.e., Unity -&gt; Host API.
+/// &lt;/summary&gt;
+public class HostNativeAPI {
+    public delegate void StringCallback(string value);
+
+    [DllImport(&quot;__Internal&quot;)]
+    public static extern void sendStringToHost(string value);
+
+    [DllImport(&quot;__Internal&quot;)]
+    public static extern void setStringCallback(StringCallback cb);
+}
+
+/// &lt;summary&gt;
+/// C-API exposed by Unity, i.e., Host -&gt; Unity API.
+/// &lt;/summary&gt;
+public class UnityNativeAPI {
+    [MonoPInvokeCallback(typeof(HostNativeAPI.StringCallback))]
+    public static void stringCallback(string value) {
+        Debug.Log(&quot;This static function has been called from iOS!&quot;);
+        Debug.Log(value);
+    }
+}
+</code></pre>
+<p>以上就完成 Unity 端訊息收送的設定了，那要怎麼使用呢？舉例來說，如果我們希望 Unity 載入完成之後可以送出一個通知的話，我們可以這樣做。首先新增一個 <code>DummyBehaviourScript.cs</code></p>
+<pre><code class="language-csharp">using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class DummyBehaviourScript : MonoBehaviour
+{
+    // Start is called before the first frame update
+    void Start()
+    {
+#if UNITY_IOS
+        HostNativeAPI.setStringCallback(UnityNativeAPI.stringCallback);
+        HostNativeAPI.sendStringToHost(&quot;ready&quot;);
+#endif
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+    }
+}
+</code></pre>
+<p>然後在 Unity 當前的 Scene 建立一個 Empty GameObject，然後把剛剛建立的 <code>DummyBehaviourScript.cs</code> 設為它的 component。如此一來這個 Empty GameObject 載入完成之後就會送出一道 <code>ready</code> 字串。</p>
+<p>做完以上設定記得存檔，再一次我們用 <code>File -&gt; Build Settings</code> 把 Unity 匯出成 iOS Project，因為我們一開始就有匯出過，所以它會詢問我們要怎麼做，我們選擇 Append。</p>
+<figure data-type="image" tabindex="7"><img src="https://chiahsien.github.io/post-images/1627977986957.png" alt="" loading="lazy"></figure>
+<h3 id="xcode-端">Xcode 端</h3>
+<p>現在回到 Xcode，展開 Unity-iPhone project，在 Libraries/Plugins/iOS 底下點選 NativeCallProxy.h，並且把它的 Target Membership 加上 UnityFramework 並設為 Public。</p>
+<figure data-type="image" tabindex="8"><img src="https://chiahsien.github.io/post-images/1627978211365.png" alt="" loading="lazy"></figure>
+<p>然後在 SwiftUI Project 新增一個 Bridging-Header.h，並加入以下這行，就可以讓 Swift 看到 <code>NativeCallProxy</code> 了：</p>
+<pre><code class="language-c">#import &lt;UnityFramework/NativeCallProxy.h&gt;
+</code></pre>
+<p>現在回到先前建立的 <code>UnityManager.swift</code>，加入以下的程式碼，讓它可以收到 Unity 送來的訊息，也可以發送訊息給 Unity：</p>
+<pre><code class="language-swift">final class UnityManager: UIResponder, UIApplicationDelegate {
+...
+    private var unityStringCallback: StringCallback?
+    var onReceiveMessage: ((String) -&gt; ())?
+...
+    /// Loads the Unity framework
+    func load() {
+        ...
+        FrameworkLibAPI.registerAPIforNativeCalls(self)
+    }
+...
+    func sendString(_ value: String) {
+        unityStringCallback?(value)
+    }
+}
+
+extension UnityManager: NativeCallsProtocol {
+    /**
+     Internal methods are called by Unity
+     */
+    func unitySendString(toHost string: String!) {
+        onReceiveMessage?(string)
+    }
+
+    func unitySetStringCallback(_ callback: StringCallback!) {
+        unityStringCallback = callback
+    }
+}
+
+extension UnityManager: UnityFrameworkListener {
+    /// Triggered by Unity via `UnityFrameworkListener` when the framework unloaded
+    func unityDidUnload(_: Notification!) {
+        FrameworkLibAPI.registerAPIforNativeCalls(nil)
+        ...
+    }
+}
+</code></pre>
+<p>現在我們可以建立一個 <code>UnityViewModel.swift</code> 來使用 <code>UnityManager</code>：</p>
+<pre><code class="language-swift">final class UnityViewModel: ObservableObject {
+    @Published var isUnityLoaded = false
+
+    init() {
+        UnityManager.shared.onReceiveMessage = handleUnityMessage(message:)
+    }
+
+    func loadUnity() {
+        UnityManager.shared.load()
+    }
+
+    private func handleUnityMessage(message: String) {
+        switch message {
+        case &quot;ready&quot;:
+            isUnityLoaded = true
+        default:
+            break
+        }
+    }
+}
+</code></pre>
+<p>走到這一步，我們可以知道 Unity 何時載入畫面了，所以稍早建立的 <code>UnityView.swift</code> 就可以改寫成這樣，把刻意的 delay 拿掉，也不必在這邊要求 <code>UnityManager</code> 載入：</p>
+<pre><code class="language-swift">...
+    func makeUIView(context: Context) -&gt; UIView {
+        guard let unityView = UnityManager.shared.unityView else {
+            fatalError(&quot;Unity rootView is not ready.&quot;)
+        }
+        return unityView
+    }
+...
+</code></pre>
+<p>如此一來，我們的 SwiftUI View 就可以搭配使用 <code>UnityViewModel</code>，得知何時可以顯示 <code>UnityView</code> 了：</p>
+<pre><code class="language-swift">struct ContentView: View {
+    @StateObject private var viewModel = UnityViewModel()
+    var body: some View {
+        ZStack {
+            if viewModel.isUnityLoaded {
+                UnityView()
+                    .ignoresSafeArea()
+            }
+        }
+        .onAppear {
+            viewModel.loadUnity()
+        }
+    }
+}
+</code></pre>
+<h2 id="加入-git-版本控制">加入 Git 版本控制</h2>
+<p>一般來說 Unity-iPhone project 是 Unity 產生出來的，所以它可以不用 commit 到 Git（因為只要有 Unity project 就可以再產生一次），但某些情況我們還是需要將它 commit。舉例來說，如果有在跑 CI/CD 就會需要，不然少了這些檔案就無法成功 compile 了。</p>
+<p>而這些產生出來的檔案，有些 <code>.a</code> 檔非常的肥大，因此我會建議把這些肥大的 <code>.a</code> 檔加到 <a href="https://git-lfs.github.com/">Git-LFS</a>，比較不會佔用空間與頻寬。</p>
+<p>你也可以來這裡<a href="https://github.com/chiahsien/UnityInSwiftUI">看看我的 sample code</a>。</p>
+<h2 id="已知問題">已知問題</h2>
+<ul>
+<li>Unity 只能實機或模擬器擇一，無法匯出同時在實機跟模擬器都能跑的檔案。</li>
+<li>SwiftUI Preview 功能會失效。</li>
+</ul>
+<h2 id="參考資料">參考資料</h2>
+<h3 id="unity-official-documents">Unity Official Documents</h3>
+<ul>
+<li><a href="https://github.com/Unity-Technologies/uaal-example/blob/master/docs/ios.md">uaal-example/ios.md</a></li>
+<li><a href="https://docs.unity3d.com/2020.3/Documentation/Manual/UnityasaLibrary.html">Using Unity as a Library in other applications</a></li>
+<li><a href="https://docs.unity3d.com/2020.3/Documentation/Manual/UnityasaLibrary-iOS.html">Integrating Unity into native iOS applications</a></li>
+<li><a href="https://docs.unity3d.com/2020.3/Documentation/Manual/PluginsForIOS.html">Building plug-ins for iOS</a></li>
+<li><a href="https://docs.unity3d.com/2020.3/Documentation/Manual/BuildSettingsiOS.html">iOS build settings</a></li>
+<li><a href="https://docs.unity3d.com/2020.3/Documentation/Manual/class-PlayerSettingsiOS.html">iOS Player settings</a></li>
+<li><a href="https://docs.unity3d.com/2020.3/Documentation/Manual/TroubleShootingIPhone.html">Troubleshooting on iOS devices</a></li>
+</ul>
+<h3 id="blog-posts">Blog Posts</h3>
+<ul>
+<li><a href="https://medium.com/mop-developers/launch-a-unity-game-from-a-swiftui-ios-app-11a5652ce476">Launch a Unity game from a SwiftUI iOS App</a></li>
+<li><a href="https://medium.com/mop-developers/communicate-with-a-unity-game-embedded-in-a-swiftui-ios-app-1cefb38ff439">Communicate with a Unity game embedded in a SwiftUI iOS App</a></li>
+<li><a href="https://davidpeicho.github.io/blog/unity-integration-swiftui/">Unity 2020 Integration With SwiftUI</a></li>
+</ul>
+
+              <a href="https://www.buymeacoffee.com/chiahsien" target="_blank" rel="noopener noreferrer">
+                <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=chiahsien&button_colour=44414e&font_colour=ffffff&font_family=Comic&outline_colour=ffffff&coffee_colour=FFDD00" />
+              </a>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://chiahsien.github.io/tag/unity/" class="tag">
+                    Unity
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/swiftui/" class="tag">
+                    SwiftUI
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/xcode/" class="tag">
+                    Xcode
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/swift/" class="tag">
+                    Swift
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/ios/" class="tag">
+                    iOS
+                  </a>
+                
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

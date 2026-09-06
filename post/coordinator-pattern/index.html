@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>我偏好的 Coordinator Pattern | Nelson</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="我偏好的 Coordinator Pattern | Nelson - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <div class="post-detail">
+            <h1 class="post-title">我偏好的 Coordinator Pattern</h1>
+            <div class="post-date">2026-03-28</div>
+            
+            <div class="post-content">
+              <h2 id="前言">前言</h2>
+<p>當我實作畫面流程時，我會為一組「流程」建立一個 Coordinator。如果這組流程很複雜，它可以拆分成多個「子流程」，那每一個子流程也會有對應的 Sub-Coordinator。主流程的 Coordinator 可以管理子流程的 Sub-Coordinator。</p>
+<p>Coordinator 用來管理流程的畫面，它負責建立畫面、傳遞資料給畫面、回應畫面的請求、移除畫面等等。如果用 <strong>tree</strong> 來理解畫面流程的話，Coordinator 就是 <strong>root</strong>，各個畫面就是 <strong>leaf</strong>。換個角度看，Coordinator 像一個<strong>容器</strong> — 它自己不產出畫面內容，而是決定裡面放哪些畫面、什麼時候切換。</p>
+<!-- more -->
+<h2 id="uikit">UIKit</h2>
+<p>在 UIKit 實作 Coordinator Pattern 的時候，我喜歡使用 <code>UIViewController</code> 作為 Coordinator，並且在裡頭內嵌一個 <code>UINavigationController</code>。</p>
+<h3 id="coordinator-結構">Coordinator 結構</h3>
+<p>Coordinator 持有 <code>UINavigationController</code>，負責建立畫面、處理事件、決定導航行為：</p>
+<pre><code class="language-swift">public final class FeatureCoordinator: UIViewController {
+    private let rootNav = UINavigationController()
+
+    public override func viewDidLoad() {
+        super.viewDidLoad()
+
+        addChild(rootNav)
+        rootNav.view.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(rootNav.view)
+        NSLayoutConstraint.activate([
+            rootNav.view.topAnchor.constraint(equalTo: view.topAnchor),
+            rootNav.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            rootNav.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            rootNav.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+        ])
+        rootNav.didMove(toParent: self)
+
+        showHome()
+    }
+
+    private func showHome() {
+        let homeVC = HomeViewController()
+        homeVC.delegate = self
+        rootNav.pushViewController(homeVC, animated: false)
+    }
+
+    private func showDetail(item: String) {
+        let detailVC = DetailViewController(item: item)
+        detailVC.delegate = self
+        rootNav.pushViewController(detailVC, animated: true)
+    }
+
+    private func showSettings() {
+        let settingsVC = SettingsViewController()
+        settingsVC.delegate = self
+        rootNav.pushViewController(settingsVC, animated: true)
+    }
+}
+
+// MARK: - Event Handlers
+
+extension FeatureCoordinator: HomeViewControllerDelegate {
+    func homeViewController(
+        _ vc: HomeViewController,
+        didSelectItem item: String
+    ) {
+        showDetail(item: item)
+    }
+
+    func homeViewControllerDidTapSettings(
+        _ vc: HomeViewController
+    ) {
+        showSettings()
+    }
+}
+
+extension FeatureCoordinator: DetailViewControllerDelegate {
+    func detailViewController(
+        _ vc: DetailViewController,
+        didSelectRelatedItem item: String
+    ) {
+        showDetail(item: item)
+    }
+
+    func detailViewControllerDidFinish(
+        _ vc: DetailViewController
+    ) {
+        rootNav.popViewController(animated: true)
+    }
+}
+
+extension FeatureCoordinator: SettingsViewControllerDelegate {
+    func settingsViewControllerDidLogOut(
+        _ vc: SettingsViewController
+    ) {
+        rootNav.popToRootViewController(animated: true)
+    }
+}
+</code></pre>
+<h3 id="畫面與-coordinator-的溝通偏好-delegate">畫面與 Coordinator 的溝通：偏好 Delegate</h3>
+<p>畫面透過 delegate 與 Coordinator 溝通。我偏好 delegate 而非 closure，因為：</p>
+<ul>
+<li><strong>Contract 明確</strong>：protocol 就是溝通介面的完整定義，一眼就能看出畫面會發出哪些事件</li>
+<li><strong>不容易漏</strong>：Xcode 會強制你實作每個 protocol method，不會忘記處理某個事件</li>
+<li><strong>可讀性</strong>：當畫面有多種事件需要回傳時，closure 會變成一堆散落的 property，delegate 則集中在一個 protocol 裡</li>
+</ul>
+<p>Closure 適合一次性、單一事件的回傳（例如 completion block），但在 Coordinator pattern 中，畫面通常有多種事件需要通知 Coordinator，delegate 更合適。</p>
+<pre><code class="language-swift">// MARK: - View Delegate Protocols
+
+protocol HomeViewControllerDelegate: AnyObject {
+    func homeViewController(
+        _ vc: HomeViewController,
+        didSelectItem item: String
+    )
+    func homeViewControllerDidTapSettings(
+        _ vc: HomeViewController
+    )
+}
+
+protocol DetailViewControllerDelegate: AnyObject {
+    func detailViewController(
+        _ vc: DetailViewController,
+        didSelectRelatedItem item: String
+    )
+    func detailViewControllerDidFinish(
+        _ vc: DetailViewController
+    )
+}
+
+protocol SettingsViewControllerDelegate: AnyObject {
+    func settingsViewControllerDidLogOut(
+        _ vc: SettingsViewController
+    )
+}
+</code></pre>
+<h3 id="子流程管理與反向溝通">子流程管理與反向溝通</h3>
+<p>既然 Coordinator 是 <code>UIViewController</code>，子流程的管理就是標準的 UIKit parent-child 關係。呈現子流程用 <code>present</code>，子流程結束後透過 delegate 把結果傳回 parent Coordinator — 溝通方式與畫面 → Coordinator 一致，整個架構的溝通模型是統一的。</p>
+<pre><code class="language-swift">// MARK: - Sub-Coordinator Management
+
+protocol SubFeatureCoordinatorDelegate: AnyObject {
+    func subFeatureCoordinator(
+        _ coordinator: SubFeatureCoordinator,
+        didFinishWith result: SubFeatureResult
+    )
+}
+
+// In parent FeatureCoordinator:
+extension FeatureCoordinator {
+    func showSubFeature() {
+        let subCoordinator = SubFeatureCoordinator()
+        subCoordinator.delegate = self
+        present(subCoordinator, animated: true)
+    }
+}
+
+extension FeatureCoordinator: SubFeatureCoordinatorDelegate {
+    func subFeatureCoordinator(
+        _ coordinator: SubFeatureCoordinator,
+        didFinishWith result: SubFeatureResult
+    ) {
+        coordinator.dismiss(animated: true)
+        // Handle result from sub-flow
+    }
+}
+</code></pre>
+<p>這正好是 UIViewController-based Coordinator 相較 protocol-based 做法的優勢：你不需要手動從 <code>childCoordinators</code> 陣列移除子 Coordinator，<code>dismiss</code> 就是一切。Sub-Coordinator 如果有需要清理的資源，應該在自己的 <code>deinit</code> 處理 — Coordinator 是 self-contained 的，不該讓 parent 操心內部清理。</p>
+<h2 id="swiftui">SwiftUI</h2>
+<p>在 SwiftUI 實作 Coordinator Pattern 的時候，對應 UIKit 版的「Coordinator = UIViewController」，我使用 <strong>SwiftUI View 作為 Coordinator</strong>，讓它擁有 <code>NavigationStack</code> 和 <code>@State</code> 導航狀態。</p>
+<h3 id="coordinator-結構-2">Coordinator 結構</h3>
+<p>Coordinator View 持有 <code>NavigationStack</code> 的 path 和 sheet 狀態，負責建立畫面、處理事件、決定導航行為：</p>
+<pre><code class="language-swift">struct FeatureCoordinatorView: View {
+    enum Route: Hashable {
+        case home
+        case detail(String)
+        case settings
+    }
+
+    @State private var path: [Route] = []
+    @State private var sheetRoute: Route?
+
+    var body: some View {
+        NavigationStack(path: $path) {
+            HomeView(onEvent: handleHomeEvent)
+                .navigationDestination(for: Route.self) { route in
+                    view(for: route)
+                }
+        }
+        .sheet(item: $sheetRoute) { route in
+            NavigationStack {
+                view(for: route)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func view(for route: Route) -&gt; some View {
+        switch route {
+        case .home:
+            HomeView(onEvent: handleHomeEvent)
+        case .detail(let item):
+            DetailView(item: item, onEvent: handleDetailEvent)
+        case .settings:
+            SettingsView(onEvent: handleSettingsEvent)
+        }
+    }
+
+    // MARK: - Event Handlers
+
+    private func handleHomeEvent(_ event: HomeView.Event) {
+        switch event {
+        case .didSelectItem(let item):
+            path.append(.detail(item))
+        case .didTapSettings:
+            path.append(.settings)
+        }
+    }
+
+    private func handleDetailEvent(_ event: DetailView.Event) {
+        switch event {
+        case .didSelectRelatedItem(let item):
+            path.append(.detail(item))
+        case .didFinish:
+            if !path.isEmpty { path.removeLast() }
+        }
+    }
+
+    private func handleSettingsEvent(_ event: SettingsView.Event) {
+        switch event {
+        case .didLogOut:
+            path.removeAll()
+        }
+    }
+}
+</code></pre>
+<h3 id="畫面與-coordinator-的溝通event-enum-closure">畫面與 Coordinator 的溝通：Event Enum + Closure</h3>
+<p>UIKit 版偏好 delegate，SwiftUI 版則改用每個 View 自己定義的 <code>Event</code> enum 搭配 <code>onEvent</code> closure。精神是一樣的 — <strong>contract 明確、不容易漏</strong>。</p>
+<p>具體做法：</p>
+<ul>
+<li>每個 View 內部宣告自己的 <code>Event</code> enum，列出這個 View 會發出的所有事件</li>
+<li>Coordinator 建立 View 時必須提供 <code>(Event) -&gt; Void</code>，漏了就 compile error</li>
+<li>Handler 裡 switch 這個 concrete enum，Swift 會強制處理每個 case — 不會有 <code>default</code> fallback 的漏洞</li>
+</ul>
+<p>命名用 <code>Event</code> 而非 <code>NavigationEvent</code>，因為不是每個事件都跟導航有關。更重要的是，Event 的 case 應該描述<strong>發生了什麼事</strong>，而非<strong>指揮 Coordinator 該做什麼導航</strong> — 讓 View 保持 context-independent。</p>
+<pre><code class="language-swift">struct DetailView: View {
+    enum Event {
+        case didSelectRelatedItem(String)
+        case didFinish(DetailResult)
+    }
+
+    let item: String
+    let onEvent: (Event) -&gt; Void
+
+    var body: some View {
+        VStack {
+            Text(&quot;詳情: \(item)&quot;)
+
+            Button(&quot;完成&quot;) {
+                onEvent(.didFinish(.success))
+            }
+        }
+    }
+}
+</code></pre>
+<h3 id="子流程管理與反向溝通-2">子流程管理與反向溝通</h3>
+<p>與 UIKit 版一樣，子流程用獨立的 Coordinator View 實作，透過 <code>.sheet</code> 或 <code>.fullScreenCover</code> 呈現。子流程完成後透過 <code>onEvent</code> closure 把結果傳回 parent Coordinator — 溝通方式與畫面 → Coordinator 一致。</p>
+<pre><code class="language-swift">struct FeatureCoordinatorView: View {
+    // ...
+    @State private var isShowingSubFeature = false
+
+    var body: some View {
+        NavigationStack(path: $path) {
+            // ...
+        }
+        .sheet(isPresented: $isShowingSubFeature) {
+            SubFeatureCoordinatorView(
+                onEvent: handleSubFeatureEvent
+            )
+        }
+    }
+
+    private func handleSubFeatureEvent(
+        _ event: SubFeatureCoordinatorView.Event
+    ) {
+        switch event {
+        case .didFinish(let result):
+            isShowingSubFeature = false
+            // Handle result from sub-flow
+        }
+    }
+}
+
+// Sub-Coordinator 也是一個 View，擁有自己的 NavigationStack
+struct SubFeatureCoordinatorView: View {
+    enum Event {
+        case didFinish(SubFeatureResult)
+    }
+
+    let onEvent: (Event) -&gt; Void
+
+    @State private var path: [SubRoute] = []
+
+    var body: some View {
+        NavigationStack(path: $path) {
+            // Sub-flow's root view
+            // ...
+        }
+    }
+}
+</code></pre>
+<h2 id="qa">Q&amp;A</h2>
+<h3 id="一定要整個-app-都用-coordinator-嗎">一定要整個 app 都用 Coordinator 嗎？</h3>
+<p>不用。Coordinator 可以作為 app 的 root 直接使用，也可以在開發新功能時局部導入 — 為某個功能建立 Coordinator 不需要改動既有架構，侵入性很低。</p>
+<h3 id="為什麼選-uiviewcontroller-而不是社群常見的-protocol-based-coordinator">為什麼選 UIViewController 而不是社群常見的 Protocol-based Coordinator？</h3>
+<p>社群主流的 Coordinator pattern（如 Soroush Khanlou 原版）是用 <code>Coordinator</code> protocol 搭配 <code>childCoordinators</code> 陣列來管理子流程。我選擇直接用 <code>UIViewController</code> 作為 Coordinator，理由如下：</p>
+<ul>
+<li><strong>少一層抽象</strong>：Coordinator 的 lifecycle 直接跟 UIKit 綁定，不需要自己維護 <code>start()</code> / <code>stop()</code> 等生命週期方法</li>
+<li><strong>不需要手動管理 <code>childCoordinators</code> 陣列</strong>：UIKit 的 <code>children</code>（child view controller）已經替你做了這件事，少一個容易遺漏的 bookkeeping</li>
+<li><strong><code>present / dismiss</code> 不需要額外 wiring</strong>：因為 Coordinator 本身就是 <code>UIViewController</code>，所以呈現子流程就是標準的 <code>present(_:animated:)</code>，結束就是 <code>dismiss</code>，不需要額外的 routing 邏輯</li>
+</ul>
+<h3 id="為什麼不定義一個所有-coordinator-都-conform-的-protocol">為什麼不定義一個所有 Coordinator 都 conform 的 protocol？</h3>
+<p>我刻意不定義一個所有 Coordinator 都要 conform 的 <code>CoordinatorProtocol</code>。Coordinator 是一個概念，不是一個介面。</p>
+<p>每個流程的需求不同 — 有的要處理 deep link，有的不用；有的有子流程，有的只有兩個畫面。硬定義一個共用 protocol（<code>start()</code>、<code>childCoordinators</code>、<code>router</code> 等）反而綁手綁腳，逼你為了滿足 protocol 而寫不需要的東西。</p>
+<p>依需求開發每一個 Coordinator，比套一個 protocol 更實際。</p>
+<h3 id="這樣做對畫面復用有什麼幫助">這樣做對畫面復用有什麼幫助？</h3>
+<p>Coordinator 全權管理導航，帶來一個實務上很重要的好處：<strong>畫面不需要知道自己被放在什麼容器裡</strong>。</p>
+<p>畫面不用管自己是被 push 進 NavigationStack、用 sheet 呈現、還是當 tab 的 root — 它只負責顯示內容、發出事件。導航相關的 UI（back button、close button、toolbar action、tab item）全部由 Coordinator 或容器決定，畫面本身不碰。</p>
+<p>主要的例外是 title：畫面可以自己聲明標題。在 UIKit 中是 <code>self.title</code>，在 SwiftUI 中是 <code>.navigationTitle</code> — 兩者的性質一樣，都是「我叫什麼名字」，不是「我要怎麼被導航」。至於標題最終怎麼呈現，是容器的事。</p>
+<p>這讓同一個畫面可以在不同情境直接復用，不用為了換容器而改畫面的程式碼。</p>
+<h3 id="uikit-用-delegate-swiftui-用-closure為什麼不統一">UIKit 用 delegate、SwiftUI 用 closure，為什麼不統一？</h3>
+<p>兩個框架選擇不同溝通方式，是因為架構特性不同：</p>
+<ul>
+<li><strong>UIKit 用 delegate</strong>：ViewController 是 reference type（class），closure capture <code>self</code> 容易造成 retain cycle，每個地方都要寫 <code>[weak self]</code>。Delegate 用 <code>weak</code> 一次解決，而且整個 UIKit 框架本身就大量使用 delegate（<code>UITableViewDelegate</code>、<code>UITextFieldDelegate</code> 等），風格一致</li>
+<li><strong>SwiftUI 用 closure</strong>：View 是 value type（struct），沒有 retain cycle 的問題。SwiftUI 框架本身就是 closure 慣例 — <code>Button(action:)</code>、<code>.onTapGesture {}</code>、<code>.task {}</code> 全部都是 closure，用 delegate 反而格格不入。而且 View struct 會被頻繁重建，delegate 這種需要 assign reference 的模式不適合這個生命週期</li>
+</ul>
+<p>不是 closure 或 delegate 誰絕對更好，而是<strong>跟著框架的慣例和型別系統走</strong>。</p>
+<h3 id="coordinator-要負責-dependency-injection-嗎">Coordinator 要負責 dependency injection 嗎？</h3>
+<p>Coordinator 負責管理流程，不負責規定 dependency 怎麼到達畫面。Coordinator 建立畫面時注入 dependency、畫面自己從 DI container 取得、或透過 SwiftUI 的 environment 傳遞，都可以 — 視專案的 DI 策略決定。</p>
+<h3 id="deep-link-怎麼跟-coordinator-整合">Deep link 怎麼跟 Coordinator 整合？</h3>
+<p>收到 deep link 時，Coordinator 如果知道怎麼處理就直接顯示對應畫面；如果不知道，就詢問它能建立的 Sub-Coordinator — 每個 Sub-Coordinator 提供一個 static method 來回答自己能不能處理這個 deep link。Parent Coordinator 找到能處理的 Sub-Coordinator 後，建立並呈現它。這個 resolve 過程沿著 tree 從 root 往 leaf 遞迴，跟 Coordinator 管理畫面的結構一致。</p>
+
+              <a href="https://www.buymeacoffee.com/chiahsien" target="_blank" rel="noopener noreferrer">
+                <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=chiahsien&button_colour=44414e&font_colour=ffffff&font_family=Comic&outline_colour=ffffff&coffee_colour=FFDD00" />
+              </a>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://chiahsien.github.io/tag/design-pattern/" class="tag">
+                    Design-Pattern
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/development/" class="tag">
+                    Development
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/programming/" class="tag">
+                    Programming
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/swiftui/" class="tag">
+                    SwiftUI
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/architecture/" class="tag">
+                    Architecture
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/swift/" class="tag">
+                    Swift
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/ios/" class="tag">
+                    iOS
+                  </a>
+                
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>iOS App 如何支援 RTL 語言 | Nelson</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="iOS App 如何支援 RTL 語言 | Nelson - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <div class="post-detail">
+            <h1 class="post-title">iOS App 如何支援 RTL 語言</h1>
+            <div class="post-date">2019-02-25</div>
+            
+            <div class="post-content">
+              <p>公司的產品越做越大，前一陣子幫公司的 app 加上阿拉伯文介面，開發過程也累積了一些支援 RTL 語系的心得，藉這個機會跟大家分享。</p>
+<!-- more -->
+<h2 id="找到-native-speaker">找到 Native Speaker</h2>
+<p>對於書寫方向是「從左到右」的我們來說，最困難的其實不是看不懂這個語言，而是不知道這樣的 layout 是否正確，因為 layout 絕對不是全部都無腦的換成「從右到左」就好。所以如果情況許可，最好找個 native speaker 讓團隊諮詢（例如找個當地的員工，或是請當地大學生來打工之類），這樣可以節省不少來回確認界面的時間。</p>
+<h2 id="仔細閱讀蘋果文件">仔細閱讀蘋果文件</h2>
+<p>很多開發的注意事項都寫在這份<a href="https://developer.apple.com/library/archive/documentation/MacOSX/Conceptual/BPInternational/SupportingRight-To-LeftLanguages/SupportingRight-To-LeftLanguages.html">蘋果文件</a>裡頭了，開發前跟開發時務必要多次閱讀，會有很大的幫助。另外，不只是 RD 需要閱讀這份文件，PM、QA、Designer 也應該看過，才不會發生 RD 做出正確界面，結果其他人以為是錯的（例如多媒體播放器的控制元件是不需要 RTL 的）。</p>
+<h2 id="程式開發的一些小技巧">程式開發的一些小技巧</h2>
+<h3 id="圖片左右翻轉">圖片左右翻轉</h3>
+<p>如果有特殊需求的話，可以考慮對圖片 localized，這樣就可以提供適當翻轉過的圖片給特定語言，或是你也可以透過程式碼去翻轉圖片。但是假如你需要的就只是左右翻轉的圖片（例如 arrow 或 bullet-list 的圖片），可以很簡單的透過以下方式取得：</p>
+<pre><code class="language-objc">UIImage *image = [UIImage imageNamed:@&quot;xxx&quot;];
+// 對圖片做一些必要處理
+// .....
+// 最後再翻轉圖片
+image = [image imageFlippedForRightToLeftLayoutDirection];
+</code></pre>
+<p>要注意的是，翻轉一定要放在最後一步，這樣才會得到預期結果。</p>
+<h3 id="使用-auto-layout-及相關技術">使用 Auto Layout 及相關技術</h3>
+<p>正確使用 auto layout 的 <code>leading</code> 跟 <code>trailing</code>，加上將 <code>textAlignment</code> 設為 <code>NSTextAlignmentNatural</code>，就可以解決九成以上的 RTL 佈局。如果你的程式還沒支援 auto layout，可以趁機逐步轉換過去。</p>
+<h3 id="手動計算-frame">手動計算 Frame</h3>
+<p>由於種種因素讓你還無法轉成 auto layout（例如為了效能考量，或是有些地方就是用 frame 比較容易，或是轉換成本太大），這時候你就需要判斷現在是否在 RTL 環境來調整 frame。</p>
+<pre><code class="language-objc">if ([UIView userInterfaceLayoutDirectionForSemanticContentAttribute:view.semanticContentAttribute] == UIUserInterfaceLayoutDirectionRightToLeft) {
+    // RTL 佈局
+} else {
+    // LTR 佈局
+}
+</code></pre>
+<h3 id="翻轉再翻轉">翻轉再翻轉</h3>
+<p>還有一種情況是不方便用 auto layout，但是手動計算 frame 又有很多額外因素要考量讓你不想計算。舉個常見的例子：有上下兩個可以左右滑動的 scroll view，上面是多個 tab，下面是點選 tab 之後要捲動到特定範圍。常見的做法是上方每個 tab 都有一個 index，下方則是根據選中的 index 計算 <code>contentOffset</code>。在 RTL 並且要手動計算 frame 的情況下，你會發現 index 處理起來很麻煩。</p>
+<p>這裡有一個小技巧，我們可以先對最外層的 container view（例如 <code>UIScrollView</code>）左右翻轉，然後再對 subviews 左右翻轉一次。經過兩次翻轉，這些 subviews 就會從右到左排列，而且原有的程式碼幾乎不需要改動。這招或許看起來很 tricky，但它真的很有用，用得好可以節省非常多的時間。</p>
+<pre><code class="language-objc">if ([UIView userInterfaceLayoutDirectionForSemanticContentAttribute:view.semanticContentAttribute] == UIUserInterfaceLayoutDirectionRightToLeft) {
+    scrollView.transform = CGAffineTransformMakeScale(-1, 1);
+    for (UIView *subview in scrollView.subviews) {
+        subview.transform = CGAffineTransformMakeScale(-1, 1);
+    }
+}
+</code></pre>
+<p>以上就是我們在支援 RTL 時用到的所有方式，希望對大家有幫助。</p>
+
+              <a href="https://www.buymeacoffee.com/chiahsien" target="_blank" rel="noopener noreferrer">
+                <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=chiahsien&button_colour=44414e&font_colour=ffffff&font_family=Comic&outline_colour=ffffff&coffee_colour=FFDD00" />
+              </a>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://chiahsien.github.io/tag/programming/" class="tag">
+                    Programming
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/mobile/" class="tag">
+                    Mobile
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/swift/" class="tag">
+                    Swift
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/rtl/" class="tag">
+                    RTL
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/ios/" class="tag">
+                    iOS
+                  </a>
+                
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

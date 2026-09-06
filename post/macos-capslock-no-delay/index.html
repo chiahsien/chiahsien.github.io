@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>macOS Caps Lock 零延遲設定教學 | Nelson</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="macOS Caps Lock 零延遲設定教學 | Nelson - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <div class="post-detail">
+            <h1 class="post-title">macOS Caps Lock 零延遲設定教學</h1>
+            <div class="post-date">2026-05-04</div>
+            
+            <div class="post-content">
+              <p>在 macOS 底下我們可以按 Caps Lock 鍵切換輸入法，但每次按的時候都會覺得有一點頓頓的，無法立即切換過去，這不是你的錯覺！</p>
+<p>本文分享兩個重點：</p>
+<ol>
+<li>讓 Caps Lock 切換輸入法「立刻生效、沒有延遲」</li>
+<li>讓這個設定「開機自動套用」，不用每次重開機都重打指令</li>
+</ol>
+<!-- more -->
+<h2 id="一-立即取消-caps-lock-切換延遲">一、立即取消 Caps Lock 切換延遲</h2>
+<ol>
+<li>
+<p>打開「終端機」（Terminal）</p>
+</li>
+<li>
+<p>在終端機貼上以下指令並按 Enter：</p>
+<pre><code class="language-bash">hidutil property --set '{&quot;CapsLockDelayOverride&quot;:0}'
+</code></pre>
+</li>
+<li>
+<p>測試 Caps Lock 切換中英文，應該會變得非常即時、沒有慢半拍的感覺。</p>
+</li>
+</ol>
+<blockquote>
+<p>注意：這個設定在重開機後常常會失效，因此建議再做下面的「開機自動套用」設定。</p>
+</blockquote>
+<hr>
+<h2 id="二-讓-caps-lock-零延遲在開機時自動套用launchagent">二、讓 Caps Lock 零延遲在開機時自動套用（LaunchAgent）</h2>
+<p>這一段會建立一個 <code>LaunchAgent</code>，在你登入 macOS 時自動執行上面的 <code>hidutil</code> 指令。</p>
+<h3 id="步驟-1建立自動啟動的-plist-設定檔">步驟 1：建立自動啟動的 plist 設定檔</h3>
+<p>在終端機貼上以下整段指令（包含 EOF 那行），然後按 Enter：</p>
+<pre><code class="language-bash">cat &gt; ~/Library/LaunchAgents/com.user.capslockdelay.plist &lt;&lt; 'EOF'  
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;  
+&lt;!DOCTYPE plist PUBLIC &quot;-//Apple//DTD PLIST 1.0//EN&quot; &quot;http://www.apple.com/DTDs/PropertyList-1.0.dtd&quot;&gt;  
+&lt;plist version=&quot;1.0&quot;&gt;  
+&lt;dict&gt;  
+  &lt;key&gt;Label&lt;/key&gt;  
+  &lt;string&gt;com.user.capslockdelay&lt;/string&gt;  
+  &lt;key&gt;ProgramArguments&lt;/key&gt;  
+  &lt;array&gt;  
+    &lt;string&gt;/usr/bin/hidutil&lt;/string&gt;  
+    &lt;string&gt;property&lt;/string&gt;  
+    &lt;string&gt;--set&lt;/string&gt;  
+    &lt;string&gt;{&quot;CapsLockDelayOverride&quot;:0}&lt;/string&gt;  
+  &lt;/array&gt;  
+  &lt;key&gt;RunAtLoad&lt;/key&gt;  
+  &lt;true/&gt;  
+&lt;/dict&gt;  
+&lt;/plist&gt;  
+EOF
+</code></pre>
+<p>這會在 <code>~/Library/LaunchAgents/</code> 底下建立一個 <code>com.user.capslockdelay.plist</code> 設定檔。</p>
+<h3 id="步驟-2載入設定讓它生效">步驟 2：載入設定讓它生效</h3>
+<p>接著在終端機執行：</p>
+<pre><code class="language-bash">launchctl load ~/Library/LaunchAgents/com.user.capslockdelay.plist
+</code></pre>
+<p>之後每次登入 macOS，系統就會自動執行 <code>hidutil property --set {&quot;CapsLockDelayOverride&quot;:0}</code>，讓 Caps Lock 零延遲自動生效。</p>
+<h3 id="檢查檔案是否建立成功">檢查檔案是否建立成功</h3>
+<pre><code class="language-bash">ls ~/Library/LaunchAgents/com.user.capslockdelay.plistl
+</code></pre>
+<p>如果看得到這個檔案路徑，代表設定檔已經建立。</p>
+<hr>
+<h2 id="三-如何移除還原預設設定">三、如何移除／還原預設設定</h2>
+<p>如果之後想恢復系統預設（不再自動套用零延遲），可以在終端機執行：</p>
+<pre><code class="language-bash">launchctl unload ~/Library/LaunchAgents/com.user.capslockdelay.plist  
+rm ~/Library/LaunchAgents/com.user.capslockdelay.plist  
+</code></pre>
+<p>完成後，重開機後就不會再自動修改 Caps Lock 延遲設定。</p>
+
+              <a href="https://www.buymeacoffee.com/chiahsien" target="_blank" rel="noopener noreferrer">
+                <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=chiahsien&button_colour=44414e&font_colour=ffffff&font_family=Comic&outline_colour=ffffff&coffee_colour=FFDD00" />
+              </a>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://chiahsien.github.io/tag/macos/" class="tag">
+                    macOS
+                  </a>
+                
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

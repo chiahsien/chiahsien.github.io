@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>Nelson/GitHub</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="Nelson/GitHub - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <h1 class="current-tag">標籤: GitHub</h1>
+          
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/xcode-support-github-private-repo/">
+            <h1 class="post-title">如何讓 Xcode 支援 GitHub Private Repo</h1>
+        </a>
+        <div class="post-date">
+            2022-04-29
+        </div>
+        <div class="post-abstract">
+            
+            <p>我們的 codebase 有用到放在 GitHub private repo 的 Swift package，為了讓 Xcode 能夠存取 private repo，必須讓 Xcode 認得 SSH key 才行。</p>
+<p>因為 Xcode 只支援 RSA / DSA / ECDSA 這三種演算法的 SSH key，但 <a href="https://github.blog/2021-09-01-improving-git-protocol-security-github/">GitHub 不支援 RSA 跟 DSA</a> 了，所以我們只剩下 <strong>ECDSA</strong> 可以用。</p>
+<p><em>如果當時按照 GitHub 的文件建立 SSH key，它很有可能是 ED25519，這個演算法 Xcode 認不得，所以我們要新增一個新的 SSH key。</em></p>
+
+            <a href="https://chiahsien.github.io/post/xcode-support-github-private-repo/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/how-to-use-different-ssh-key-for-different-github-account/">
+            <h1 class="post-title">如何建立不同的 SSH Key 對應到不同的 Github 帳號</h1>
+        </a>
+        <div class="post-date">
+            2021-06-20
+        </div>
+        <div class="post-abstract">
+            
+            <h2 id="情況">情況</h2>
+<p>我有私人的 GitHub 帳號，為了方便自己跟公司管理起見，我用公司的信箱申請另一個 GitHub 帳號來存取公司的 repo。</p>
+<h2 id="問題">問題</h2>
+<p>同一台電腦的一組 SSH Key 只能綁定到一個 GitHub 帳號，無法用同一組 SSH key 綁定到多組帳號，所以我無法把綁到私人帳號的 SSH Key 再綁到公司帳號。</p>
+<h2 id="解法">解法</h2>
+<p>我要在同一台電腦建立不同的 SSH Key 對應到不同的 GitHub 帳號，並且在執行 <code>git</code> 操作時，系統會自動選擇對應的 SSH key。</p>
+
+            <a href="https://chiahsien.github.io/post/how-to-use-different-ssh-key-for-different-github-account/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+
+          <div class="pagination-container">
+  
+  
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

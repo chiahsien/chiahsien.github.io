@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>AI 筆記：計畫趕不上變化 | Nelson</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="AI 筆記：計畫趕不上變化 | Nelson - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <div class="post-detail">
+            <h1 class="post-title">AI 筆記：計畫趕不上變化</h1>
+            <div class="post-date">2026-09-06</div>
+            
+            <div class="post-content">
+              <p>這陣子用 AI agent 來寫程式，過程中被自己習慣的流程卡了幾次，這篇就當作是提醒自己的踩雷記錄。</p>
+<h2 id="一開始的想像高階模型負責規劃低階模型負責幹活">一開始的想像：高階模型負責規劃，低階模型負責幹活</h2>
+<p>一開始我用的是很多人都推薦的做法：</p>
+<ul>
+<li>先用一個比較強、比較貴的模型，幫整個功能做超詳細的規劃。</li>
+<li>規劃細到什麼程度？包含要改哪個檔案、哪一段程式、步驟順序都先排好。</li>
+<li>然後再讓便宜一點的模型，照這份計畫一條一條執行。</li>
+</ul>
+<p>看起來很划算：強模型負責「想清楚」，弱模型負責「照做」，不會讓強模型狂燒 token，而且弱模型不太容易亂衝。</p>
+<p>如果是個小功能、一個人開發、repo 變動不大，這套 workflow 其實還算好用。</p>
+<!-- more -->
+<h2 id="計畫寫完就過期了">計畫寫完就過期了</h2>
+<p>問題出在：真實專案不會乖乖停在原地等你。</p>
+<p>比較複雜的功能，本來就不可能一次做完，通常會拆成幾個階段，中間還要穿插 review、調整、修 bug、跟其他功能互相等來等去。</p>
+<p>如果只是我一個人在分支上慢慢寫倒是還好。但只要是多人一起開發，很快就會變這樣：</p>
+<ol>
+<li>我用高階模型產出一份超詳細的實作計畫。</li>
+<li>做完第一階段，準備開始第二階段。</li>
+<li>在這之間已經有其他人的 PR merge 進來，甚至剛好就動到我計畫裡寫到的檔案。</li>
+</ol>
+<p>於是我手上的那份「漂亮計畫」，其實是對一個已經不存在的世界寫的。</p>
+<p>這時選項有兩個，兩個都很難看：</p>
+<ul>
+<li>照舊計畫做：很多前提已經不成立，agent 不是產出衝突一直停下來問你該怎麼辦，就是自作主張蓋掉別人的改動。</li>
+<li>重跑一次高階規劃：又燒一輪時間跟 token，下一個階段一樣有機會再來一次。</li>
+</ul>
+<p>久了就會發現：這個流程其實假設「世界在執行期間是靜止的」。只要你在一個活生生的 repo 上工作，這個假設幾乎永遠是錯的。</p>
+<h2 id="改變做法每一階段只鎖起點和終點">改變做法：每一階段只鎖「起點」和「終點」</h2>
+<p>後來我調整整個流程，不再要求「一次寫出完整細節」，改成只規劃每一個階段的：</p>
+<ul>
+<li>預期初始狀態：這個階段要開始的時候，系統應該長什麼樣子，哪些東西應該有了，哪些東西還沒有。</li>
+<li>預期最終狀態：這個階段結束時，應該產出什麼東西，哪些東西會改變。</li>
+</ul>
+<p>至於：</p>
+<ul>
+<li>要改哪個檔案</li>
+<li>具體步驟是什麼</li>
+<li>跟其他改動怎麼對齊</li>
+</ul>
+<p>都留到「真的要開始這個 phase 的那一刻」，再請模型讀一次「現在的」 repo 狀態，當場決定。</p>
+<p>也就是說，我讓「方向、階段的輸入輸出」寫死；讓「中間細節」保持彈性，每次都以「目前這一刻的現實」為準。</p>
+<h2 id="這樣做的好處是什麼">這樣做的好處是什麼？</h2>
+<p>這種拆法，對我來說有幾個實際的好處：</p>
+<ul>
+<li>計畫比較耐用：高階的東西（目標、階段邊界）通常不會天天變，因此不用常重跑。</li>
+<li>每次真正開始做事時，agent 都是站在「最新的 repo」上思考，而不是依賴一張老舊設計圖。</li>
+<li>token 花在該花的地方：要重想的是「現在這個階段怎麼做」，而不是每次從零開始重寫一份整體路線圖。</li>
+</ul>
+<p>換個講法，我不再期待「規劃一次就能吃好幾輪」，而是接受「每次進入新階段，都要重新看一次現況」，然後讓那次的思考盡量聚焦在那一小段。</p>
+<h2 id="如何處理變動">如何處理「變動」</h2>
+<p>光是把規劃變粗，還不夠解決問題。還有幾個地方，我後來發現也必須一起處理：</p>
+<ol>
+<li>
+<p>每一階段開始前，要有一個固定的 reality check，至少包含：</p>
+<ul>
+<li>掃一遍 repo 現況</li>
+<li>對照文件裡寫的「預期初始狀態」與「預期最終狀態」，把已經不成立的前提標出來</li>
+</ul>
+</li>
+<li>
+<p>明確寫下「不能動什麼」，例如：</p>
+<ul>
+<li>不要改動某些還沒準備好的 module</li>
+<li>不要重構別人正在動的東西</li>
+<li>某些行為是對外 API，不能隨便改</li>
+</ul>
+<p>人類工程師會靠直覺知道這些邊界，agent 不會，需要你明講。</p>
+</li>
+<li>
+<p>承認「文件不是真相，repo 才是」<br>
+文件永遠落後現實，這是常態。所以流程上要明確告訴 agent：一旦文件跟 repo 打架，以 repo 為準，文件可以被推翻或更新。</p>
+</li>
+</ol>
+<p>這些東西聽起來很廢話，但我在設計 agent workflow 的時候，一開始只顧著「怎麼讓模型一步一步照做」。</p>
+<h2 id="其實就是把-ai-當人看待">其實就是把 AI 當人看待</h2>
+<p>寫到這裡，我後來有一個蠻慚愧的感覺：這些道理其實早就在帶人、帶專案的時候用過一輪了，只是換成 AI 之後，一時間忘記了。</p>
+<p>如果今天不是 agent，而是一個新來的 junior，我應該不會：</p>
+<ul>
+<li>在第一天就幫他排好之後三個月每一個 commit 的內容；</li>
+<li>要求他照著一份三個月前寫的「超詳細設計圖」硬幹到底。</li>
+</ul>
+<p>我會做的比較像是：</p>
+<ul>
+<li>跟他講清楚：這個季度我們要達成什麼、每個階段要交付什麼。</li>
+<li>在每個階段開始之前，帶他重新看一次現況：現在 repo 長這樣、最近誰動了什麼、有哪些坑不要踩。</li>
+<li>當中途發現前提改變，就一起調整計畫，而不是叫他硬把舊計畫做完。</li>
+</ul>
+<h2 id="小結">小結</h2>
+<p>這次的踩雷，對我來說有幾個 takeaway：</p>
+<ul>
+<li>「高階模型先規劃、低階模型執行」這套想法沒錯，但專案一直變化才是真實世界。</li>
+<li>把規劃改成「分階段定義起點和終點」，中間細節留到執行當下決定，比一開始綁死全部細節實際得多。</li>
+<li>設計 agent 流程時，多問一句：「如果把它換成人，我會怎麼帶？」常常就會少踩很多無聊的坑。</li>
+</ul>
+<p>以上就是這陣子和 agent 合作的一點經驗跟反省，給同樣在玩這塊的人參考。</p>
+
+              <a href="https://www.buymeacoffee.com/chiahsien" target="_blank" rel="noopener noreferrer">
+                <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=chiahsien&button_colour=44414e&font_colour=ffffff&font_family=Comic&outline_colour=ffffff&coffee_colour=FFDD00" />
+              </a>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://chiahsien.github.io/tag/ai/" class="tag">
+                    AI
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/development/" class="tag">
+                    Development
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/programming/" class="tag">
+                    Programming
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/work-flow/" class="tag">
+                    WorkFlow
+                  </a>
+                
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

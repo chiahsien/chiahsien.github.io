@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>在 KOReader 使用偽直排字體 | Nelson</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="在 KOReader 使用偽直排字體 | Nelson - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <div class="post-detail">
+            <h1 class="post-title">在 KOReader 使用偽直排字體</h1>
+            <div class="post-date">2025-03-11</div>
+            
+            <div class="post-content">
+              <p>我很喜歡閱讀中文書籍，有些類型的中文書在直排版面下閱讀總是特別有韻味。然而在電子閱讀器上，要享受直排閱讀的體驗並不容易。今天要分享一個在 <a href="https://koreader.rocks/">KOReader</a> 上實現「偽直排」的方法，讓我們能在電子書閱讀器上，也能享受傳統直排的閱讀樂趣。</p>
+<!-- more -->
+<h2 id="為什麼需要直排閱讀">為什麼需要直排閱讀？</h2>
+<p>傳統的中文書籍都是採用直排方式，從右至左、從上至下閱讀。這種排版方式不只是傳統，更是為了適應漢字的特性而生。即使到了現代，許多文學作品、古籍，甚至是日文書籍，仍然採用直排方式。在紙本書上，我們可以輕易找到直排版本，但在電子書的世界裡，直排版面卻成了一個難題。</p>
+<h2 id="偽直排的運作原理">偽直排的運作原理</h2>
+<p>這個解決方案的原理其實很有趣：</p>
+<ol>
+<li>首先使用特製的偽直排字體，每個字都被旋轉了 90 度</li>
+<li>接著透過 <a href="https://koreader.rocks/">KOReader</a> 的腳本功能，將內容區域旋轉 90 度</li>
+<li>這樣一來，旋轉的字體就會「站」起來，形成直排的效果</li>
+<li>最重要的是，UI 介面依然保持原本的方向，不會影響操作</li>
+</ol>
+<p>以下是一些可以用來實現偽直排效果的字體：</p>
+<ul>
+<li><a href="https://github.com/tonyhuan/GuanKiapTsingKhai">原俠正楷</a></li>
+<li><a href="https://here.vixual.net/files/fonts/rotate/">偽直排 源流明體 / 懷源黑體 / 花明蘭黑體</a></li>
+</ul>
+<p>這些字體都是經過特殊設計，能夠在旋轉後仍然保持良好的可讀性。</p>
+<h2 id="實際效果">實際效果</h2>
+<p>使用這個方法的優點是：</p>
+<ul>
+<li>不需要修改原始檔案，可以隨時切換橫排/直排模式</li>
+<li>保留了 <a href="https://koreader.rocks/">KOReader</a> 的所有功能，包括字體大小調整、版面調整等</li>
+<li>UI 介面維持原本方向，操作起來更直覺</li>
+</ul>
+<h2 id="如何安裝">如何安裝</h2>
+<p>以下是安裝步驟：</p>
+<ol>
+<li>到<a href="https://github.com/plateaukao/koreader_patch_vertical_read">這裡</a>下載腳本檔案 <code>2-cre-rotate-japanese-book.lua</code>，不要修改檔名。</li>
+<li>將檔案放到 <code>koreader/patches</code> 目錄下，如果沒有 <code>patches</code> 目錄就手動建立一個。</li>
+<li>重新啟動 KOReader。</li>
+<li>開啟一本書，在上方的書籍相關設定選單裡頭，會多出一個「Toggle vertical reading」的選單，勾選即可啟動。</li>
+<li>選擇一個偽直排字體。</li>
+</ol>
+<h2 id="使用建議">使用建議</h2>
+<p>安裝完成後，有幾個小技巧可以讓閱讀體驗更好：</p>
+<ol>
+<li>建議將邊距調整得更寬一些，讓版面更有餘裕</li>
+<li>可以嘗試不同的偽直排字體，找到最適合自己的選擇</li>
+<li>如果覺得預設的行距太擠，可以適當調整行距</li>
+</ol>
+<h2 id="結語">結語</h2>
+<p>透過這個方法，我們可以在 KOReader 上重現傳統直排的閱讀體驗。雖然是「偽」直排，但實際使用起來的效果相當不錯，特別適合閱讀古文、文學作品。如果你也喜歡直排閱讀，不妨試試這個方法，相信會讓你的閱讀體驗更加豐富。</p>
+
+              <a href="https://www.buymeacoffee.com/chiahsien" target="_blank" rel="noopener noreferrer">
+                <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=chiahsien&button_colour=44414e&font_colour=ffffff&font_family=Comic&outline_colour=ffffff&coffee_colour=FFDD00" />
+              </a>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://chiahsien.github.io/tag/koreader/" class="tag">
+                    KOReader
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/zhi-pai/" class="tag">
+                    直排
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/zhong-wen-pai-ban/" class="tag">
+                    中文排版
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/zi-ti/" class="tag">
+                    字體
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/kobo/" class="tag">
+                    Kobo
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/dian-zi-shu/" class="tag">
+                    電子書
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/dian-zi-shu-yue-du-qi/" class="tag">
+                    電子書閱讀器
+                  </a>
+                
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

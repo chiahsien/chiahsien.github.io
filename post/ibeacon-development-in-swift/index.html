@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>iBeacon 的 Swift 開發筆記 | Nelson</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="iBeacon 的 Swift 開發筆記 | Nelson - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <div class="post-detail">
+            <h1 class="post-title">iBeacon 的 Swift 開發筆記</h1>
+            <div class="post-date">2020-03-08</div>
+            
+            <div class="post-content">
+              <p>最近因為工作上的需求，需要透過 app 與支援 iBeacon 的裝置溝通，所以整理了一些筆記。在 iOS 的世界，app 可以作為 iBeacon 的接收者，也可以讓裝置作為 iBeacon 的發送者，這裡我只紀錄前者（接收者）的開發。</p>
+<!-- more -->
+<h2 id="開發步驟">開發步驟</h2>
+<h3 id="1-定位服務的設定">1. 定位服務的設定</h3>
+<p>iBeacon 的接收需要使用到定位服務，所以首先需要做以下這些設定：</p>
+<ol>
+<li>加入 <code>CoreLocation.framework</code></li>
+<li>在 <code>Info.plist</code> 加入 <code>NSLocationWhenInUseUsageDescription</code> key，如果需要在背景偵測是否有進入或離開 iBeacon 範圍，就要另外加入 <code>NSLocationAlwaysUsageDescription</code> key</li>
+<li>在程式碼加入 <code>import CoreLocation</code></li>
+</ol>
+<h3 id="2-開始定位-ibeacon">2. 開始定位 iBeacon</h3>
+<p>簡化起見，我們把程式碼放在 ViewController 裡頭，以下程式碼即可開始偵測 iBeacon。</p>
+<pre><code class="language-swift">import CoreLocation
+
+class ViewController: UIViewController {
+    let locationManager = CLLocationManager()
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        locationManager.requestAlwaysAuthorization()
+        locationManager.delegate = self
+
+        let uuid = UUID(uuidString: &quot;12345678-1234-1234-1234-123456789ABC&quot;)!
+        let region = CLBeaconRegion(proximityUUID: uuid, identifier: &quot;iBeacon Region&quot;)
+        locationManager.startMonitoring(for: region)
+    }
+}
+</code></pre>
+<p>每個 iBeacon 裝置都會廣播三種資料用來作為裝置辨識，分別是 <code>UUID</code>、<code>major</code>、<code>minor</code>。舉個常見的場景：假設我是某店家，我可以把所有佈置的 iBeacon 裝置都設定同一組 <code>UUID</code>，然後設定不同的 <code>major</code> 代表這個裝置放在哪棟建築物，<code>minor</code> 代表這個裝置的編號。當我開發的 app 連上裝置後，就可以透過 <code>major</code> 跟 <code>minor</code> 得知目前的位置，藉此提供給使用者相關的資訊。</p>
+<p>在上述的程式碼，我設定的 region 只有 <code>UUID</code>，代表符合這個 UUID 的裝置都可以被偵測。根據需求不同，也可以額外設定 <code>major</code> 或 <code>minor</code>。</p>
+<p><code>locationManager</code> 呼叫 <code>startMonitoring(for:)</code> 就會開始偵測 iBeacon 裝置，然後把結果回報給 <code>delegate</code>，所以接下來我們要處理 delegate callbacks。</p>
+<h3 id="3-處理-delegate-callbacks">3. 處理 delegate callbacks</h3>
+<p>我們把 callbacks 放在 <code>extension ViewController: CLLocationManagerDelegate { }</code> 裡頭，首先來處理錯誤。</p>
+<pre><code class="language-swift">func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+    print(&quot;Location manager did fail: \(error.localizedDescription)&quot;)
+}
+func locationManager(_ manager: CLLocationManager, monitoringDidFailFor region: CLRegion?, withError error: Error) {
+    print(&quot;Location manager monitoring did fail: \(error.localizedDescription)&quot;)
+}
+</code></pre>
+<p>再來處理定位範圍。</p>
+<pre><code class="language-swift">func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
+    guard region is CLBeaconRegion else { return }
+    // 在這裡做一些進入 region 的處理，例如提供一些提示
+    guard CLLocationManager.isRangingAvailable() else { return }
+    // 既然進入 region 了，那就偵測跟裝置的距離
+    manager.startRangingBeacons(in: region as! CLBeaconRegion)
+}
+
+func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) {
+    guard region is CLBeaconRegion else { return }
+    // 在這裡做一些離開 region 的處理，例如提供一些提示
+    guard CLLocationManager.isRangingAvailable() else { return }
+    // 既然離開 region 了，那就停止偵測跟裝置的距離
+    manager.stopRangingBeacons(in: region as! CLBeaconRegion)
+}
+</code></pre>
+<p>上述兩個 callbacks 只有在進入跟離開範圍時，才會被呼叫。如果啟動 app 的時候已經在 iBeacon 裝置範圍內，則不會收到進入範圍的通知，所以我們需要額外的處理。</p>
+<pre><code class="language-swift">func locationManager(_ manager: CLLocationManager, didStartMonitoringFor region: CLRegion) {
+    // 開始偵測範圍之後，就先檢查目前的 state 是否在範圍內
+    manager.requestState(for: region)
+}
+
+func locationManager(_ manager: CLLocationManager, didDetermineState state: CLRegionState, for region: CLRegion) {
+    guard region is CLBeaconRegion else { return }
+
+    if state == .inside { // 在範圍內
+        if CLLocationManager.isRangingAvailable() {
+            manager.startRangingBeacons(in: region as! CLBeaconRegion)
+        }
+    } else if state == .outside { // 在範圍外
+        if CLLocationManager.isRangingAvailable() {
+            manager.stopRangingBeacons(in: region as! CLBeaconRegion)
+        }
+    }
+}
+</code></pre>
+<p>最後來處理定位距離。</p>
+<pre><code class="language-swift">func locationManager(_ manager: CLLocationManager, rangingBeaconsDidFailFor region: CLBeaconRegion, withError error: Error) {
+    print(&quot;Location manager ranging beacons did fail: \(error.localizedDescription)&quot;)
+}
+
+func locationManager(_ manager: CLLocationManager, didRangeBeacons beacons: [CLBeacon], in region: CLBeaconRegion) {
+    // beacons 是一個 array，裡頭的 beacon 由近到遠排序
+    if let beacon = beacons.first {
+        // 取得距離最近的 beacon 了，作些事情吧
+    }
+}
+</code></pre>
+<h3 id="4-處理背景偵測">4. 處理背景偵測</h3>
+<p>如果我們需要在沒有啟動 app 的時候，也能收到進入或離開 beacon 範圍的通知，那我們需要在 <code>AppDelegate</code> 做一些設定。</p>
+<pre><code class="language-swift">import CoreLocation
+
+class AppDelegate: UIResponder, UIApplicationDelegate {
+    let locationManager = CLLocationManager()
+
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -&gt; Bool {
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { (granted, error) in
+        }
+        locationManager.delegate = self
+        return true
+    }
+}
+
+extension AppDelegate: CLLocationManagerDelegate {
+    func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
+        guard region is CLBeaconRegion else { return }
+
+        let content = UNMutableNotificationContent()
+        content.title = &quot;iBeacon Demo&quot;
+        content.body = &quot;You enter a region&quot;
+        content.sound = .default
+
+        let request = UNNotificationRequest(identifier: &quot;Demo&quot;, content: content, trigger: nil)
+        UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
+    }
+
+    func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) {
+        guard region is CLBeaconRegion else { return }
+
+        let content = UNMutableNotificationContent()
+        content.title = &quot;iBeacon Demo&quot;
+        content.body = &quot;You exit a region&quot;
+        content.sound = .default
+
+        let request = UNNotificationRequest(identifier: &quot;Demo&quot;, content: content, trigger: nil)
+        UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
+    }
+}
+</code></pre>
+<h2 id="注意事項">注意事項</h2>
+<ul>
+<li>需要實體機器開發 iBeacon app，Simulator 有諸多不便。</li>
+<li>Beacon 是單向廣播，app 只能接收，不能跟 beacon 溝通。廣播的資料只有 <code>UUID</code>、<code>major</code>、<code>minor</code>，沒有其他資訊。app 收到這些資訊之後需要自行發揮創意，決定要做什麽事（例如可以打 API 跟 server 查詢這組 <code>major + minor</code> 代表什麼地點）。</li>
+<li>UUID 的格式是 <code>12345678-1234-1234-1234-123456789ABC</code>，16進位字串，大小寫不拘。</li>
+<li>最多只能 monitor 20 個 beacon，想要更多的話要自己手動管理。</li>
+<li>記得要檢查 <code>isMonitoringAvailable(for:)</code> 跟 <code>isRangingAvailable()</code>。</li>
+<li>只有在進入或離開 region 才會觸發通知，在 region 內任何的移動並不會造成持續一直接收通知。</li>
+<li>要偵測 beacon，需要 <code>CoreLocation</code>，要作爲 beacon，需要 <code>CoreBluetooth</code>。</li>
+<li>如果只是需要使用者位置，用 <code>NSLocationWhenInUseUsageDescription</code> key，呼叫 <code>requestWhenInUseAuthorization()</code>；如果需要在背景接收 notification，除了這個 key 還要加上 <code>NSLocationAlwaysUsageDescription</code> key，呼叫 <code>requestAlwaysAuthorization()</code></li>
+<li>Monitoring 用來偵測是否在 beacon 範圍内；Ranging 用來判斷跟 beacon 的距離遠近。所以先用 monitor，在範圍内才啓動 ranging，ranging 很耗電，所以不要在背景做這件事。</li>
+</ul>
+<h2 id="參考資料">參考資料</h2>
+<ul>
+<li><a href="https://developer.apple.com/library/archive/documentation/UserExperience/Conceptual/LocationAwarenessPG/RegionMonitoring/RegionMonitoring.html#//apple_ref/doc/uid/TP40009497-CH9-SW1">Region Monitoring and iBeacon</a></li>
+<li><a href="https://developer.apple.com/ibeacon/Getting-Started-with-iBeacon.pdf">Getting Started with iBeacon.pdf</a></li>
+<li><a href="https://www.raywenderlich.com/632-ibeacon-tutorial-with-ios-and-swift">iBeacon Tutorial with iOS and Swift</a></li>
+<li><a href="https://stackoverflow.max-everyday.com/2018/04/ios-ibeacon-tutorial/">iBeacon Tutorial</a></li>
+<li><a href="https://medium.com/@jerrywang0420/ibeacon-%E6%95%99%E5%AD%B8-swift-3-ios-1d4ea88311be">iBeacon 教學</a></li>
+<li><a href="https://github.com/rabschi/awesome-beacon">Awesome Beacon</a></li>
+</ul>
+
+              <a href="https://www.buymeacoffee.com/chiahsien" target="_blank" rel="noopener noreferrer">
+                <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=chiahsien&button_colour=44414e&font_colour=ffffff&font_family=Comic&outline_colour=ffffff&coffee_colour=FFDD00" />
+              </a>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://chiahsien.github.io/tag/ibeacon/" class="tag">
+                    iBeacon
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/swift/" class="tag">
+                    Swift
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/ios/" class="tag">
+                    iOS
+                  </a>
+                
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

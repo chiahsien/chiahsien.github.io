@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>如何在 Debug mode 自動停用 ATS | Nelson</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="如何在 Debug mode 自動停用 ATS | Nelson - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <div class="post-detail">
+            <h1 class="post-title">如何在 Debug mode 自動停用 ATS</h1>
+            <div class="post-date">2015-10-14</div>
+            
+            <div class="post-content">
+              <p>蘋果在 WWDC 2015 上發表了 <a href="https://developer.apple.com/library/prerelease/ios/technotes/App-Transport-Security-Technote/">App Transport Security (ATS)</a>，大力推廣網路安全連線。對於這樣的發展，我個人是樂見其成的，也相信在蘋果的影響力之下，安全連線也會進一步的普及。</p>
+<p>不過對工程師來說，這代表你又要修改程式，以便符合蘋果規範了。在修改的過程中，我就遇到了一個問題：Release 版的 app 是會走安全連線的，但在 Debug 的時候它是連到本機(localhost)，這不是安全連線。該怎麼讓它在 Release / Debug 都能正常連線呢？</p>
+<!--more-->
+<p>因為 ATS 的設定是寫在 <code>Info.plist</code> 裡頭，所以最直覺的想法就是建立兩份 <code>plist</code> 分別給 Release / Debug 用。但實際情況是，這兩份 <code>plist</code> 的重複性會很高，而且你得隨時維護彼此之間的設定同步。一聽就知道這樣很容易出現人為失誤，所以這個做法不行。</p>
+<p>還好我找到<a href="http://stackoverflow.com/a/32704702/1852199">另一個解決辦法</a>，測試之後確實有效。</p>
+<h2 id="1">1.</h2>
+<p>在 <code>Info.plist</code> 裡頭寫入你的 ATS 設定，在這裡要注意的是，<strong>一定要</strong>包含 <code>NSAllowsArbitraryLoads</code> 這筆鍵值，至於它的值是 YES 或 NO 倒是無所謂，因為我們等一下會自動判斷要設為什麼值。</p>
+<h2 id="2">2.</h2>
+<p>選擇你的 target，切換到 <code>Build Phases</code> 分頁，點擊 <code>+</code> 按鈕並選擇 <code>New Run Script Phase</code>，新增的這個 script 名稱你可以自訂。</p>
+<h2 id="3">3.</h2>
+<p>script 內容如下：</p>
+<pre><code class="language-bash">#Disables ATS in debug builds.
+INFOPLIST=&quot;${TARGET_BUILD_DIR}&quot;/&quot;${INFOPLIST_PATH}&quot;
+case &quot;${CONFIGURATION}&quot; in
+&quot;Release&quot;|&quot;Adhoc&quot;)
+/usr/libexec/PlistBuddy -c &quot;Set :NSAppTransportSecurity:NSAllowsArbitraryLoads NO&quot; &quot;${INFOPLIST}&quot;
+;;
+&quot;Debug&quot;)
+/usr/libexec/PlistBuddy -c &quot;Set :NSAppTransportSecurity:NSAllowsArbitraryLoads YES&quot; &quot;${INFOPLIST}&quot;
+;; 
+esac
+</code></pre>
+<p>它做的事情就是去判斷你目前的 build mode，如果是 <code>Release</code> 或 <code>Adhoc</code>，就把 <code>NSAllowsArbitraryLoads</code> 設為 NO；如果是 <code>Debug</code> 就設為 YES。</p>
+<hr>
+<p><strong>同場加映：<a href="../how-to-properly-setup-afnetworking-security-connection/index.html">如何正確設定 AFNetworking 的安全連線</a></strong></p>
+
+              <a href="https://www.buymeacoffee.com/chiahsien" target="_blank" rel="noopener noreferrer">
+                <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=chiahsien&button_colour=44414e&font_colour=ffffff&font_family=Comic&outline_colour=ffffff&coffee_colour=FFDD00" />
+              </a>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://chiahsien.github.io/tag/development/" class="tag">
+                    Development
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/tips/" class="tag">
+                    Tips
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/network/" class="tag">
+                    Network
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/security/" class="tag">
+                    Security
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/xcode/" class="tag">
+                    Xcode
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/ios/" class="tag">
+                    iOS
+                  </a>
+                
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

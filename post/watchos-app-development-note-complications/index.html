@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>watchOS app 開發筆記：Complications | Nelson</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="watchOS app 開發筆記：Complications | Nelson - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <div class="post-detail">
+            <h1 class="post-title">watchOS app 開發筆記：Complications</h1>
+            <div class="post-date">2021-11-14</div>
+            
+            <div class="post-content">
+              <p>這一篇主要是要紀錄如何設定 Apple Watch 的 Complication。</p>
+<p>Complications 是錶面上可讓使用者選擇的小元件，需要使用 <a href="https://developer.apple.com/documentation/clockkit">ClockKit</a> 開發 (有些畫面可以<a href="https://developer.apple.com/documentation/clockkit/building_complications_with_swiftui">用 SwiftUI 開發</a>)，它的用途是在特定的時間，顯示相對應的資訊。</p>
+<p>Apple Watch 內建數十種錶面，每種錶面支援的 complications 數量 / 位置 / 尺寸都不盡相同，根據不同的尺寸跟風格，定義了多種不同的 families，每個 familiy 支援不同的 templates，我們使用 template 來設定要顯示的文字、圖片、或儀表圖。各種不同 families 的長相可以<a href="https://developer.apple.com/design/human-interface-guidelines/watchos/overview/complications/">參考這份文件</a>。</p>
+<!-- more -->
+<h2 id="一些限制">一些限制</h2>
+<p>設計 complications 時有幾點要注意的:</p>
+<ul>
+<li>不支援動畫</li>
+<li>不支援任何互動，只會啟動 app</li>
+<li>圖片置中顯示且不會自動縮放</li>
+<li>根據使用者設定，用原色或單色調顯示</li>
+</ul>
+<h2 id="取得-complication-timeline-entries-的順序">取得 Complication Timeline Entries 的順序</h2>
+<p>Complication 是在特定的時間，顯示相對應的資訊，watchOS 跟 CLKComplicationDataSource 取得需要的資訊，以下是它的順序:</p>
+<ol>
+<li>呼叫 <code>func getComplicationDescriptors(handler: @escaping ([CLKComplicationDescriptor]) -&gt; Void)</code> 取得所有可提供的 complication 種類，我們可以根據 family 還有自訂的 identifier 來設計 complication。</li>
+<li>呼叫 <code>func getTimelineEndDate(for complication: CLKComplication, withHandler handler: @escaping (Date?) -&gt; Void)</code> 得知是否能根據不同時間顯示不同 complication 內容。</li>
+<li>呼叫 <code>func getCurrentTimelineEntry(for complication: CLKComplication, withHandler handler: @escaping (CLKComplicationTimelineEntry?) -&gt; Void)</code> 取得目前時間要顯示的 complication 內容。</li>
+<li>呼叫 <code>func getTimelineEntries(for complication: CLKComplication, after date: Date, limit: Int, withHandler handler: @escaping ([CLKComplicationTimelineEntry]?) -&gt; Void)</code> 取得未來時間要顯示的 complications 內容。</li>
+</ol>
+<h2 id="如何建立-complication-timeline-entry">如何建立 Complication Timeline Entry</h2>
+<p>建立 <a href="https://developer.apple.com/documentation/clockkit/clkcomplicationtimelineentry">Timeline Entry</a> 的作法大致如下:</p>
+<ol>
+<li>根據 Complication 的 <a href="https://developer.apple.com/documentation/clockkit/clkcomplicationfamily">family</a> 跟 <a href="https://developer.apple.com/documentation/clockkit/clkcomplication/3612129-identifier">identifier</a> 屬性，決定要使用哪種 <a href="https://developer.apple.com/documentation/clockkit/clkcomplicationtemplate">template</a> 跟 <a href="https://developer.apple.com/documentation/clockkit/data_providers">data provider</a></li>
+<li>建立 data provider，然後建立 template</li>
+<li>根據日期跟 template 建立 timeline entry</li>
+</ol>
+<h2 id="如何更新-timeline-entries">如何更新 Timeline Entries</h2>
+<p>除了被動等待系統來獲取 complication timeline entries 之外，還有下列幾種方式可以<a href="https://developer.apple.com/documentation/clockkit/keeping_your_complications_up_to_date">主動更新</a>:</p>
+<ul>
+<li>透過 <a href="https://developer.apple.com/documentation/pushkit/pkpushtype/1614486-complication">PushKit complication notification</a> 更新已建立的 timeline entries。</li>
+<li>iPhone app 傳送 <a href="https://developer.apple.com/documentation/watchconnectivity/wcsession/1615639-transfercurrentcomplicationuseri">Complication UserInfo</a> 更新</li>
+<li>watchOS app 呼叫 <a href="https://developer.apple.com/documentation/clockkit/clkcomplicationserver/1627891-reloadtimeline"><code>reloadTimeline(for:)</code></a> 或 <a href="https://developer.apple.com/documentation/clockkit/clkcomplicationserver/1627895-extendtimeline"><code>extendTimeline(for:)</code></a> 更新</li>
+<li>使用 background URL session 下載資料更新</li>
+<li>排程 background tasks 定期更新</li>
+</ul>
+<h2 id="參考資料">參考資料</h2>
+<ul>
+<li><a href="https://developer.apple.com/documentation/watchconnectivity">Watch Connectivity</a></li>
+<li><a href="https://developer.apple.com/documentation/clockkit">ClockKit</a></li>
+<li><a href="https://www.techotopia.com/index.php/WatchOS_2_App_Development_Essentials">WatchOS 2 App Development Essentials</a></li>
+<li><a href="https://betterprogramming.pub/get-started-with-watch-connectivity-with-swiftui-51722324b6f6">Get Started With Watch Connectivity With SwiftUI</a></li>
+<li><a href="https://www.raywenderlich.com/17749320-complications-for-watchos-with-swiftui">Complications for watchOS with SwiftUI</a></li>
+<li><a href="https://developer.apple.com/design/human-interface-guidelines/watchos/overview/getting-started/">Getting Started - watchOS - Human Interface Guidelines - Apple Developer</a></li>
+<li><a href="https://designcode.io/ui-design-handbook-apple-watch-faces">Apple Watch Faces - UI Design Handbook - Design+Code</a></li>
+</ul>
+
+              <a href="https://www.buymeacoffee.com/chiahsien" target="_blank" rel="noopener noreferrer">
+                <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=chiahsien&button_colour=44414e&font_colour=ffffff&font_family=Comic&outline_colour=ffffff&coffee_colour=FFDD00" />
+              </a>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://chiahsien.github.io/tag/watchos/" class="tag">
+                    watchOS
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/swiftui/" class="tag">
+                    SwiftUI
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/swift/" class="tag">
+                    Swift
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/ios/" class="tag">
+                    iOS
+                  </a>
+                
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

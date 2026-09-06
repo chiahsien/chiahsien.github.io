@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>我在用的 QuickLook plugins | Nelson</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="我在用的 QuickLook plugins | Nelson - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <div class="post-detail">
+            <h1 class="post-title">我在用的 QuickLook plugins</h1>
+            <div class="post-date">2013-07-13</div>
+            
+            <div class="post-content">
+              <p>Mac 有個很棒的功能叫做「<strong>QuickLook</strong>」，它讓我們瀏覽檔案時，按下空白鍵就能快速瀏覽選中的檔案。更棒的是，我們可以透過新增 plugins 的方式，讓它支援更多種類的檔案。</p>
+<p>底下是我目前在用的一些 QuickLook plugins，安裝的方法很簡單，把解壓縮之後得到的 <code>.qlgenerator</code> 檔放到 <code>~/Library/QuickLook/</code> 底下就完成了，若是沒有 QuickLook 目錄就自己建立一個。若是裝了沒反應，就在終端機底下打指令 <code>qlmanage -r</code> 即可。</p>
+<!-- more -->
+<p><strong>預覽 MarkDown</strong></p>
+<ul>
+<li><a href="https://github.com/toland/qlmarkdown">qlmarkdown</a> (個人偏好用這個)</li>
+<li><a href="https://github.com/ttscoff/MMD-QuickLook">MMD-QuickLook</a></li>
+</ul>
+<p><strong>預覽程式碼</strong></p>
+<ul>
+<li><a href="http://code.google.com/p/qlcolorcode/">qlcolorcode</a></li>
+</ul>
+<p><strong>預覽沒有副檔名的純文字檔</strong></p>
+<ul>
+<li><a href="https://github.com/whomwah/qlstephen">qlstephen</a></li>
+</ul>
+<p><strong>預覽 NFO 檔</strong></p>
+<ul>
+<li><a href="https://github.com/planbnet/QuickNFO">QuickNFO</a></li>
+</ul>
+<p>附加一個小提示，在終端機(Terminal)輸入以下指令，就可以在 QuickLook 介面選取並複製文字</p>
+<p><code>defaults write com.apple.finder QLEnableTextSelection -bool TRUE; killall Finder</code></p>
+<p>你自己有在用什麼 QuickLook plugins 嗎？有的話可以留言分享給我喔！</p>
+
+              <a href="https://www.buymeacoffee.com/chiahsien" target="_blank" rel="noopener noreferrer">
+                <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=chiahsien&button_colour=44414e&font_colour=ffffff&font_family=Comic&outline_colour=ffffff&coffee_colour=FFDD00" />
+              </a>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://chiahsien.github.io/tag/productivity/" class="tag">
+                    Productivity
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/tools/" class="tag">
+                    Tools
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/macos/" class="tag">
+                    macOS
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/work-flow/" class="tag">
+                    WorkFlow
+                  </a>
+                
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

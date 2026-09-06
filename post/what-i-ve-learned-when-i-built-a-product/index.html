@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>開發產品學到的一些事 | Nelson</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="開發產品學到的一些事 | Nelson - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <div class="post-detail">
+            <h1 class="post-title">開發產品學到的一些事</h1>
+            <div class="post-date">2015-06-19</div>
+            
+            <div class="post-content">
+              <p>這幾年都在 start-up 打滾，跟著做了一些產品，也有一些小小心得，就紀錄下來跟各位分享討論。</p>
+<!-- more -->
+<h2 id="不要一開始就寫程式">不要一開始就寫程式</h2>
+<p>你（或你們公司）想到了一個好點子，這時你要做的第一件事是什麼？馬上捲起袖子把點子實作出來嗎？千萬不是！你們要做的第一件事是**<code>確認真的有客戶需要這個點子</code>**，而不是草率投入大量時間、人力、金錢成本，最後做出來的東西卻可能沒人要。</p>
+<p>或許你會想說東西都還沒做出個雛形來，怎麼知道有沒有客戶呢？方法有很多種，例如你們可以把點子解釋給陌生人聽，看看對方的反應如何。或是先快速開發一個 landing page 來介紹你們的點子，並收集使用者的回饋。</p>
+<p>確定真的有人需要這個點子，並且確定這個點子真的需要寫程式之後，再開始動手寫。</p>
+<h2 id="寫好-user-story">寫好 User Story</h2>
+<p>你可以不寫 Spec，但千萬不能沒寫 User Story。User Story 的寫法很簡單，長得大概就像這樣：「為了解決什麼問題，身為一個使用者，我希望在某種情況下，能夠做某件事」。</p>
+<p>寫 User Story 有幾個好處：</p>
+<ol>
+<li>
+<p>可以讓所有人都看得懂</p>
+<p>因為 User Story 就是用大家都明白的語言，把想要做的事寫出來，所以無論是不是技術背景的人，都可以看懂「為何需要這個功能、這個功能是為了解決什麼問題」。</p>
+</li>
+<li>
+<p>可以幫助整理思路</p>
+<p>因為你得把你在什麼情境底下想要完成什麼功能寫出來，在寫的過程當中就可以整理自己的思路，檢查這樣的需求是否合理。然後因為大家都能看懂，所以無論是否有技術背景的人，都可以一起來討論，這樣就可以幫忙找出盲點，並且完善整個需求。</p>
+</li>
+<li>
+<p>可以讓開發者用最適合的解法解決問題</p>
+<p>為什麼我會覺得不需要寫 Spec 呢，因為寫 Spec 的人不一定是要開發的人，所以很容易就寫出很莫名其妙的 Spec。更糟糕的是，有可能一開始就寫 Spec，少了互相討論完善的階段，結果最後整個歪掉。</p>
+<p>所以我會說不要寫 Spec，寫 User Story 就好，然後把 User Story 寫完整。有經驗的開發者看到 User Story 自然就會找出最適合的方式去解決問題。千萬不要外行領導內行，亂下指導棋。</p>
+</li>
+<li>
+<p>方便驗收</p>
+<p>既然 User Story 都寫得那麼完善了，要驗收的時候只要一一對照 User Story 就可以知道是否完成所有需求。對驗收人員來說，看 User Story 就會知道這個功能到底是什麼，也就代表很容易就能理解要驗收什麼。</p>
+</li>
+</ol>
+<h2 id="一定要使用版本控制系統">一定要使用版本控制系統</h2>
+<p>版本控制系統的好處我就不多說了，無論是單打獨鬥或是團隊合作都應該要用版本控制系統。我個人最推薦的當然是 <a href="https://git-scm.com/">Git</a>，雖然它的入門門檻頗高，但熟悉它之後所帶來的好處真是讓人無法抗拒的。</p>
+<p>近年來 Git 有越來越多好用的 GUI，已經大大降低初學者上手的難度，<a href="https://www.sourcetreeapp.com/">SourceTree</a>、<a href="http://www.git-tower.com/">Tower</a>、<a href="http://gitup.co/">GitUp</a> 都是不錯的選擇。至於要如何將版本控制系統整合到你的開發流程，可以先參考 <a href="http://nvie.com/posts/a-successful-git-branching-model/">Git Flow</a> 跟 <a href="https://guides.github.com/introduction/flow/">GitHub Flow</a>，再逐步調整成適合你們團隊的作法。</p>
+<p>有了版本控制，當然就得記得要下版本號，如果不知道該怎麼決定版本號，可以參考<a href="http://semver.org/">語意化版本號</a>的作法。</p>
+<h2 id="不必一開始就寫測試">不必一開始就寫測試</h2>
+<p>可能有些人覺得這是邪魔歪道，不過我真心這麼覺得：「你應該寫測試，但你不應該一開始就寫測試」。</p>
+<p>身處在 start-up，無論前期的思慮有多麼周到，產品的需求還是很容易就會變更。如果採用「測試先行」的話，最後你會發現絕大多數開發的時間都拿去寫測試了，而且因為需求在前期很容易變更，所以你的測試也很容易一改再改因而難以重複使用。（P.S. 降低需求變更機率的一個方法就是好好寫 User story）</p>
+<p>所以我會建議，等產品到達一定的穩定度之後（例如主要的功能或畫面都已經固定），再來補上測試。到時可以特地安排一段時間專心來寫測試，或是在需要重構程式的時候邊重構邊補上測試。</p>
+<h2 id="善用追蹤工具">善用追蹤工具</h2>
+<p>做任何決定之前都要有所本，不要突然「通靈」了就做出莫名其妙的決策。那要根據什麼做決定呢？很簡單，讓數據說話。善用至少一款追蹤工具（<a href="http://www.google.com/intl/zh-TW/analytics/">GA</a>、<a href="https://mixpanel.com/">Mixpanel</a>、<a href="http://www.flurry.com/">Flurry</a>、<a href="https://kissmetrics.com/">Kissmetrics</a>、<a href="https://keen.io/">Keen IO</a>、<a href="http://customer.io/">Customer.io</a>、<a href="https://segment.com/">Segment</a> 等等）並在上線第一天就開始追蹤使用者的行為，這樣才能知道有多少使用者在用你的產品，以及如何用你的產品。總之，就是要透過數據收集與分析，來了解你的使用者。</p>
+<p>日後當你要做 growth hacking 的時候，追蹤工具更是不可少，你會需要這些追蹤工具來幫你統計，看哪些修改會有助於你的業務成長，哪些修改反而會讓業務衰退，以及成長或衰退了多少。</p>
+<p>如果有開發 APP 的話，你也會需要想辦法取得 crash log，這樣才知道程式掛在哪，我推薦使用 <a href="https://try.crashlytics.com/">Crashlytics</a> 幫你收集分析這些 crash log，它非常的好用。</p>
+<h2 id="愛用第三方元件">愛用第三方元件</h2>
+<p>近年來 open source 越來越受到歡迎，網路上有各式各樣的第三方元件讓你取用，所以真的沒必要每一樣功能都自幹，如果有現成的可以符合你的需求，就大膽的用吧。再加上第三方元件的管理程式（像是蘋果開發者常用的 <a href="https://cocoapods.org/">CocoaPods</a> 跟 <a href="https://github.com/Carthage/Carthage">Carthage</a>）也越做越好，早期會遇到的第三方元件版本控管問題已經很少見了，所以我建議各位可以盡量用第三方元件，或是將第三方元件修改成符合自己需求，沒事不要自己造輪子。</p>
+<h2 id="方便的更新機制">方便的更新機制</h2>
+<p>隨著時間過去，你的產品需求一定會有所變化，該怎麼向後相容以及如何要求使用者升級就變成一件不得不面對的問題，這裡我有幾點建議讓你參考。</p>
+<ul>
+<li>
+<p>設計 API 的時候要考慮版本化</p>
+<p>同一支 API 背後的商業邏輯很有可能會變化，如果一開始設計的時候沒有考慮版本化，你就會為了 API 名稱而大傷腦筋：可能原本的叫做 <code>checkout</code>，後來叫做 <code>checkout_new</code>，再後來叫做 <code>the_new_checkout</code>。</p>
+<p>但如果一開始有考慮版本化的話，你就可以一開始叫做 <code>checkout/v1</code>，後來叫做 <code>checkout/v2</code>。或是直接改 API end point，例如一開始的 end point 是 <code>api.myserver.com/v1/</code>，後來的是 <code>api.myserver.com/v2</code>。</p>
+</li>
+<li>
+<p>呼叫 API 的時候附上環境參數</p>
+<p>雖然現在送 request 的時候，大部分都會在 header 附上 client 的一些資訊，但每個 client 送出的 request header 格式有可能並不統一，所以要 server 去 parse header 來取得所需資訊，其實成本蠻高的。</p>
+<p>比較方便的方法是，client 每次在呼叫 API 的時候就主動附帶一些參數讓 server 好判斷。例如可以送 <code>platform</code> 參數指明是 <code>ios / android / web</code>，<code>device</code> 指明是 <code>phone / tablet / desktop</code>，<code>version</code> 表示程式的版本等等。Server 就可以根據這些參數有不同的邏輯與回應資料，例如根據 <code>device</code> 回傳不同尺寸的圖片網址，或是根據 <code>version</code> 來得知對方是否使用最新版本。</p>
+</li>
+<li>
+<p>In-App Announcement</p>
+<p>如果一開始就有設計 in-app announcement 機制的話，就可以更輕易讓使用者得知最新消息。例如有新版本可以下載了，讓使用者知道有什麼新功能並引導使用者去下載。或是有在舉辦什麼活動的時候，也可以透過這個機制讓使用者知道（例如 Uber 時常會舉辦不同活動，車子圖示也會跟著變）。或是有什麼新貼圖、新佈景主題、新內容，也可以讓使用者知道（例如 Line 或各款遊戲）。</p>
+</li>
+<li>
+<p>儲存資料的時候要考慮版本化</p>
+<p>有很多時候我們必須儲存一些資料在本機，可能是透過寫入設定檔或是寫入資料庫，如果儲存資料的時候有考慮到版本化，之後要處理資料相容或是要將舊資料轉換成新資料的時候，都會相對簡單許多。</p>
+</li>
+</ul>
+<h2 id="寫文件">寫文件</h2>
+<p>所有人都知道寫文件的重要，但是大概沒人會喜歡寫文件，但其實文件沒那麼難寫。文件存在的理由是什麼？不就是為了日後的查詢參考嗎。</p>
+<p>所以 User Story 就是文件的一部分，你一邊設計產品的同時，就一邊在寫文件了。這樣有沒有覺得寫 User Story 很划算，會不會更有動力寫好它！</p>
+<p>程式碼註解也是文件的一種，現在有很多工具能夠將註解轉換成說明檔，日後只要註解有所變動，說明檔就會自動更新，這可以幫忙省下超多時間。像我們的後端都會在程式碼裡頭註解說明這支 API 的用途是什麼、傳入的參數是代表什麼意思、是什麼型態、是否可以不傳、回傳值是什麼、有可能產生哪些 error，對應的 error code 是什麼等等。我個人覺得，維護程式碼的註解比額外維護一份說明文件（可能是 wiki 或是 doc 等等）簡單多了。</p>
+<p>文件也不是寫完丟在一旁就算了，它是讓人日後可以查詢參考的，所以最好可以把所有文件統一放在一個地方，然後有個方便的作法讓人查詢（可能是規劃良好的目錄結構，或是提供搜尋功能等等）。</p>
+<p>簡單來說，文件有三大重點：要完整、要保持最新版本、要讓人找得到。</p>
+<h2 id="畫-wireframe">畫 Wireframe</h2>
+<p>通常設計師會畫好 wireframe 讓工程師知道整個使用流程，明白該從哪個畫面跳到哪個畫面。如果很不幸的，你們公司沒有這種東西（可能是不見了或根本就沒有），那 APP 開發工程師就認份一點自己畫一個吧。對工程師來說，畫這個並不難，只要把 APP 每個畫面都擷取下來，然後用箭頭把彼此之間的前後關係串起來就可以了。</p>
+<p>擁有一份完整的 wireframe 的好處在於，當你們想要增刪或修改某些功能的時候，可以把 wireframe 拿出來，看看增刪或修改這個功能之後，整個使用流程是否順暢合理。千萬不要功能都做完，才發現流程變得卡卡的，這樣浪費的成本太高了。</p>
+<hr>
+<p>以上就是我的一些心得，就算每一點都做到了，也不保證你的產品會成功，但絕對會讓你開發一款新產品時比較不會走歪，就算歪了也可以早一點救回來，降低你犯錯的成本。</p>
+
+              <a href="https://www.buymeacoffee.com/chiahsien" target="_blank" rel="noopener noreferrer">
+                <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=chiahsien&button_colour=44414e&font_colour=ffffff&font_family=Comic&outline_colour=ffffff&coffee_colour=FFDD00" />
+              </a>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://chiahsien.github.io/tag/development/" class="tag">
+                    Development
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/product/" class="tag">
+                    Product
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/startup/" class="tag">
+                    Startup
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/git/" class="tag">
+                    Git
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/work-flow/" class="tag">
+                    WorkFlow
+                  </a>
+                
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

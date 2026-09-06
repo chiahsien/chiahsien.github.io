@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>利用 CoreML 來判別圖片 | Nelson</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="利用 CoreML 來判別圖片 | Nelson - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <div class="post-detail">
+            <h1 class="post-title">利用 CoreML 來判別圖片</h1>
+            <div class="post-date">2019-04-23</div>
+            
+            <div class="post-content">
+              <p>在 WWDC 2018 蘋果推出了 <a href="https://developer.apple.com/documentation/createml">Create ML</a> ，讓開發者可以輕鬆的建立並訓練適合自己需求的機器學習模型，它支援圖片、自然語言、表格資料的學習。最近這幾天我就想到要訓練一個自家的模型，用來檢查使用者是否打算上傳不恰當的圖片。</p>
+<!-- more -->
+<h2 id="訓練自己的模型">訓練自己的模型</h2>
+<p>首先要準備好訓練資料，將資料分類放在不同的資料夾，不同的資料夾名稱就是所謂的 <code>Label</code>。舉例來說我會建立一個 <code>Unsafe</code> 資料夾存放腥羶色的圖片，再建立一個 <code>Safe</code> 資料夾存放正常的圖片。這裡有一些要注意的地方：</p>
+<ul>
+<li>每個資料夾裡頭的檔案個數至少要有 <strong>10</strong> 個。</li>
+<li>每個資料夾裡頭的檔案個數不要相差太多。</li>
+<li>每個資料夾裡頭的檔案個數越多越好。</li>
+</ul>
+<p>再來我們要建立一個新的 playground，選擇 <code>macOS -&gt; Blank</code> template（注意：要選 <code>macOS</code> 不是 <code>iOS</code>），然後把內容改成以下程式碼：</p>
+<pre><code class="language-Swift">import CreateMLUI
+
+let builder = MLImageClassifierBuilder()
+builder.showInLiveView()
+</code></pre>
+<p>在 Xcode 裡頭切換到 <code>Assistant Editor</code> 並執行 playground，就能在 Assistant Editor 看到 <code>Live View</code> 了。把我們事先準備好的訓練資料拉進 Live View，它就會開始建立並訓練模型。</p>
+<p>訓練好之後，我們可以把一些測試資料拉進 Live View，看看這個模型的判斷是否準確，如果滿意的話就可以把模型存起來了。</p>
+<h2 id="利用模型判斷資料">利用模型判斷資料</h2>
+<p>假設我們把模型存成 <code>ImageClassifier.mlmodel</code>，接下來就是把它拉進 Xcode Project 裡頭。再來我們要建立一個 <code>ImageDetector</code> class，負責把圖片餵給模型，並回傳模型判斷的結果。這個 class 只有一個 method，讓使用者傳一張圖片進來判斷，判斷成功的話會回應信心值（0~1），失敗的話回應一個 Error。</p>
+<pre><code class="language-objc">@interface ImageDetector : NSObject
+
+- (void)checkImage:(UIImage *)image withSuccess:(void (^)(float confidence))success failure:(void (^)(NSError *error))failure;
+
+@end
+</code></pre>
+<p>實作也很簡單，首先要 import 必要的檔案，<code>ImageClassifier.h</code> 是我們把 <code>ImageClassifer.mlmodel</code> 拉進 project 的時候自動產生的：</p>
+<pre><code class="language-objc">#import &quot;ImageDetector.h&quot;
+#import &quot;ImageClassifier.h&quot;
+
+@import CoreML;
+@import Vision;
+
+@interface ImageDetector ()
+@property (nonatomic, strong) VNCoreMLModel *model;
+@end
+</code></pre>
+<p>我們在 <code>init</code> 的時候載入模型：</p>
+<pre><code class="language-objc">- (instancetype)init {
+    if (self = [super init]) {
+        ImageClassifier *classifier = [[ImageClassifier alloc] init];
+        _model = [VNCoreMLModel modelForMLModel:classifier.model error:NULL];
+    }
+    return self;
+}
+</code></pre>
+<p>然後實作唯一的 public method：</p>
+<pre><code class="language-objc">- (void)checkImage:(UIImage *)image withSuccess:(void (^)(float confidence))success failure:(void (^)(NSError *error))failure {
+    VNImageRequestHandler *handler = nil;
+    if (image.CGImage) {
+        handler = [[VNImageRequestHandler alloc] initWithCGImage:image.CGImage options:@{}];
+    } else if (image.CIImage) {
+        handler = [[VNImageRequestHandler alloc] initWithCIImage:image.CIImage options:@{}];
+    }
+    [self checkWithRequestHandler:handler success:success failure:failure];
+}
+</code></pre>
+<p>最後實作唯一的 private method：</p>
+<pre><code class="language-objc">- (void)checkWithRequestHandler:(nullable VNImageRequestHandler *)handler success:(void (^)(float confidence))success failure:(void (^)(NSError *error))failure {
+    if (!handler) {
+        NSError *error = [NSError errorWithDomain:@&quot;com.imageDetector&quot; code:0 userInfo:nil];
+        failure(error);
+        return;
+    }
+
+    // 建立一個 request，用來判斷圖片並處理判斷的結果
+    VNCoreMLRequest *req = [[VNCoreMLRequest alloc] initWithModel:self.model completionHandler:^(VNRequest * _Nonnull request, NSError * _Nullable error) {
+        if (error) {
+            failure(error);
+            return;
+        }
+
+        NSString *label = @&quot;UnSafe&quot;; // 這個就是你要的 Label，也就是訓練資料的資料夾名稱
+        NSArray&lt;VNClassificationObservation *&gt; *observations = request.results;
+        for (VNClassificationObservation *observation in observations) {
+            if (![observation.identifier isEqualToString:label]) {
+                continue;
+            }
+            success(observation.confidence);
+            return;
+        }
+
+        NSError *e = [NSError errorWithDomain:@&quot;com.imageDetector&quot; code:0 userInfo:nil];
+        failure(e);
+    }];
+    req.preferBackgroundProcessing = YES;
+
+    // 丟到 background queue 執行，才不會卡住 UI
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0), ^{
+        NSError *error = nil;
+        if (![handler performRequests:@[req] error:&amp;error]) {
+            failure(error);
+        }
+    });
+}
+</code></pre>
+<p>要注意的是，呼叫者如果要在 <code>success / failure</code> callback 處理畫面更新，記得要切回 <code>main queue</code>。</p>
+<h2 id="參考資料">參考資料</h2>
+<p>至此，一個為你量身定制的機器學習模型就可以正常運作了，而且 iOS 11 也有支援喔。如果有興趣的話，也可以接著看看更多的參考資料。</p>
+<ul>
+<li><a href="https://www.raywenderlich.com/5653-create-ml-tutorial-getting-started">Create ML Tutorial: Getting Started | raywenderlich.com</a></li>
+<li><a href="https://www.appcoda.com/create-ml/">Create ML: How to Train Your Own Machine Learning Model in Xcode 10</a></li>
+<li><a href="https://developer.apple.com/videos/play/wwdc2018/703/">WWDC 2018, Section 703 - Introducing Create ML</a></li>
+<li><a href="https://developer.apple.com/videos/play/wwdc2018/712">WWDC 2018, Section 712 - A Guide to Turi Create</a></li>
+<li><a href="https://developer.apple.com/videos/play/wwdc2018/717">WWDC 2018, Section 717 - Vision with Core ML</a></li>
+</ul>
+
+              <a href="https://www.buymeacoffee.com/chiahsien" target="_blank" rel="noopener noreferrer">
+                <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=chiahsien&button_colour=44414e&font_colour=ffffff&font_family=Comic&outline_colour=ffffff&coffee_colour=FFDD00" />
+              </a>
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://chiahsien.github.io/tag/coreml/" class="tag">
+                    CoreML
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/macos/" class="tag">
+                    macOS
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/objective-c/" class="tag">
+                    Objective-C
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/xcode/" class="tag">
+                    Xcode
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/swift/" class="tag">
+                    Swift
+                  </a>
+                
+                  <a href="https://chiahsien.github.io/tag/ios/" class="tag">
+                    iOS
+                  </a>
+                
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

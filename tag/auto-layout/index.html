@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>Nelson/Auto-Layout</title>
+<meta name="description" content="我寫故我在">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="alternate" type="application/atom+xml" title="Nelson/Auto-Layout - Atom Feed" href="https://chiahsien.github.io/atom.xml">
+<link rel="shortcut icon" href="https://chiahsien.github.io/favicon.ico">
+<link rel="stylesheet" href="https://chiahsien.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!-- <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script> -->
+<script src="https://chiahsien.github.io/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://chiahsien.github.io">
+        <img src="https://chiahsien.github.io/images/avatar.png" class="site-logo">
+        <h1 class="site-title">Nelson</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://chiahsien.github.io/archives" class="site-nav">
+            文章
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/tags" class="site-nav">
+            標籤
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/post/about" class="site-nav">
+            關於我
+          </a>
+        
+      
+        
+          <a href="https://www.linkedin.com/in/tainelson/" class="site-nav" target="_blank">
+            LinkedIn
+          </a>
+        
+      
+        
+          <a href="https://github.com/chiahsien" class="site-nav" target="_blank">
+            GitHub
+          </a>
+        
+      
+        
+          <a href="https://chiahsien.github.io/atom.xml" class="site-nav" target="_blank">
+            RSS
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container">
+    <div class="site-description">
+      我寫故我在
+    </div>
+    <div class="site-footer">
+      
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container">
+          <h1 class="current-tag">標籤: Auto-Layout</h1>
+          
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/uiscrollview-and-autolayout/">
+            <h1 class="post-title">UIScrollView and AutoLayout</h1>
+        </a>
+        <div class="post-date">
+            2023-01-08
+        </div>
+        <div class="post-abstract">
+            
+            <h2 id="以前的作法">以前的作法</h2>
+<p>在以前要用 <code>Auto Layout</code> 來設置 <code>UIScrollView</code> 的 sub views 並不是一件讓人愉快的事情，雖然不複雜，但步驟就是有點麻煩。因為 scroll view 自身的特性，所以必須設定它本身的位置與尺寸，然後設定 sub views 的位置與尺寸，最後算出 <code>contentSize</code> 的尺寸。總結來說大概分成以下幾步：</p>
+<ol>
+<li>設定 <code>UIScrollView</code> 本身的位置與尺寸</li>
+<li>建立一個 <code>contentView</code> 並加到 <code>UIScrollView</code> 的 sub view</li>
+<li>設定 <code>contentView</code> 的位置，通常是四邊都貼齊 <code>UIScrollView</code></li>
+<li>可以滾動的 sub views 都加到 <code>contentView</code>，然後用 auto layout 設定這些 sub views 的位置與尺寸</li>
+<li>如果設定無誤的話，<code>contentView</code> 就可算出正確的尺寸，這就是 <code>UIScrollView</code> 的 <code>contentSize</code></li>
+</ol>
+<p>最讓人困惑且忽略的就是第三點，因為它很不自然，但在 <code>UIScrollView</code> 卻又是必須的。另外就是第四點，一定要有明確的位置跟尺寸，這樣才有辦法算出 <code>contentSize</code> 給 <code>UIScrollView</code> 使用。</p>
+<h2 id="現在的作法">現在的作法</h2>
+<p>從 iOS 11 開始，<code>UIScrollView</code> 多了 <code>frameLayoutGuide</code> 跟 <code>contentLayoutGuide</code> 這兩個方便的屬性，讓我們不必再用不自然的方式去設定 content 的 auto layout。</p>
+<ol>
+<li>可以使用舊有的方式或是使用 <code>frameLayoutGuide</code> 設定 <code>UIScrollView</code> 本身的位置與尺寸</li>
+<li>不需要額外的 <code>contentView</code> 了，直接把內容加到 sub view</li>
+<li>這些 sub views 與 <code>contentLayoutGuide</code> 建立 auto layout constraints</li>
+</ol>
+<p>整個設定流程變得自然許多，也更不容易出錯。現在我們只要確定 sub views 有設好明確的位置與尺寸，讓系統能夠算出 <code>contentSize</code> 即可。</p>
+
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/where-to-put-the-auto-layout-codes/">
+            <h1 class="post-title">產生 Auto Layout Constraints 的程式碼要放在哪裡</h1>
+        </a>
+        <div class="post-date">
+            2015-09-02
+        </div>
+        <div class="post-abstract">
+            
+            <p>由於種種原因，所以到目前為止，我在公司的專案還是沒有用 Interface Builder，所有的 UI 完全用程式碼一行一行刻出來，當然這也包含 auto layout 相關的程式碼，那這些程式碼應該要放哪裡呢？</p>
+
+            <a href="https://chiahsien.github.io/post/where-to-put-the-auto-layout-codes/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+<article class="post-item">
+    <div class="left">
+        <a href="https://chiahsien.github.io/post/how-to-create-a-gradient-view/">
+            <h1 class="post-title">如何建立一個漸層的 View</h1>
+        </a>
+        <div class="post-date">
+            2015-02-12
+        </div>
+        <div class="post-abstract">
+            
+            <img src="http://i.imgur.com/WsX15UJ.gif">
+<p>我們的 APP 有一個這樣的畫面，它有這幾點需求：</p>
+<ul>
+<li>要顯示文字描述在圖片上</li>
+<li>文字描述的背景是漸層色</li>
+<li>因為文字長度不同，所以漸層的高度也不同</li>
+</ul>
+
+            <a href="https://chiahsien.github.io/post/how-to-create-a-gradient-view/">
+                繼續閱讀 ➜
+            </a>
+            
+        </div>
+    </div>
+    
+</article>
+
+
+          <div class="pagination-container">
+  
+  
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>
